@@ -568,8 +568,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	///<param name="isWhite">Whether the player is white</param>
 	public void OfferDraw(bool toWhite) {
-		if (toWhite) _whiteCtrls.HasDrawOffer = true;
-		else _blackCtrls.HasDrawOffer = true;
+		(toWhite ? _whiteCtrls : _blackCtrls).HasDrawOffer = true;
 	}
 
 	//Buttons
