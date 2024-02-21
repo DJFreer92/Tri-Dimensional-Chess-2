@@ -133,10 +133,10 @@ public sealed class Pawn : ChessPiece {
 		//if the pawn is at the 9th rank for white or 0th rank for black, return can be promoted
 		if (sqr.Coords.z == (IsWhite ? 9 : 0)) return true;
 
-		//if the pawn originated from the z or e file, return cannot be promoted
+		//if the pawn is on the z or e file, return cannot be promoted
 		if (sqr.Coords.x % 5 == 0) return false;
 
-		//if the pawn originated from the b or c file, return can be promoted
+		//if the pawn is on the b or c file, return can be promoted
 		if (sqr.Coords.x == 2 || sqr.Coords.x == 3) return true;
 
 		//return whether there is an attack board square directly infront of the pawn
