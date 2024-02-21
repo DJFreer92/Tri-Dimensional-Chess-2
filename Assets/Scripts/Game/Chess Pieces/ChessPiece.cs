@@ -95,7 +95,7 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 		HasBeenCaptured = true;
 		_highlight.ToggleHighlight(false);
 		_highlight.ToggleHover(false);
-		GameObject.Find("Game").GetComponent<CapturedPiecesController>().AddPiece(this);
+		Game.Instance.GetComponent<CapturedPiecesController>().AddPiece(this);
 	}
 
 	///<summary>
