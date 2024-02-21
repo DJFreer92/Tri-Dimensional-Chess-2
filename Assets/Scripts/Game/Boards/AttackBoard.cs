@@ -5,18 +5,8 @@ using System.Text;
 
 [DisallowMultipleComponent]
 public sealed class AttackBoard : Board, IMovable {
-	//holds if the owner of the attackboard is white
-	[field: SerializeField] public Ownership Owner {get; private set;}
 	//the square the attackboard is pinned to
 	[field: SerializeField] public Square PinnedSquare {get; private set;}
-
-	///<summary>
-	///Sets where the owner of the attackboard is white
-	///</summary>
-	///<param name="isWhite">Whether the owner is white</param>
-	public void SetOwner(Ownership owner) {
-		Owner = owner;
-	}
 
 	///<summary>
 	///Sets the square the attackboard is pinned to
@@ -140,6 +130,13 @@ public sealed class AttackBoard : Board, IMovable {
 			(sqr.GamePiece as ICastlingRights)?.RevokeCastlingRights();
 			(sqr.GamePiece as Pawn)?.RevokeDSMoveRights();
 		}
+	}
+
+	///<summary>
+	///Sets the annotation of the board
+	///</summary>
+	public override void SetBoardAnnotation() {
+		Annotation = Squares[0].Coords.VectorToBoard();
 	}
 
 	///<summary>

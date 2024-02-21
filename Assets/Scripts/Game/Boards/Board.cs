@@ -9,12 +9,24 @@ using System.Text;
 public class Board : MonoBehaviour, IEnumerable {
 	private static readonly char[] _FILE_ORDER = {'z', 'a', 'b', 'c', 'd', 'e'};
 	[field: SerializeField] public int Y {get; protected set;}
+	//squares on the board
 	public List<Square> Squares {get; private set;}
-	public string Annotation {get; private set;}
+	//holds if the owner of the attackboard is white, black, or if it is neutral
+	[field: SerializeField] public Ownership Owner {get; private set;}
+	//annotation of the board
+	public string Annotation {get; protected set;}
 
 	private void Awake() {
 		Squares = GetComponentsInChildren<Square>().ToList();
 		SetBoardAnnotation();
+	}
+
+	///<summary>
+	///Sets where the owner of the attackboard is white
+	///</summary>
+	///<param name="isWhite">Whether the owner is white</param>
+	public void SetOwner(Ownership owner) {
+		Owner = owner;
 	}
 
 	///<summary>
@@ -101,8 +113,8 @@ public class Board : MonoBehaviour, IEnumerable {
 	///<summary>
 	///Sets the annotation of the board
 	///</summary>
-	public void SetBoardAnnotation() {
-		Annotation = Squares[0].Coords.VectorToBoard();
+	public virtual void SetBoardAnnotation() {
+		Annotation = Char.ToString((char) Owner);
 	}
 
 	///<summary>

@@ -34,7 +34,7 @@ public static class FENBuilder {
 		var atkbrds = new StringBuilder();
 		foreach (Board brd in boards) {
 			if (brd is not AttackBoard) continue;
-			string abfen = Char.ToString((Char) (brd as AttackBoard).Owner);
+			string abfen = Char.ToString((Char) brd.Owner);
 			if (brd.Annotation[0] == 'Q') abfen = abfen.ToLower();
 			abfen += brd.Annotation[^1];
 			atkbrds.Append(abfen);
