@@ -39,6 +39,10 @@ public sealed class PromotionController : MonoSingleton<PromotionController> {
 		_whiteBtns.SetActive(move.Player.IsWhite);
 		_blackBtns.SetActive(!move.Player.IsWhite);
 
+		//focus the queen button
+		_promotionPage.SetFirstFocusItem((move.Player.IsWhite ? _whiteQueenBtn : _blackQueenBtn).gameObject);
+
+		//open the promotion page
 		MenuController.Instance.PushPage(_promotionPage);
 	}
 

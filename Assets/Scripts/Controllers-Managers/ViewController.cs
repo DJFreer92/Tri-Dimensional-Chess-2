@@ -5,6 +5,7 @@ using UnityEngine;
 public sealed class ViewController : MonoBehaviour {
 	[Header("References")]
 	[SerializeField] private Transform _anchor;
+	[SerializeField] private Page _gameUI;
 
 	[Header("Constants")]
 	[SerializeField] private float _scrollScale = 0.15f;
@@ -13,7 +14,7 @@ public sealed class ViewController : MonoBehaviour {
 	[SerializeField] private float _minRange = 4f;
 	[SerializeField] private float _positiveRotationBound = 89f;
 	[SerializeField] private float _negativeRotationBound = 271f;
-	
+
 	private Transform cameraTransform;
 
 	private void Awake() {
@@ -21,6 +22,9 @@ public sealed class ViewController : MonoBehaviour {
 	}
 
 	private void Update() {
+		//if the active page is not the game UI
+		if (MenuController.Instance.GetCurrentPage() != _gameUI) return;
+
 		//if the y position is past the floor set the y position to 0
 		if (cameraTransform.position.y <= 0) {
 			Vector3 temp = cameraTransform.position;
@@ -42,6 +46,9 @@ public sealed class ViewController : MonoBehaviour {
 	}
 
 	private void OnGUI() {
+		//if the active page is not the game UI
+		if (MenuController.Instance.GetCurrentPage() != _gameUI) return;
+		
 		//scroll input from the user
 		float scroll = Input.mouseScrollDelta.y;
 

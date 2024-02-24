@@ -36,7 +36,7 @@ public class MenuController : MonoSingleton<MenuController> {
 	public bool IsPageOnTopOfStack(Page page) {
 		return _pageStack.Count > 1 && page == _pageStack.Peek();
 	}
-	
+
 	///<summary>
 	///Add the page to the page stack and set it as active
 	///</summary>
@@ -52,8 +52,10 @@ public class MenuController : MonoSingleton<MenuController> {
 	///</summary>
 	public void PopPage() {
 		if (_pageStack.Count <= 1) return;
-		_pageStack.Pop().Exit();
+		Page last = _pageStack.Pop();
+		last.Exit();
 		if (_pageStack.Count > 0) _pageStack.Peek().Enter();
+		last.FocusPopItem();
 	}
 
 	///<summary>
@@ -62,7 +64,14 @@ public class MenuController : MonoSingleton<MenuController> {
 	public void PopAllPages() {
 		for (var i = 1; i < _pageStack.Count; i++) PopPage();
 	}
-	
+
+	///<summary>
+	///Returns the current page
+	///</summary>
+	public Page GetCurrentPage() {
+		return _pageStack.Peek();
+	}
+
 	///<summary>
 	///Quit the application
 	///</summary>
