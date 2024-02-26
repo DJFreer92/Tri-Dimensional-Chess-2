@@ -71,7 +71,7 @@ public sealed class Game : MonoSingleton<Game> {
 	[SerializeField] private TMP_InputField _ipAddressInput;
 	private GameState _state;
 	private Player _curPlayer;
-	private CommandHandler _moveCommandHandler;
+	public CommandHandler MoveCommandHandler {get; private set;}
 	private Player[] _players = new Player[2];
 	private Square _selectedSquare;
 	private List<Square> _availableMoves, _availableABMoves;
@@ -187,7 +187,7 @@ public sealed class Game : MonoSingleton<Game> {
 		_state = GameState.WHITE_TURN;
 
 		//create a command handler for moves
-		_moveCommandHandler = new();
+		MoveCommandHandler = new();
 
 		//set the player of the white pieces to the current turn
 		CurPlayer = GetPlayer(true);
@@ -375,7 +375,12 @@ public sealed class Game : MonoSingleton<Game> {
 	///<param name="endSpr">The square to move a piece or attackboard to</param>
 	private void MakeMove(Square startSqr, Square endSqr, bool isABMove) {
 		Move move = isABMove ? new AttackBoardMove(CurPlayer, startSqr, endSqr) : new PieceMove(CurPlayer, startSqr, endSqr);
-		_moveCommandHandler.AddCommand(move);
+		try {
+			MoveCommandHandler.AddCommand(move);
+		} catch (Exception ex) {
+			Debug.Log(ex.Message);
+			return;
+		}
 		FinishTurn(move);
 	}
 
