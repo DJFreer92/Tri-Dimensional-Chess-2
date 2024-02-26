@@ -1,5 +1,6 @@
 public enum Ownership {
-    Neutral = 'N',
-    White = 'W',
-    Black = 'B'
+    NONE = 0,
+    NEUTRAL = 'N',
+    WHITE = 'W',
+    BLACK = 'B'
 }

@@ -26,7 +26,7 @@ public sealed class AttackBoard : Board, IMovable {
 		List<ChessPiece> pieces = GetPieces();
 		if (pieces.Count > 1) return moves;
 		if (pieces.Count == 1 && pieces[0].IsWhite != asWhite) return moves;
-		if (pieces.Count == 0 && Owner != Ownership.Neutral && (asWhite ? Ownership.White : Ownership.Black) != Owner) return moves;
+		if (pieces.Count == 0 && Owner != Ownership.NEUTRAL && (asWhite ? Ownership.WHITE : Ownership.BLACK) != Owner) return moves;
 		foreach (Board brd in ChessBoard.Instance) {
 			if (brd is AttackBoard || Math.Abs(brd.Y - PinnedSquare.Coords.y) > 2) continue;
 			foreach (Square sqr in brd) {
