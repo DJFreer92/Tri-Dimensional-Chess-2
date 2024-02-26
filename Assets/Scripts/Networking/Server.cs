@@ -112,7 +112,7 @@ public sealed class Server : MonoSingleton<Server> {
 	public void Broadcast(NetMessage msg) {
 		foreach (NetworkConnection connection in _connections) {
 			if (!connection.IsCreated) continue;
-			Debug.Log($"Sending {msg.Code} to: {connection.InternalId}");
+			//Debug.Log($"Sending {msg.Code} to: {connection.InternalId}");
 			SendToClient(connection, msg);
 		}
 	}
