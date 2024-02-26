@@ -1,43 +1,43 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using TMPro;
 
 public sealed class CapturedPiecesUIManager : MonoSingleton<CapturedPiecesUIManager> {
-	private static readonly Dictionary<Type, int> _MATERIAL_POINTS = new() {
-		{typeof(Queen), 9},
-		{typeof(Rook), 5},
-		{typeof(Bishop), 3},
-		{typeof(Knight), 3},
-		{typeof(Pawn), 1}
+	private static readonly Dictionary<PieceType, int> _MATERIAL_POINTS = new() {
+		{PieceType.QUEEN, 9},
+		{PieceType.ROOK, 5},
+		{PieceType.BISHOP, 3},
+		{PieceType.KNIGHT, 3},
+		{PieceType.PAWN, 1}
 	};
-	private readonly Dictionary<Type, int> _capturedWhitePieces = new() {
-		{typeof(Queen), 0},
-		{typeof(Rook), 0},
-		{typeof(Bishop), 0},
-		{typeof(Knight), 0},
-		{typeof(Pawn), 0}
+	private readonly Dictionary<PieceType, int> _capturedWhitePieces = new() {
+		{PieceType.QUEEN, 0},
+		{PieceType.ROOK, 0},
+		{PieceType.BISHOP, 0},
+		{PieceType.KNIGHT, 0},
+		{PieceType.PAWN, 0}
 	};
-	private readonly Dictionary<Type, int> _capturedBlackPieces = new() {
-		{typeof(Queen), 0},
-		{typeof(Rook), 0},
-		{typeof(Bishop), 0},
-		{typeof(Knight), 0},
-		{typeof(Pawn), 0}
+	private readonly Dictionary<PieceType, int> _capturedBlackPieces = new() {
+		{PieceType.QUEEN, 0},
+		{PieceType.ROOK, 0},
+		{PieceType.BISHOP, 0},
+		{PieceType.KNIGHT, 0},
+		{PieceType.PAWN, 0}
 	};
-	private readonly Dictionary<Type, GameObject> _whitePieceIconPrefabs = new() {
-		{typeof(Queen), null},
-		{typeof(Rook), null},
-		{typeof(Bishop), null},
-		{typeof(Knight), null},
-		{typeof(Pawn), null}
+	private readonly Dictionary<PieceType, GameObject> _whitePieceIconPrefabs = new() {
+		{PieceType.QUEEN, null},
+		{PieceType.ROOK, null},
+		{PieceType.BISHOP, null},
+		{PieceType.KNIGHT, null},
+		{PieceType.PAWN, null}
 	};
-	private readonly Dictionary<Type, GameObject> _blackPieceIconPrefabs = new() {
-		{typeof(Queen), null},
-		{typeof(Rook), null},
-		{typeof(Bishop), null},
-		{typeof(Knight), null},
-		{typeof(Pawn), null}
+	private readonly Dictionary<PieceType, GameObject> _blackPieceIconPrefabs = new() {
+		{PieceType.QUEEN, null},
+		{PieceType.ROOK, null},
+		{PieceType.BISHOP, null},
+		{PieceType.KNIGHT, null},
+		{PieceType.PAWN, null}
 	};
 
 	#region Constants
@@ -69,33 +69,33 @@ public sealed class CapturedPiecesUIManager : MonoSingleton<CapturedPiecesUIMana
 	[SerializeField] private GameObject _blackPawnIconPrefab;
 	#endregion
 
-	private Dictionary<Type, List<GameObject>> _whitePieceIconGameObjects = new() {
-		{typeof(Queen), new List<GameObject>()},
-		{typeof(Rook), new List<GameObject>()},
-		{typeof(Bishop), new List<GameObject>()},
-		{typeof(Knight), new List<GameObject>()},
-		{typeof(Pawn), new List<GameObject>()}
+	private Dictionary<PieceType, List<GameObject>> _whitePieceIconGameObjects = new() {
+		{PieceType.QUEEN, new List<GameObject>()},
+		{PieceType.ROOK, new List<GameObject>()},
+		{PieceType.BISHOP, new List<GameObject>()},
+		{PieceType.KNIGHT, new List<GameObject>()},
+		{PieceType.PAWN, new List<GameObject>()}
 	};
-	private Dictionary<Type, List<GameObject>> _blackPieceIconGameObjects = new() {
-		{typeof(Queen), new List<GameObject>()},
-		{typeof(Rook), new List<GameObject>()},
-		{typeof(Bishop), new List<GameObject>()},
-		{typeof(Knight), new List<GameObject>()},
-		{typeof(Pawn), new List<GameObject>()}
+	private Dictionary<PieceType, List<GameObject>> _blackPieceIconGameObjects = new() {
+		{PieceType.QUEEN, new List<GameObject>()},
+		{PieceType.ROOK, new List<GameObject>()},
+		{PieceType.BISHOP, new List<GameObject>()},
+		{PieceType.KNIGHT, new List<GameObject>()},
+		{PieceType.PAWN, new List<GameObject>()}
 	};
 
 	protected override void Awake() {
-		_whitePieceIconPrefabs[typeof(Queen)] = _whiteQueenIconPrefab;
-		_whitePieceIconPrefabs[typeof(Rook)] = _whiteRookIconPrefab;
-		_whitePieceIconPrefabs[typeof(Bishop)] = _whiteBishopIconPrefab;
-		_whitePieceIconPrefabs[typeof(Knight)] = _whiteKnightIconPrefab;
-		_whitePieceIconPrefabs[typeof(Pawn)] = _whitePawnIconPrefab;
+		_whitePieceIconPrefabs[PieceType.QUEEN] = _whiteQueenIconPrefab;
+		_whitePieceIconPrefabs[PieceType.ROOK] = _whiteRookIconPrefab;
+		_whitePieceIconPrefabs[PieceType.BISHOP] = _whiteBishopIconPrefab;
+		_whitePieceIconPrefabs[PieceType.KNIGHT] = _whiteKnightIconPrefab;
+		_whitePieceIconPrefabs[PieceType.PAWN] = _whitePawnIconPrefab;
 
-		_blackPieceIconPrefabs[typeof(Queen)] = _blackQueenIconPrefab;
-		_blackPieceIconPrefabs[typeof(Rook)] = _blackRookIconPrefab;
-		_blackPieceIconPrefabs[typeof(Bishop)] = _blackBishopIconPrefab;
-		_blackPieceIconPrefabs[typeof(Knight)] = _blackKnightIconPrefab;
-		_blackPieceIconPrefabs[typeof(Pawn)] = _blackPawnIconPrefab;
+		_blackPieceIconPrefabs[PieceType.QUEEN] = _blackQueenIconPrefab;
+		_blackPieceIconPrefabs[PieceType.ROOK] = _blackRookIconPrefab;
+		_blackPieceIconPrefabs[PieceType.BISHOP] = _blackBishopIconPrefab;
+		_blackPieceIconPrefabs[PieceType.KNIGHT] = _blackKnightIconPrefab;
+		_blackPieceIconPrefabs[PieceType.PAWN] = _blackPawnIconPrefab;
 	}
 
 	private void OnEnable() {
@@ -133,7 +133,7 @@ public sealed class CapturedPiecesUIManager : MonoSingleton<CapturedPiecesUIMana
 	///</summary>
 	///<param name="pieceType">The type of piece to add</param>
 	///<param name="isWhite">Whether the piece is white</param>
-    public void AddPiece(Type pieceType, bool isWhite) {
+    public void AddPiece(PieceType pieceType, bool isWhite) {
 		var capturedPieces = isWhite ? _capturedWhitePieces : _capturedBlackPieces;
 		capturedPieces[pieceType]++;
 		UpdateUI();
@@ -144,7 +144,7 @@ public sealed class CapturedPiecesUIManager : MonoSingleton<CapturedPiecesUIMana
 	///</summary>
 	///<param name="pieceType">The type of piece to remove</param>
 	///<param name="isWhite">Whether the piece is white</param>
-	public void RemovePiece(Type pieceType, bool isWhite) {
+	public void RemovePiece(PieceType pieceType, bool isWhite) {
 		var capturedPieces = isWhite ? _capturedWhitePieces : _capturedBlackPieces;
 		if (capturedPieces[pieceType] == 0) {
 			AddPiece(pieceType, !isWhite);
@@ -158,11 +158,13 @@ public sealed class CapturedPiecesUIManager : MonoSingleton<CapturedPiecesUIMana
 	///Clears all the captured pieces
 	///</summary>
 	public void ClearCapturedPieces() {
-		ClearCapturedPieces(true);
+		//ADD UI THEN UNCOMMENT!!!!!!!
+
+		/*ClearCapturedPieces(true);
 		ClearCapturedPieces(false);
 
 		_whitePointsText.text = "";
-		_blackPointsText.text = "";
+		_blackPointsText.text = "";*/
 	}
 
 	///<summary>
@@ -171,7 +173,7 @@ public sealed class CapturedPiecesUIManager : MonoSingleton<CapturedPiecesUIMana
 	///<param name="forWhite">Whether the pieces to clear are white</param>
 	private void ClearCapturedPieces(bool forWhite) {
 		var capturedPieces = forWhite ? _capturedWhitePieces : _capturedBlackPieces;
-		foreach (var kv in capturedPieces) capturedPieces[kv.Key] = 0;
+		for (int i = 0; i < capturedPieces.Count; i++) capturedPieces[capturedPieces.ElementAt(i).Key] = 0;
 
 		foreach (var kv in (forWhite ? _whitePieceIconGameObjects : _blackPieceIconGameObjects)) {
 			foreach (GameObject obj in kv.Value) Destroy(obj);
@@ -183,13 +185,12 @@ public sealed class CapturedPiecesUIManager : MonoSingleton<CapturedPiecesUIMana
 	///Updates the UI with the pieces each player has captured and their point advantage
 	///</summary>
 	private void UpdateUI() {
-		//ADD UI THEN REMOVE!!!!!!!
-		return;
-		
-		UpdateIcons(true);
+		//ADD UI THEN UNCOMMENT!!!!!!!
+
+		/*UpdateIcons(true);
 		UpdateIcons(false);
 
-		SetPointAdvantage();
+		SetPointAdvantage();*/
 	}
 
 	///<summary>
@@ -203,12 +204,12 @@ public sealed class CapturedPiecesUIManager : MonoSingleton<CapturedPiecesUIMana
 		var parent = forWhite ? _whiteCapturedPiecesUIParent : _blackCapturedPiecesUIParent;
 
 		foreach (var kv in capturedPieces) {
-			Type pieceType = kv.Key;
+			PieceType pieceType = kv.Key;
 			int numCaptured = kv.Value;
 			int numIcons = icons[pieceType].Count;
 
 			if (numCaptured == numIcons) continue;
-			
+
 			if (numIcons < numCaptured) {
 				icons[pieceType].Add(Instantiate(prefabSet[pieceType], parent, false));
 				continue;
