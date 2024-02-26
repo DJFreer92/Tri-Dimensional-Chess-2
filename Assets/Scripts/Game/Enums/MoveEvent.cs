@@ -6,11 +6,12 @@ public enum MoveEvent : ushort {
 	CAPTURE = 1,
 	CASTLING_KING_SIDE = (1 << 1),
 	CASTLING_QUEEN_SIDE = (1 << 2),
-	EN_PASSANT = ((1 << 3) | CAPTURE),
-	PROMOTION = (1 << 4),
-	CHECK = (1 << 5),
-	CHECKMATE = ((1 << 6) | CHECK),
-	DRAW_OFFERED = (1 << 7),
+	PAWN_DOUBLE_SQUARE = (1 << 3),
+	EN_PASSANT = ((1 << 4) | CAPTURE),
+	PROMOTION = (1 << 5),
+	CHECK = (1 << 6),
+	CHECKMATE = ((1 << 7) | CHECK),
+	DRAW_OFFERED = (1 << 8),
 	CASTLING = CASTLING_KING_SIDE | CASTLING_QUEEN_SIDE
 }
 

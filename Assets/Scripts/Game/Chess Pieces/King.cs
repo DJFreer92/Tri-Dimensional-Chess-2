@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Text;
 
 [DisallowMultipleComponent]
-public sealed class King : ChessPiece, ICastlingRights {
+public sealed class King : ChessPiece {
 	//the notation and figurine characters of the king
 	private const string _STANDARD_CHARACTER = "K", _FIGURINE_CHARACTER = "♔";
 	//white king prefab gameobject
@@ -14,7 +14,7 @@ public sealed class King : ChessPiece, ICastlingRights {
 	//whether the king is in check
 	public bool IsInCheck {get; private set;}
 	//has castling rights
-	public bool HasCastlingRights {get; private set;} = true;
+	public bool HasCastlingRights = true;
 
 	///<summary>
 	///Returns whether the king will be in check if the given piece move is executed
@@ -204,13 +204,6 @@ public sealed class King : ChessPiece, ICastlingRights {
 	///</summary>
 	public void UpdateCheckState() {
 		IsInCheck = DetermineCheck();
-	}
-
-	///<summary>
-	///Revokes the king's castling rights
-	///</summary>
-	public void RevokeCastlingRights() {
-		HasCastlingRights = false;
 	}
 
 	///<summary>

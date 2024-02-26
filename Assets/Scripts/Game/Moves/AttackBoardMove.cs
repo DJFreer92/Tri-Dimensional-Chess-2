@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using System.Text;
 
@@ -24,7 +23,7 @@ public sealed class AttackBoardMove : Move {
 	///Undoes the move
 	///</summary>
 	public override void Undo() {
-		throw new NotImplementedException();
+		BoardMoved.Unmove(this);
 	}
 
 	///<summary>

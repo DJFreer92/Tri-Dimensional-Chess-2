@@ -12,9 +12,9 @@ public sealed class Pawn : ChessPiece {
 	//black pawn prefab gameobject
 	public static GameObject BlackPrefab {get; private set;}
 	//whether the pawn can make a double square move
-	public bool HasDSMoveRights {get; private set;} = true;  //Can make Double Square move
+	public bool HasDSMoveRights = true;  //Can make Double Square move
 	//holds whether the pawn made a double square move on its last turn
-	public bool JustMadeDSMove {get; set;}  //Just Made Double Square Move
+	public bool JustMadeDSMove;  //Just Made Double Square Move
 
 	///<summary>
 	///Adds local methods to listeners
@@ -148,71 +148,17 @@ public sealed class Pawn : ChessPiece {
 	///</summary>
 	///<param name="promotion">The type of piece to promote to (Queen, Rook, Bishop, or Knight)</param>
 	///<returns>The new promoted piece</returns>
-	public ChessPiece Promote(Type promotion) {
-		//get the square the pawn is on
-		Square square = GetSquare();
-
-		//create a new gameobject for the promoted pawn
-		GameObject newGameObj;
-		//create a new piece for the promoted pawn
-		ChessPiece newPiece;
-
-		//get the color of the piece
-		string color = IsWhite ? "White" : "Black";
-
-		//create the new piece
-		if (promotion == typeof(Queen)) {
-			newGameObj = CreateGameObject(IsWhite ? Queen.WhitePrefab : Queen.BlackPrefab);
-			newPiece = newGameObj.GetComponent<Queen>();
-		} else if (promotion == typeof(Rook)) {
-			newGameObj = CreateGameObject(IsWhite ? Rook.WhitePrefab : Rook.BlackPrefab);
-			newPiece = newGameObj.GetComponent<Rook>();
-			(newPiece as Rook).RevokeCastlingRights();
-		} else if (promotion == typeof(Bishop)) {
-			newGameObj = CreateGameObject(IsWhite ? Bishop.WhitePrefab : Bishop.BlackPrefab);
-			newPiece = newGameObj.GetComponent<Bishop>();
-			(newPiece as Bishop).SquareColorIsWhite = GetSquare().IsWhite;
-		} else if (promotion == typeof(Knight)) {
-			newGameObj = CreateGameObject(IsWhite ? Knight.WhitePrefab : Knight.BlackPrefab);
-			newPiece = newGameObj.GetComponent<Knight>();
-		} else {  //promotion not valid
-			return this;
-		}
-
-		//put the new piece on the square of the pawn
-		square.GamePiece = newPiece;
+	public ChessPiece Promote(PieceType promotion) {
+		ChessPiece newPiece = ConvertTo(promotion);
 
 		//remove the new piece from the captured pieces
 		CapturedPiecesController.Instance.RemovePieceOfType(promotion, IsWhite);
 
 		//set the pawn as captured
-		this.SetCaptured();
+		SetCaptured();
 
 		//return the new piece
 		return newPiece;
-
-		//inner functions
-		//create a new gameobject
-		GameObject CreateGameObject(GameObject gameObj) {
-			//instaniate the gameobject of the new piece
-			GameObject newGameObj = GameObject.Instantiate(
-				gameObj,  //gameobject prefab
-				square.transform.position,  //vector3 position
-				transform.rotation,  //quarternion rotation
-				GameObject.Find(color + "'s Pieces").transform  //parent transform
-			);
-
-			//set the name of the gameobject
-			newGameObj.name = $"{color} {promotion.Name} {name[^1]} (promoted)";
-
-			//enable the mesh collider
-			newGameObj.GetComponent<MeshCollider>().enabled = true;
-
-			ChessBoard.Instance.UpdateKingCheckState(!this.IsWhite);
-
-			//return the new gameobject
-			return newGameObj;
-		}
 	}
 
 	///<summary>

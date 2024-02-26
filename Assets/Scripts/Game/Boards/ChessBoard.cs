@@ -6,12 +6,14 @@ using System.Text;
 
 [DisallowMultipleComponent]
 public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
-	//coordinates of castling rooks
-	#region Castling Rooks Coordinates
-	public static Vector3Int whiteKingSideCastleRookCoords = new Vector3Int(5, 1, 0);
-	public static Vector3Int whiteQueenSideCastleRookCoords = Vector3Int.up;
-	public static Vector3Int blackKingSideCastleRookCoords = new Vector3Int(5, 5, 9);
-	public static Vector3Int blackQueenSideCastleRookCoords = new Vector3Int(0, 5, 9);
+	//coordinates of castling pieces
+	#region Castling Coordinates
+	public static Vector3Int whiteKingCoords = new Vector3Int(4, 1, 0);
+	public static Vector3Int blackKingCoords = new Vector3Int(4, 5, 9);
+	public static Vector3Int whiteKingSideRookCoords = new Vector3Int(5, 1, 0);
+	public static Vector3Int whiteQueenSideRookCoords = Vector3Int.up;
+	public static Vector3Int blackKingSideRookCoords = new Vector3Int(5, 5, 9);
+	public static Vector3Int blackQueenSideRookCoords = new Vector3Int(0, 5, 9);
 	#endregion
 	//x and z directions
 	private static int[][] _XZDirections = new int[][] {
@@ -42,7 +44,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	//holds the boards of the chessboard
 	[field: SerializeField] public List<Board> Boards {get; private set;}
 	//piece's gameobject parents
-	[SerializeField] private GameObject _whitePiecesParent, _blackPieceParent;
+	public Transform whitePiecesParent, blackPieceParent;
 	//attackboard prefab gameobject
 	[SerializeField] private GameObject _attackboardPrefab;
 
@@ -136,23 +138,23 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		//castling
 		if (castling != "-") {
 			foreach (Square sqr in GetEnumerableSquares()) {
-				if (sqr.GamePiece is Rook) (sqr.GamePiece as Rook).RevokeCastlingRights();
+				if (sqr.GamePiece is Rook) (sqr.GamePiece as Rook).HasCastlingRights = false;
 			}
 			foreach (char castlingRight in castling) {
 				foreach(Square sqr in GetEnumerableSquares()) {
 					if (sqr.GamePiece is not Rook || sqr.GamePiece.IsWhite != Char.IsUpper(castlingRight)) continue;
 					Rook rook = sqr.GamePiece as Rook;
-					if ((castlingRight == 'K' && sqr.Coords == whiteKingSideCastleRookCoords) ||
-						(castlingRight == 'k' && sqr.Coords == blackKingSideCastleRookCoords)
+					if ((castlingRight == 'K' && sqr.Coords == whiteKingSideRookCoords) ||
+						(castlingRight == 'k' && sqr.Coords == blackKingSideRookCoords)
 					) rook.SetKingSide(true);
 					if (rook.IsKingSide != (Char.ToUpper(castlingRight) == 'K')) continue;
 					rook.SetCastlingRights(true);
 				}
 			}
 			if (castling.ToLower() == castling) {
-				GetKing(true).RevokeCastlingRights();
+				GetKing(true).HasCastlingRights = false;
 			} else if (castling.ToUpper() == castling) {
-				GetKing(false).RevokeCastlingRights();
+				GetKing(false).HasCastlingRights = false;
 			}
 		}
 
@@ -172,40 +174,40 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		ChessPiece CreatePiece(Square sqr, char pieceChar) {
 			ChessPiece piece = null;
 			Vector3 position = sqr.gameObject.transform.position;
-			GameObject parent = Char.IsUpper(pieceChar) ? _whitePiecesParent : _blackPieceParent;
+			Transform parent = Char.IsUpper(pieceChar) ? whitePiecesParent : blackPieceParent;
 
 			switch (pieceChar) {
-				case 'K': piece = GameObject.Instantiate(King.WhitePrefab, position, new Quaternion(), parent.transform).GetComponent<King>();
+				case 'K': piece = GameObject.Instantiate(King.WhitePrefab, position, new Quaternion(), parent).GetComponent<King>();
 				break;
-				case 'Q': piece = GameObject.Instantiate(Queen.WhitePrefab, position, new Quaternion(), parent.transform).GetComponent<Queen>();
+				case 'Q': piece = GameObject.Instantiate(Queen.WhitePrefab, position, new Quaternion(), parent).GetComponent<Queen>();
 				break;
-				case 'R': piece = GameObject.Instantiate(Rook.WhitePrefab, position, new Quaternion(), parent.transform).GetComponent<Rook>();
+				case 'R': piece = GameObject.Instantiate(Rook.WhitePrefab, position, new Quaternion(), parent).GetComponent<Rook>();
 				break;
-				case 'B': piece = GameObject.Instantiate(Bishop.WhitePrefab, position, new Quaternion(), parent.transform).GetComponent<Bishop>();
+				case 'B': piece = GameObject.Instantiate(Bishop.WhitePrefab, position, new Quaternion(), parent).GetComponent<Bishop>();
 				break;
-				case 'N': piece = GameObject.Instantiate(Knight.WhitePrefab, position, new Quaternion(), parent.transform).GetComponent<Knight>();
+				case 'N': piece = GameObject.Instantiate(Knight.WhitePrefab, position, new Quaternion(), parent).GetComponent<Knight>();
 				break;
 				case 'P':
-					piece = GameObject.Instantiate(Pawn.WhitePrefab, position, new Quaternion(), parent.transform).GetComponent<Pawn>();
+					piece = GameObject.Instantiate(Pawn.WhitePrefab, position, new Quaternion(), parent).GetComponent<Pawn>();
 					(piece as Pawn).RevokeDSMoveRights();
 				break;
-				case 'D': piece = GameObject.Instantiate(Pawn.WhitePrefab, position, new Quaternion(), parent.transform).GetComponent<Pawn>();
+				case 'D': piece = GameObject.Instantiate(Pawn.WhitePrefab, position, new Quaternion(), parent).GetComponent<Pawn>();
 				break;
-				case 'k': piece = GameObject.Instantiate(King.BlackPrefab, position, new Quaternion(), parent.transform).GetComponent<King>();
+				case 'k': piece = GameObject.Instantiate(King.BlackPrefab, position, new Quaternion(), parent).GetComponent<King>();
 				break;
-				case 'q': piece = GameObject.Instantiate(Queen.BlackPrefab, position, new Quaternion(), parent.transform).GetComponent<Queen>();
+				case 'q': piece = GameObject.Instantiate(Queen.BlackPrefab, position, new Quaternion(), parent).GetComponent<Queen>();
 				break;
-				case 'r': piece = GameObject.Instantiate(Rook.BlackPrefab, position, new Quaternion(), parent.transform).GetComponent<Rook>();
+				case 'r': piece = GameObject.Instantiate(Rook.BlackPrefab, position, new Quaternion(), parent).GetComponent<Rook>();
 				break;
-				case 'b': piece = GameObject.Instantiate(Bishop.BlackPrefab, position, new Quaternion(), parent.transform).GetComponent<Bishop>();
+				case 'b': piece = GameObject.Instantiate(Bishop.BlackPrefab, position, new Quaternion(), parent).GetComponent<Bishop>();
 				break;
-				case 'n': piece = GameObject.Instantiate(Knight.BlackPrefab, position, new Quaternion(), parent.transform).GetComponent<Knight>();
+				case 'n': piece = GameObject.Instantiate(Knight.BlackPrefab, position, new Quaternion(), parent).GetComponent<Knight>();
 				break;
 				case 'p':
-					piece = GameObject.Instantiate(Pawn.BlackPrefab, position, new Quaternion(), parent.transform).GetComponent<Pawn>();
+					piece = GameObject.Instantiate(Pawn.BlackPrefab, position, new Quaternion(), parent).GetComponent<Pawn>();
 					(piece as Pawn).RevokeDSMoveRights();
 				break;
-				case 'd': piece = GameObject.Instantiate(Pawn.BlackPrefab, position, new Quaternion(), parent.transform).GetComponent<Pawn>();
+				case 'd': piece = GameObject.Instantiate(Pawn.BlackPrefab, position, new Quaternion(), parent).GetComponent<Pawn>();
 				break;
 			}
 			if (Char.IsLower(pieceChar)) piece.gameObject.transform.Rotate(Vector3.up * 180);

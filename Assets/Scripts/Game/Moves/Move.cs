@@ -11,9 +11,11 @@ public abstract class Move : ICommand {
 	//what events occured during the move
 	public MoveEvent MoveEvents;
 	//whether the move is to be formatted in figurine notation
-	public bool UseFigurineNotation {get; set;}
+	public bool UseFigurineNotation;
 	//what type of piece the user has selected to promote a pawn to
-	public Type Promotion {get; set;}
+	public PieceType Promotion = PieceType.NONE;
+	//the square the pawn being en passant is on
+	protected Square EnPassantCaptureSqr;
 
 	public Move(Player player, Square start, Square end) {
 		Player = player;
@@ -37,9 +39,17 @@ public abstract class Move : ICommand {
 	///</summary>
 	public IEnumerator GetPromotionChoice() {
 		PromotionController.Instance.ShowPromotionOptions(this);
+
 		Debug.Log("Waiting for promotion selection...");
-		yield return new WaitUntil(() => Promotion != null);
+		yield return new WaitUntil(() => !PromotionController.Instance.SelectionInProgress);
+
+		if (Promotion == PieceType.NONE) {
+			Debug.Log("Promotion selection aborted.");
+			Game.Instance.MoveCommandHandler.UndoAndRemoveCommand();
+		}
+
 		Debug.Log("Promotion selection recieved.");
+		Execute();
 	}
 
 	///<summary>

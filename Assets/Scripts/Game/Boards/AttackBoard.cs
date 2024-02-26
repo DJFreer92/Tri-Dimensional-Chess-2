@@ -46,11 +46,10 @@ public sealed class AttackBoard : Board, IMovable {
 	///Moves the attackboard
 	///</summary>
 	///<param name="move">The attackboard move</param>
-	///<returns>Whether the move was successful</returns>
 	public void Move(AttackBoardMove move) {
-		int xDiff = 0, zDiff = 0;
-
+		Debug.Log("MOVE RUN");
 		//calculate the change in x and z positions
+		int xDiff = 0, zDiff = 0;
 		if (Math.Abs(move.EndSqr.Coords.x - move.StartSqr.Coords.x) > 1) {  //if the board is moving in the x direction
 			//calculate the change in x position
 			xDiff = Math.Sign(move.EndSqr.Coords.x - move.StartSqr.Coords.x) * 4;
@@ -68,26 +67,24 @@ public sealed class AttackBoard : Board, IMovable {
 		}
 
 		//if the user hasn't been asked what piece to promote a pawn to
-		if (pawn != null && move.Promotion == null) {
+		if (pawn != null && move.Promotion == PieceType.NONE) {
 			//get the square the pawn will be on when the board moves
-			Square newSquare = ChessBoard.Instance.GetSquareWithPiece(pawn).Clone() as Square;
+			Square newSquare = pawn.GetSquare().Clone() as Square;
 			newSquare.Coords = new Vector3Int(newSquare.Coords.x + xDiff, move.EndSqr.Coords.y + 1, newSquare.Coords.z + zDiff);
 
-			//if the move is a pawn promotion
+			//if the move is a pawn promotion, ask the user what piece to promote to, then wait
 			if (pawn.CanBePromoted(move, newSquare)) {
-				//ask the user what piece to promote to, then wait
 				Game.Instance.StartCoroutine(move.GetPromotionChoice());
+				throw new Exception("Must wait for pormotion choice");
 			}
 		}
 
-		//move all the Squares on the attackboard to their new positions
-		foreach (Square sqr in Squares) {
-			sqr.Coords = new Vector3Int(sqr.Coords.x + xDiff, move.EndSqr.Coords.y + 1, sqr.Coords.z + zDiff);
-			Debug.Log("Moved square to: " + sqr.Coords.ToString());
-		}
-
 		//change the y value of the attackboard
-		if (move.EndSqr.Coords.y != Y) Y = move.EndSqr.Coords.y + 1;
+		Y = move.EndSqr.Coords.y + 1;
+
+		//move all the Squares on the attackboard to their new positions
+		foreach (Square sqr in Squares)
+			sqr.Coords = new Vector3Int(sqr.Coords.x + xDiff, Y, sqr.Coords.z + zDiff);
 
 		//calculate the displacement of the attackboard from the end square in the x and z directions
 		float xDisplace = 0.5f, zDisplace = 0.5f;
@@ -107,8 +104,11 @@ public sealed class AttackBoard : Board, IMovable {
 		PinnedSquare = move.EndSqr;
 		PinnedSquare.IsOccupiedByAB = true;
 
-		//if the piece is not a pawn or it cannot be promoted, return board move successful
-		if (move.Promotion == null) return;
+		//set the annotation of the attackboard
+		SetBoardAnnotation();
+
+		//if the piece is not a pawn or it cannot be promoted, return
+		if (move.Promotion == PieceType.NONE) return;
 
 		//execute the promotion
 		pawn.Promote(move.Promotion);
@@ -121,13 +121,76 @@ public sealed class AttackBoard : Board, IMovable {
 	}
 
 	///<summary>
+	///Unmoves the attackboard
+	///</summary>
+	///<param name="move">Attackboard move to undo</param>
+	public void Unmove(AttackBoardMove move) {
+		//if there was a promotion
+		if (move.MoveEvents.Contains(MoveEvent.PROMOTION)) {
+			//get the piece that was promoted
+			ChessPiece promotedPiece = null;
+			foreach (Square sqr in Squares) {
+				if (!sqr.HasPiece()) continue;
+				promotedPiece = sqr.GamePiece;
+				break;
+			}
+
+			//convert the promoted piece back into a pawn
+			promotedPiece.ConvertTo(PieceType.PAWN);
+		}
+
+		//calculate the change in x and z positions
+		int xDiff = 0, zDiff = 0;
+		if (Math.Abs(move.EndSqr.Coords.x - move.StartSqr.Coords.x) > 1) {  //if the board is moving in the x direction
+			//calculate the change in x position
+			xDiff = Math.Sign(move.StartSqr.Coords.x - move.EndSqr.Coords.x) * 4;
+		} else {  //the board is moving in the z direction
+			//calculate the change in z position
+			zDiff = (move.StartSqr.Coords.y == PinnedSquare.Coords.y) ? 4 : 2;
+			zDiff *= Math.Sign(move.StartSqr.Coords.z - move.EndSqr.Coords.z);
+		}
+
+		//change the y value of the attackboard
+		Y = move.StartSqr.Coords.y + 1;
+
+		//move all the Squares on the attackboard to their old positions
+		foreach (Square sqr in Squares)
+			sqr.Coords = new Vector3Int(sqr.Coords.x + xDiff, Y, sqr.Coords.z + zDiff);
+
+		//calculate the displacement of the attackboard from the end square in the x and z directions
+		float xDisplace = 0.5f, zDisplace = 0.5f;
+		if (move.StartSqr.Coords.x == 1) xDisplace *= -1;
+		if (move.StartSqr.Coords.z % 2 == 1) zDisplace *= -1;
+
+		//change the position of the attackboard
+		transform.position = move.StartSqr.transform.position + new Vector3(xDisplace, 1.5f, zDisplace);
+
+		//move the pieces to the new location of their Squares
+		UpdatePiecePositions();
+
+		//set the current pinned square as unoccupied
+		PinnedSquare.IsOccupiedByAB = false;
+
+		//set the end square as the new pinned square and set as occupied
+		PinnedSquare = move.StartSqr;
+		PinnedSquare.IsOccupiedByAB = true;
+
+		//set the annotation of the attackboard
+		SetBoardAnnotation();
+
+		//update whether the king is in check
+		ChessBoard.Instance.UpdateKingCheckState(move.Player.IsWhite);
+	}
+
+	///<summary>
 	///Update the positions of all the pieces on the attackboard
 	///</summary>
 	private void UpdatePiecePositions() {
 		foreach (Square sqr in Squares) {
 			if (!sqr.HasPiece()) continue;
 			sqr.GamePiece.transform.position = sqr.transform.position;
-			(sqr.GamePiece as ICastlingRights)?.RevokeCastlingRights();
+			if (sqr.GamePiece is King) (sqr.GamePiece as King).HasCastlingRights = false;
+			if (sqr.GamePiece is Rook) (sqr.GamePiece as Rook).HasCastlingRights = false;
 			(sqr.GamePiece as Pawn)?.RevokeDSMoveRights();
 		}
 	}

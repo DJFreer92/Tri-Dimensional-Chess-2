@@ -5,8 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Game))]
 [DisallowMultipleComponent]
 public class CapturedPiecesController : MonoSingleton<CapturedPiecesController> {
-	private static readonly Type[] _SORT_ORDER = {typeof(Queen), typeof(Rook), typeof(Bishop), typeof(Knight), typeof(Pawn)};
-	public Action<Type, bool> OnPieceCaptured, OnCapturedPieceRemoved;
+	public Action<PieceType, bool> OnPieceCaptured, OnCapturedPieceRemoved;
 	public Action OnCapturedPiecesCleared;
 	[SerializeField] [Range(0.1f, 1f)] private float _pieceScale;
 	[SerializeField] [Range(0.25f, 2f)] private float _xSpacing, _zSpacing;
@@ -22,7 +21,7 @@ public class CapturedPiecesController : MonoSingleton<CapturedPiecesController> 
 		List<ChessPiece> capturedPieces = piece.IsWhite ? _capturedWhitePieces : _capturedBlackPieces;
 		capturedPieces.Add(piece);
 		UpdatePositions(capturedPieces);
-		OnPieceCaptured?.Invoke(piece.GetType(), piece.IsWhite);
+		OnPieceCaptured?.Invoke(piece.Type, piece.IsWhite);
 	}
 
 	///<summary>
@@ -31,30 +30,44 @@ public class CapturedPiecesController : MonoSingleton<CapturedPiecesController> 
 	///</summary>
 	///<param name="type">The type of piece to be removed</param>
 	///<param name="isWhite">Whether the piece to be removed is white</param>
-	public void RemovePieceOfType(Type type, bool isWhite) {
+	public void RemovePieceOfType(PieceType type, bool isWhite) {
 		OnCapturedPieceRemoved?.Invoke(type, isWhite);
 		List<ChessPiece> capturedPieces = isWhite ? _capturedWhitePieces : _capturedBlackPieces;
 		foreach (ChessPiece piece in capturedPieces) {
-			if (piece.GetType() != type) continue;
+			if (piece.Type != type) continue;
 			Destroy(piece.gameObject);
 			capturedPieces.Remove(piece);
 			return;
 		}
-		
+
 		ChessPiece newPiece = null;
-		switch (Array.IndexOf(_SORT_ORDER, type)) {
-			case 0: newPiece = Instantiate((isWhite ? Queen.BlackPrefab : Queen.WhitePrefab)).GetComponent<Queen>();
+		switch (type) {
+			case PieceType.QUEEN: newPiece = Instantiate((isWhite ? Queen.BlackPrefab : Queen.WhitePrefab)).GetComponent<Queen>();
 			break;
-			case 1: newPiece = Instantiate((isWhite ? Rook.BlackPrefab : Rook.WhitePrefab)).GetComponent<Rook>();
+			case PieceType.ROOK: newPiece = Instantiate((isWhite ? Rook.BlackPrefab : Rook.WhitePrefab)).GetComponent<Rook>();
 			break;
-			case 2: newPiece = Instantiate((isWhite ? Bishop.BlackPrefab : Bishop.WhitePrefab)).GetComponent<Bishop>();
+			case PieceType.BISHOP: newPiece = Instantiate((isWhite ? Bishop.BlackPrefab : Bishop.WhitePrefab)).GetComponent<Bishop>();
 			break;
-			case 3: newPiece = Instantiate((isWhite ? Knight.BlackPrefab : Knight.WhitePrefab)).GetComponent<Knight>();
+			case PieceType.KNIGHT: newPiece = Instantiate((isWhite ? Knight.BlackPrefab : Knight.WhitePrefab)).GetComponent<Knight>();
 			break;
 			default: return;
 		}
 		_createdPieces.Add(newPiece);
 		newPiece.SetCaptured();
+	}
+
+	///<summary>
+	///Removes the given piece from the captured pieces
+	///</summary>
+	///<param name="piece">The piece to be removed</param>
+	public void RemovePiece(ChessPiece piece) {
+		List<ChessPiece> capturedPieces = piece.IsWhite ? _capturedWhitePieces : _capturedBlackPieces;
+		foreach (ChessPiece pc in capturedPieces) {
+			if (pc != piece) continue;
+			capturedPieces.Remove(pc);
+			return;
+		}
+		throw new ArgumentException("Piece is not captured", nameof(piece));
 	}
 
 	///<summary>
@@ -96,27 +109,15 @@ public class CapturedPiecesController : MonoSingleton<CapturedPiecesController> 
 	private void SortPieces(List<ChessPiece> capturedPieces) {
 		for (var i = 0; i < capturedPieces.Count - 1; i++) {
 			ChessPiece highestPiece = capturedPieces[i];
-			int highestIndex = GetTypePriority(highestPiece);
+			byte highestPriority = (byte) highestPiece.Type;
 			for (var j = i + 1; j < capturedPieces.Count; j++) {
-				int index = GetTypePriority(capturedPieces[j]);
-				if (highestIndex >= index) continue;
+				byte priority = (byte) capturedPieces[j].Type;
+				if (highestPriority >= priority) continue;
 				highestPiece = capturedPieces[j];
-				highestIndex = index;
-			}
+				highestPriority = priority;
 			capturedPieces.Remove(highestPiece);
 			capturedPieces.Insert(i, highestPiece);
+			}
 		}
-	}
-
-	///<summary>
-	///Returns the sort priority of the given piece
-	///</summary>
-	///<param name="piece">The piece</param>
-	///<returns>The sort priority of the given piece</returns>
-	private int GetTypePriority(ChessPiece piece) {
-		for (var i = 0; i < _SORT_ORDER.Length; i++) {
-			if (piece.GetType() == _SORT_ORDER[i]) return _SORT_ORDER.Length - i;
-		}
-		return -1;
 	}
 }

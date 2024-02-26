@@ -17,7 +17,7 @@ public sealed class PieceMove : Move {
 	///</summary>
 	public override void Execute() {
 		//if the move is a pawn promotion
-		if (Promotion == null && PieceMoved is Pawn && (PieceMoved as Pawn).CanBePromoted(this, EndSqr)) {
+		if (Promotion == PieceType.NONE && PieceMoved is Pawn && (PieceMoved as Pawn).CanBePromoted(this, EndSqr)) {
 			//ask the user what piece to promote to, then wait
 			Game.Instance.StartCoroutine(GetPromotionChoice());
 		}
@@ -36,13 +36,18 @@ public sealed class PieceMove : Move {
 		}
 
 		if (PieceMoved is Pawn) {  //pawn move
+			//if the move is a double square move
+			if (Math.Abs(StartSqr.Coords.z - EndSqr.Coords.z) == 2) MoveEvents.Add(MoveEvent.PAWN_DOUBLE_SQUARE);
 			//if the move is an en passant
 			if (!EndSqr.HasPiece() && StartSqr.Coords.x != EndSqr.Coords.x) {
 				//find the piece being captured
 				PieceCaptured = Pawn.GetJMDSMPawnBehind(EndSqr, Player.IsWhite);
 
+				//find the square of the piece being catured
+				EnPassantCaptureSqr = PieceCaptured.GetSquare();
+
 				//unassign piece captured in en passant from its square
-				ChessBoard.Instance.GetSquareWithPiece(PieceCaptured).GamePiece = null;
+				EnPassantCaptureSqr.GamePiece = null;
 
 				MoveEvents.Add(MoveEvent.EN_PASSANT);
 			}
@@ -50,7 +55,8 @@ public sealed class PieceMove : Move {
 			(PieceMoved as Pawn).RevokeDSMoveRights();
 		} else {  //regular piece move
 			PieceMoved.MoveTo(EndSqr);
-			(PieceMoved as ICastlingRights)?.RevokeCastlingRights();
+			if (PieceMoved is King) (PieceMoved as King).HasCastlingRights = false;
+			if (PieceMoved is Rook) (PieceMoved as Rook).HasCastlingRights = false;
 		}
 
 		//set the piece being captured as captured
@@ -61,7 +67,7 @@ public sealed class PieceMove : Move {
 		StartSqr.GamePiece = null;
 
 		//if the piece is not a pawn or it cannot be promoted, finish the move execution
-		if (Promotion == null) return;
+		if (Promotion == PieceType.NONE) return;
 
 		//execute the promotion
 		PieceMoved = (PieceMoved as Pawn).Promote(Promotion);
@@ -73,8 +79,68 @@ public sealed class PieceMove : Move {
 	///<summary>
 	///Undoes the move
 	///</summary>
+	///<param name="fullUndo">Whether to do a full undo or only a partial undo</param>
 	public override void Undo() {
-		throw new NotImplementedException();
+		//if move was king side castle
+		if (MoveEvents.PartialContains(MoveEvent.CASTLING)) {
+			//get the starting squares for the king and rook
+			Square kingSqr;
+			if (MoveEvents.Contains(MoveEvent.CASTLING_KING_SIDE)) {
+				kingSqr = ChessBoard.Instance.GetSquareAt(Player.IsWhite ? ChessBoard.whiteKingSideRookCoords : ChessBoard.blackKingSideRookCoords);
+			} else {
+				kingSqr = ChessBoard.Instance.GetSquareAt(Player.IsWhite ? ChessBoard.whiteQueenSideRookCoords : ChessBoard.blackQueenSideRookCoords);
+			}
+			Square rookSqr = ChessBoard.Instance.GetSquareAt(Player.IsWhite ? ChessBoard.whiteKingCoords : ChessBoard.blackKingCoords);
+
+			//get the king and the rook
+			King king = kingSqr.GamePiece as King;
+			Rook rook = rookSqr.GamePiece as Rook;
+
+			//move the king and rook to their starting squares
+			king.MoveTo(rookSqr);
+			rook.MoveTo(kingSqr);
+
+			//assign the king and the rook to their starting squares
+			kingSqr.GamePiece = rook;
+			rookSqr.GamePiece = king;
+
+			//give the king and rook their castling rights back
+			king.HasCastlingRights = true;
+			rook.HasCastlingRights = true;
+			return;
+		}
+
+		//move the piece back to its original position
+		PieceMoved.MoveTo(StartSqr);
+		StartSqr.GamePiece = PieceMoved;
+		EndSqr.GamePiece = null;
+
+		//if move was en passant
+		if (MoveEvents.Contains(MoveEvent.EN_PASSANT)) {
+			PieceCaptured.SetUncaptured();
+			PieceCaptured.MoveTo(EnPassantCaptureSqr);
+			EnPassantCaptureSqr.GamePiece = PieceCaptured;
+
+			//update whether the king is in check
+			ChessBoard.Instance.UpdateKingCheckState(Player.IsWhite);
+			return;
+		}
+
+		//if the move was a double square pawn move
+		if (MoveEvents.Contains(MoveEvent.PAWN_DOUBLE_SQUARE)) (PieceMoved as Pawn).JustMadeDSMove = false;
+
+		//if move was a capture
+		if (MoveEvents.Contains(MoveEvent.CAPTURE)) {
+			PieceCaptured.SetUncaptured();
+			PieceCaptured.MoveTo(EndSqr);
+			EndSqr.GamePiece = PieceCaptured;
+		}
+
+		//if move was a promotion
+		if (MoveEvents.Contains(MoveEvent.PROMOTION)) PieceMoved = PieceMoved.ConvertTo(PieceType.PAWN);
+
+		//update whether the king is in check
+		ChessBoard.Instance.UpdateKingCheckState(Player.IsWhite);
 	}
 
 	///<summary>
@@ -104,8 +170,8 @@ public sealed class PieceMove : Move {
 			kingSqr.GamePiece = rook;
 			rookSqr.GamePiece = king;
 
-			king.RevokeCastlingRights();
-			rook.RevokeCastlingRights();
+			king.HasCastlingRights = false;
+			rook.HasCastlingRights = false;
 
 			return;
 		}
@@ -122,8 +188,8 @@ public sealed class PieceMove : Move {
 		kingSqr.GamePiece = rook;
 		rookSqr.GamePiece = null;
 
-		king.RevokeCastlingRights();
-		rook.RevokeCastlingRights();
+		king.HasCastlingRights = false;
+		rook.HasCastlingRights = false;
 	}
 
 	///<summary>

@@ -8,13 +8,25 @@ public class CommandHandler {
 	///<summary>
 	///Adds the given command to the command list and executes it
 	///</summary>
-	///<params name="command">The command to be added and executed</params>
+	///<param name="command">The command to be added and executed</param>
 	public void AddCommand(ICommand command) {
 		if (_commands.Count > _index) _commands.RemoveRange(_index, _commands.Count - _index);
 		_commands.Add(command);
 		ExecuteCommand();
 	}
 
+	///<summary>
+	///Adds the given command to the list but only executes it if it is the next command
+	///</summary>
+	///<param name="command">The command to add</param>
+	public void AddCommandToEnd(ICommand command) {
+		_commands.Add(command);
+		if (_index + 1 == _commands.Count) ExecuteCommand();
+	}
+
+	///<summary>
+	///Executes the next command
+	///</summary>
 	private void ExecuteCommand() {
 		if (_commands.Count == _index) return;
 		_commands[_index++].Execute();
@@ -29,10 +41,25 @@ public class CommandHandler {
 	}
 
 	///<summary>
-	///Redoes the previous command
+	///Undoes the last command and removes it from the list
 	///</summary>
-	public void RedoCommand() {
-		ExecuteCommand();
+	public void UndoAndRemoveCommand() {
+		UndoCommand();
+		_commands.RemoveAt(_index);
+	}
+
+	///<summary>
+	///Undoes all the commands
+	///</summary>
+	public void UndoAllCommands() {
+		while (_index > 0) UndoCommand();
+	}
+
+	///<summary>
+	///Redoes all the commands
+	///</summary>
+	public void RedoAllCommands() {
+		while (_index < _commands.Count) ExecuteCommand();
 	}
 }
 

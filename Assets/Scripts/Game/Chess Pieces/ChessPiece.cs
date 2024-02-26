@@ -7,11 +7,21 @@ using System.Text;
 [DisallowMultipleComponent]
 public abstract class ChessPiece : MonoBehaviour, IMovable {
 	[field: SerializeField] public bool IsWhite {get; private set;}
+	public PieceType Type {get; private set;}
 	public bool HasBeenCaptured {get; private set;}
 	//the highlight component
 	private Highlight _highlight;
 
 	private void Awake() {
+		//set the piece type
+		if (this is King) Type = PieceType.KING;
+		else if (this is Queen) Type = PieceType.QUEEN;
+		else if (this is Rook) Type = PieceType.ROOK;
+		else if (this is Bishop) Type = PieceType.BISHOP;
+		else if (this is Knight) Type = PieceType.KNIGHT;
+		else if (this is Pawn) Type = PieceType.PAWN;
+
+		//get the highlight component
 		_highlight = GetComponent<Highlight>();
 	}
 
@@ -54,7 +64,7 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 
 		//set the piece as captured and destroy the gameobject
 		SetCaptured();
-		ChessBoard.Instance.GetSquareWithPiece(this).GamePiece = null;
+		GetSquare().GamePiece = null;
 	}
 
 	///<summary>
@@ -99,6 +109,14 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 	}
 
 	///<summary>
+	///Set the piece as having not been captured
+	///</summary>
+	public void SetUncaptured() {
+		HasBeenCaptured = false;
+		CapturedPiecesController.Instance.RemovePiece(this);
+	}
+
+	///<summary>
 	///Returns the square the piece is on
 	///</summary>
 	///<returns>The square the piece is on</returns>
@@ -112,6 +130,66 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 	///<param name="sqr">The square to move the piece to</param>
 	public void MoveTo(Square sqr) {
 		transform.position = sqr.transform.position;
+	}
+
+	///<summary>
+	///Converts the piece to a different piece
+	///</summary>
+	///<param name="type">The type of piece to convert to</param>
+	public ChessPiece ConvertTo(PieceType type) {
+		//if the desired type is the same as this piece's type, return this piece
+		if (Type == type) return this;
+
+		Square sqr = GetSquare();
+		GameObject newGameObj;
+		ChessPiece newPiece = null;
+		switch (type) {
+			case PieceType.QUEEN:
+				newGameObj = CreateGameObject(IsWhite ? Queen.WhitePrefab : Queen.BlackPrefab);
+				newPiece = newGameObj.GetComponent<Queen>();
+				break;
+			case PieceType.ROOK:
+				newGameObj = CreateGameObject(IsWhite ? Rook.WhitePrefab : Rook.BlackPrefab);
+				newPiece = newGameObj.GetComponent<Rook>();
+				(newPiece as Rook).HasCastlingRights = false;
+				break;
+			case PieceType.BISHOP:
+				newGameObj = CreateGameObject(IsWhite ? Bishop.WhitePrefab : Bishop.BlackPrefab);
+				newPiece = newGameObj.GetComponent<Bishop>();
+				(newPiece as Bishop).SquareColorIsWhite = GetSquare().IsWhite;
+				break;
+			case PieceType.KNIGHT:
+				newGameObj = CreateGameObject(IsWhite ? Knight.WhitePrefab : Knight.BlackPrefab);
+				newPiece = newGameObj.GetComponent<Knight>();
+				break;
+			case PieceType.PAWN:
+				newGameObj = CreateGameObject(IsWhite ? Pawn.WhitePrefab : Pawn.BlackPrefab);
+				newPiece = newGameObj.GetComponent<Pawn>();
+				(newPiece as Pawn).HasDSMoveRights = false;
+				break;
+		}
+
+		sqr.GamePiece = newPiece;
+
+		return newPiece;
+
+		//inner functions
+		//create a new gameobject
+		GameObject CreateGameObject(GameObject prefab) {
+			//instaniate the gameobject of the new piece
+			GameObject newGameObj = GameObject.Instantiate(
+				prefab,  //gameobject prefab
+				sqr.transform.position,  //vector3 position
+				transform.rotation,  //quarternion rotation
+				IsWhite ? ChessBoard.Instance.whitePiecesParent : ChessBoard.Instance.blackPieceParent  //parent transform
+			);
+
+			//enable the mesh collider
+			newGameObj.GetComponent<MeshCollider>().enabled = true;
+
+			//return the new gameobject
+			return newGameObj;
+		}
 	}
 
 	///<summary>
@@ -132,13 +210,4 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 		str.Append("\nHas Been Captured? ").Append(HasBeenCaptured);
 		return str.ToString();
 	}
-}
-
-public interface ICastlingRights {
-	bool HasCastlingRights {get;}
-
-	///<summary>
-	///Revokes the pieces castling rights
-	///</summary>
-	void RevokeCastlingRights();
 }

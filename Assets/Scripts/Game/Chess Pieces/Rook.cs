@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [DisallowMultipleComponent]
-public sealed class Rook : ChessPiece, ICastlingRights {
+public sealed class Rook : ChessPiece {
 	//the notation and figurine characters of the rook
 	private const string _STANDARD_CHARACTER = "R", _FIGURINE_CHARACTER = "♖";
 	//white rook prefab gameobject
@@ -11,7 +11,7 @@ public sealed class Rook : ChessPiece, ICastlingRights {
 	//black rook prefab gameobject
 	public static GameObject BlackPrefab {get; private set;}
 	//has castling rights
-	public bool HasCastlingRights {get; private set;} = true;
+	public bool HasCastlingRights = true;
 	//whether the rook starts on the king side
 	[field: SerializeField] public bool IsKingSide {get; private set;}
 
@@ -81,13 +81,6 @@ public sealed class Rook : ChessPiece, ICastlingRights {
 	public static void SetPrefabs(GameObject whitePrefab, GameObject blackPrefab) {
 		WhitePrefab = whitePrefab;
 		BlackPrefab = blackPrefab;
-	}
-
-	///<summary>
-	///Revokes the rook's castling rights
-	///</summary>
-	public void RevokeCastlingRights() {
-		HasCastlingRights = false;
 	}
 
 	///<summary>
