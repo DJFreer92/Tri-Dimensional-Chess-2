@@ -9,6 +9,7 @@ public sealed class SelectionHandler : MonoBehaviour, IPointerEnterHandler, IPoi
 	[Header("Constants")]
 	[SerializeField] private float _animationTime = 0.1f;
 	[Range(0f, 2f), SerializeField] private float _scale = 1.1f;
+	[SerializeField] private bool _deselectOnPointerExit = true;
 
 	private Vector3 _startScale;
 
@@ -16,7 +17,11 @@ public sealed class SelectionHandler : MonoBehaviour, IPointerEnterHandler, IPoi
 		_startScale = transform.localScale;
 	}
 
-	private IEnumerator MoveElement(bool startingAnimation) {
+	///<summary>
+	///Animates the element
+	///</summary>
+	///<param name="startingAnimation">Whether the animation is the starting or ending animation</param>
+	private IEnumerator AnimateElement(bool startingAnimation) {
 		Vector3 endScale;
 
 		float elapsedTime = 0f;
@@ -39,14 +44,15 @@ public sealed class SelectionHandler : MonoBehaviour, IPointerEnterHandler, IPoi
 	}
 
 	public void OnPointerExit(PointerEventData eventData) {
+		if (!_deselectOnPointerExit) return;
 		//deselect the element if it is the element selected
 		if (eventData.selectedObject == gameObject) eventData.selectedObject = null;
 	}
 
 	public void OnSelect(BaseEventData eventData) {
-		StartCoroutine(MoveElement(true));
+		StartCoroutine(AnimateElement(true));
 		if (_selectionManager == null) return;
-		_selectionManager.LastSelected = gameObject;
+		_selectionManager.LastSelected = this;
 		for (int i = 0; i < _selectionManager.Items.Length; i++) {
 			if (_selectionManager.Items[i] != gameObject) continue;
 			_selectionManager.LastSelectedIndex = i;
@@ -58,7 +64,10 @@ public sealed class SelectionHandler : MonoBehaviour, IPointerEnterHandler, IPoi
 		Deselect();
 	}
 
+	///<summary>
+	///Deselects the element
+	///</summary>
 	public void Deselect() {
-		StartCoroutine(MoveElement(false));
+		StartCoroutine(AnimateElement(false));
 	}
 }
