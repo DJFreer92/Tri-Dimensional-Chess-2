@@ -470,7 +470,7 @@ public sealed class Game : MonoSingleton<Game> {
 		//if it was an attackboard move and there were no pieces on the board, a piece was captured or the piece moved was a pawn
 		if ((move is AttackBoardMove && (move as AttackBoardMove).BoardMoved.GetPieceCount() != 0) ||
 			move.MoveEvents.Contains(MoveEvent.CAPTURE) ||
-			(move as PieceMove).PieceMoved is Pawn)
+			(move is PieceMove && (move as PieceMove).PieceMoved is Pawn))
 		{
 			//clear the move rule count
 			_moveRuleCount = 0;
