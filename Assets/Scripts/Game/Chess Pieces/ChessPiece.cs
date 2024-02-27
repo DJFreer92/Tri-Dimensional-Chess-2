@@ -53,6 +53,9 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 		//if the game is not active, exit
 		if (Game.Instance.State.Is(GameState.INACTIVE)) return;
 
+		//if testing mode is not enabled, exit
+		if (!SettingsManager.Instance.TestMode) return;
+
 		//if the right mouse button has not been released, exit
 		if (!Input.GetMouseButtonUp(1)) return;
 
