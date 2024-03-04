@@ -3,8 +3,8 @@ using Unity.Networking.Transport;
 using UnityEngine;
 
 public static class NetUtility {
-	public static Action<NetMessage> C_KEEP_ALIVE, C_WELCOME, C_START_GAME, C_GAME_STATE, C_TIMERS, C_MAKE_MOVE, C_REMATCH;
-	public static Action<NetMessage, NetworkConnection> S_KEEP_ALIVE, S_WELCOME, S_START_GAME, S_GAME_STATE, S_TIMERS, S_MAKE_MOVE, S_REMATCH;
+	public static Action<NetMessage> C_KEEP_ALIVE, C_WELCOME, C_FEN, C_PGN, C_START_GAME, C_GAME_STATE, C_TIMERS, C_MAKE_MOVE, C_REMATCH;
+	public static Action<NetMessage, NetworkConnection> S_KEEP_ALIVE, S_WELCOME, S_FEN, S_PGN, S_START_GAME, S_GAME_STATE, S_TIMERS, S_MAKE_MOVE, S_REMATCH;
 
 	///<summary>
 	///Decodes the incoming data stream
@@ -19,6 +19,10 @@ public static class NetUtility {
 			case OpCode.KEEP_ALIVE: msg = new NetKeepAlive(stream);
 			break;
 			case OpCode.WELCOME: msg = new NetWelcome(stream);
+			break;
+			case OpCode.FEN: msg = new NetFEN(stream);
+			break;
+			case OpCode.PGN: msg = new NetPGN(stream);
 			break;
 			case OpCode.START_GAME: msg = new NetStartGame(stream);
 			break;

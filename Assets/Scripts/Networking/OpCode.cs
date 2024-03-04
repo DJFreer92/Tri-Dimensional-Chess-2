@@ -1,9 +1,11 @@
 public enum OpCode : byte {
 	KEEP_ALIVE = 0,
 	WELCOME = 1,
-	START_GAME = 2,
-	GAME_STATE = 3,
-	TIMERS = 4,
-	MAKE_MOVE = 5,
-	REMATCH = 6
+	FEN = 2,
+	PGN = 3,
+	START_GAME = 4,
+	GAME_STATE = 5,
+	TIMERS = 6,
+	MAKE_MOVE = 7,
+	REMATCH = 8
 }
