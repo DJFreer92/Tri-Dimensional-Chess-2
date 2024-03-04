@@ -3,13 +3,13 @@ using Unity.Networking.Transport;
 using UnityEngine;
 
 public class NetMakeMove : NetMessage {
-	public Vector3Int StartCoordinates {get; set;}
-	public Vector3Int EndCoordinates {get; set;}
-	public bool IsWhiteMove {get; set;}
-	public bool IsABMove {get; set;}
+	public Vector3Int StartCoordinates;
+	public Vector3Int EndCoordinates;
+	public bool IsWhiteMove;
+	public bool IsABMove;
 
 	public NetMakeMove() : base(OpCode.MAKE_MOVE) {}  //creating
-	
+
 	public NetMakeMove(DataStreamReader reader) : base(OpCode.MAKE_MOVE) {  //recieving
 		Deserialize(reader);
 	}

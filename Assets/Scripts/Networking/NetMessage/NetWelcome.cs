@@ -2,7 +2,7 @@ using System;
 using Unity.Networking.Transport;
 
 public class NetWelcome : NetMessage {
-	public bool IsAssignedWhitePieces {get; set;}
+	public bool IsAssignedWhitePieces;
 	
 	public NetWelcome() : base(OpCode.WELCOME) {}  //creating
 

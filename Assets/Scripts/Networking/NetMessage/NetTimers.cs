@@ -2,14 +2,14 @@ using System;
 using Unity.Networking.Transport;
 
 public class NetTimers : NetMessage {
-	public float WhiteTime {get; set;}
-	public float BlackTime {get; set;}
-	public bool WhiteTimePaused {get; set;}
-	public bool BlackTimePaused {get; set;}
-	public bool TimersStopped {get; set;}
+	public float WhiteTime;
+	public float BlackTime;
+	public bool WhiteTimePaused;
+	public bool BlackTimePaused;
+	public bool TimersStopped;
 
 	public NetTimers() : base(OpCode.TIMERS) {}  //creating
-	
+
 	public NetTimers(DataStreamReader reader) : base(OpCode.TIMERS) {  //recieving
 		Deserialize(reader);
 	}

@@ -2,11 +2,11 @@ using System;
 using Unity.Networking.Transport;
 
 public class NetRematch : NetMessage {
-	public bool FromWhite {get; set;}
-	public bool WantsRematch {get; set;}
+	public bool FromWhite;
+	public bool WantsRematch;
 
 	public NetRematch() : base(OpCode.REMATCH) {}  //creating
-	
+
 	public NetRematch(DataStreamReader reader) : base(OpCode.REMATCH) {  //recieving
 		Deserialize(reader);
 	}

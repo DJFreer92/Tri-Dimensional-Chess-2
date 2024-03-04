@@ -1,10 +1,10 @@
 using Unity.Networking.Transport;
 
 public class NetGameState : NetMessage {
-	public GameState State {get; set;}
+	public GameState State;
 
 	public NetGameState() : base(OpCode.GAME_STATE) {}  //creating
-	
+
 	public NetGameState(DataStreamReader reader) : base(OpCode.GAME_STATE) {  //recieving
 		Deserialize(reader);
 	}
