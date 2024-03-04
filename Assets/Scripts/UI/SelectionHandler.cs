@@ -1,19 +1,23 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 public sealed class SelectionHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler {
 	[Header("References")]
-	[SerializeField] private SelectionManager _selectionManager;
+	[SerializeField] private VerticalSelectionManager _verticalSelectionManager;
+	[SerializeField] private HorizontalSelectionManager _horizontalSelectionManager;
 	[Header("Constants")]
 	[SerializeField] private float _animationTime = 0.1f;
 	[Range(0f, 2f), SerializeField] private float _scale = 1.1f;
 	[SerializeField] private bool _deselectOnPointerExit = true;
 
+	private Selectable _selectableComponent;
 	private Vector3 _startScale;
 
 	private void Start() {
+		_selectableComponent = GetComponent<Selectable>();
 		_startScale = transform.localScale;
 	}
 
@@ -40,7 +44,7 @@ public sealed class SelectionHandler : MonoBehaviour, IPointerEnterHandler, IPoi
 
 	public void OnPointerEnter(PointerEventData eventData) {
 		//select the element
-		eventData.selectedObject = gameObject;
+		if (_selectableComponent.interactable) eventData.selectedObject = gameObject;
 	}
 
 	public void OnPointerExit(PointerEventData eventData) {
@@ -51,13 +55,11 @@ public sealed class SelectionHandler : MonoBehaviour, IPointerEnterHandler, IPoi
 
 	public void OnSelect(BaseEventData eventData) {
 		StartCoroutine(AnimateElement(true));
-		if (_selectionManager == null) return;
-		_selectionManager.LastSelected = this;
-		for (int i = 0; i < _selectionManager.Items.Length; i++) {
-			if (_selectionManager.Items[i] != gameObject) continue;
-			_selectionManager.LastSelectedIndex = i;
-			return;
+		if (_verticalSelectionManager != null) {
+			Debug.Log("setting as last selected");
+			_verticalSelectionManager.LastSelected = this;
 		}
+		if (_horizontalSelectionManager != null) _horizontalSelectionManager.LastSelected = this;
 	}
 
 	public void OnDeselect(BaseEventData eventData) {
