@@ -9,6 +9,14 @@ public sealed class AttackBoard : Board, IMovable {
 	[field: SerializeField] public Square PinnedSquare {get; private set;}
 
 	///<summary>
+	///Clears the attackboard
+	///</summary>
+	public override void Clear(){
+		base.Clear();
+		Destroy(gameObject);
+	}
+
+	///<summary>
 	///Sets the square the attackboard is pinned to
 	///</summary>
 	///<param name="pin">The square the attackboard is pinned to</param>
@@ -24,9 +32,10 @@ public sealed class AttackBoard : Board, IMovable {
 	public List<Square> GetAvailableMoves(bool asWhite) {
 		var moves = new List<Square>();
 		List<ChessPiece> pieces = GetPieces();
+		if (Owner == Ownership.NEUTRAL) return moves;
 		if (pieces.Count > 1) return moves;
 		if (pieces.Count == 1 && pieces[0].IsWhite != asWhite) return moves;
-		if (pieces.Count == 0 && Owner != Ownership.NEUTRAL && (asWhite ? Ownership.WHITE : Ownership.BLACK) != Owner) return moves;
+		if (pieces.Count == 0 && (asWhite ? Ownership.WHITE : Ownership.BLACK) != Owner) return moves;
 		foreach (Board brd in ChessBoard.Instance) {
 			if (brd is AttackBoard || Math.Abs(brd.Y - PinnedSquare.Coords.y) > 2) continue;
 			foreach (Square sqr in brd) {
@@ -47,7 +56,6 @@ public sealed class AttackBoard : Board, IMovable {
 	///</summary>
 	///<param name="move">The attackboard move</param>
 	public void Move(AttackBoardMove move) {
-		Debug.Log("MOVE RUN");
 		//calculate the change in x and z positions
 		int xDiff = 0, zDiff = 0;
 		if (Math.Abs(move.EndSqr.Coords.x - move.StartSqr.Coords.x) > 1) {  //if the board is moving in the x direction

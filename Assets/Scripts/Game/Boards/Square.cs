@@ -37,7 +37,7 @@ public sealed class Square : MonoBehaviour {
 	///Clear the square
 	///</summary>
 	public void Clear() {
-		GameObject.Destroy(GamePiece);
+		if (HasPiece()) GameObject.Destroy(GamePiece.gameObject);
 		IsOccupiedByAB = false;
 	}
 
@@ -47,6 +47,19 @@ public sealed class Square : MonoBehaviour {
 	///<returns>Whether the square has a piece on it</returns>
 	public bool HasPiece() {
 		return GamePiece != null;
+	}
+
+	///<summary>
+	///Returns the board the square is a part of
+	///</summary>
+	///<returns>The board the square is a part of</returns>
+	public Board GetBoard() {
+		foreach (Board brd in ChessBoard.Instance) {
+			if (brd.Y != Coords.y) continue;
+			foreach (Square sqr in brd)
+				if (sqr == this) return brd;
+		}
+		return null;
 	}
 
 	///<summary>

@@ -29,13 +29,22 @@ public sealed class PieceMove : Move {
 			return;
 		}
 
-		if (EndSqr.HasPiece()) {  //if a piece is being captured
+		//if a piece is being captured
+		if (EndSqr.HasPiece()) {
 			//find the piece being captured
 			PieceCaptured = EndSqr.GamePiece;
 			MoveEvents.Add(MoveEvent.CAPTURE);
 		}
 
-		if (PieceMoved is Pawn) {  //pawn move
+		//if the piece is moving to a neutral attackboard, claim it
+		Board endBoard = EndSqr.GetBoard();
+		if (endBoard is AttackBoard && endBoard.Owner == Ownership.NEUTRAL) {
+			endBoard.Owner = Player.IsWhite ? Ownership.WHITE : Ownership.BLACK;
+			MoveEvents.Add(MoveEvent.ATTACKBOARD_CLAIM);
+		}
+
+		//if the piece being moved is a pawn
+		if (PieceMoved is Pawn) {
 			//if the move is a double square move
 			if (Math.Abs(StartSqr.Coords.z - EndSqr.Coords.z) == 2) MoveEvents.Add(MoveEvent.PAWN_DOUBLE_SQUARE);
 			//if the move is an en passant
@@ -135,6 +144,9 @@ public sealed class PieceMove : Move {
 			PieceCaptured.MoveTo(EndSqr);
 			EndSqr.GamePiece = PieceCaptured;
 		}
+
+		//if the move claimed an attackboard, unclaim it
+		if (MoveEvents.Contains(MoveEvent.ATTACKBOARD_CLAIM)) EndSqr.GetBoard().Owner = Ownership.NEUTRAL;
 
 		//if move was a promotion
 		if (MoveEvents.Contains(MoveEvent.PROMOTION)) PieceMoved = PieceMoved.ConvertTo(PieceType.PAWN);

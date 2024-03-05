@@ -8,11 +8,11 @@ using System.Text;
 [DisallowMultipleComponent]
 public class Board : MonoBehaviour, IEnumerable {
 	private static readonly char[] _FILE_ORDER = {'z', 'a', 'b', 'c', 'd', 'e'};
-	[field: SerializeField] public int Y {get; protected set;}
+	[SerializeField] public int Y;
 	//squares on the board
 	public List<Square> Squares {get; private set;}
 	//holds if the owner of the attackboard is white, black, or if it is neutral
-	[field: SerializeField] public Ownership Owner {get; private set;}
+	[SerializeField] public Ownership Owner;
 	//annotation of the board
 	public string Annotation {get; protected set;}
 
@@ -22,20 +22,10 @@ public class Board : MonoBehaviour, IEnumerable {
 	}
 
 	///<summary>
-	///Sets where the owner of the attackboard is white
-	///</summary>
-	///<param name="isWhite">Whether the owner is white</param>
-	public void SetOwner(Ownership owner) {
-		Owner = owner;
-	}
-
-	///<summary>
 	///Clears the board
 	///</summary>
-	public void Clear() {
-		foreach (Square sqr in Squares) {
-			sqr.Clear();
-		}
+	public virtual void Clear() {
+		foreach (Square sqr in Squares) sqr.Clear();
 	}
 
 	///<summary>

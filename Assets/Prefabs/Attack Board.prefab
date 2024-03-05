@@ -135,7 +135,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
   <IsWhite>k__BackingField: 1
-  <Coords>k__BackingField: {x: -1, y: 0, z: -1}
+  <Coords>k__BackingField: {x: 1, y: 0, z: 0}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
 --- !u!1 &2040176102519092598
@@ -273,7 +273,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
   <IsWhite>k__BackingField: 0
-  <Coords>k__BackingField: {x: -1, y: 0, z: 0}
+  <Coords>k__BackingField: {x: 1, y: 0, z: 1}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
 --- !u!1 &3402235956975031983
@@ -411,7 +411,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
   <IsWhite>k__BackingField: 0
-  <Coords>k__BackingField: {x: 0, y: 0, z: -1}
+  <Coords>k__BackingField: {x: 0, y: 0, z: 0}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
 --- !u!1 &5134721304307234246
@@ -611,8 +611,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d8fac4ffad0e48c7a6f911c50b510d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Y>k__BackingField: -1
-  <OwnerIsWhite>k__BackingField: 0
+  Y: 0
+  Owner: 0
   <PinnedSquare>k__BackingField: {fileID: 0}
 --- !u!1 &5577493607216023141
 GameObject:
@@ -749,6 +749,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
   <IsWhite>k__BackingField: 1
-  <Coords>k__BackingField: {x: 0, y: 0, z: 0}
+  <Coords>k__BackingField: {x: 0, y: 0, z: 1}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0

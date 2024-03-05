@@ -3800,8 +3800,8 @@ MonoBehaviour:
   - {fileID: 1849302324}
   - {fileID: 213543335}
   - {fileID: 1144619728}
-  whitePiecesParent: {fileID: 0}
-  blackPieceParent: {fileID: 0}
+  whitePiecesParent: {fileID: 1663892940}
+  blackPieceParent: {fileID: 1643350935}
   _attackboardPrefab: {fileID: 5481848988546711333, guid: a27ef0c24a40c40c0b5db9f3fa9e1c8a, type: 3}
 --- !u!1 &130441918
 GameObject:
@@ -4738,6 +4738,7 @@ MonoBehaviour:
   _gameStateTxt: {fileID: 1406408376}
   _gameUIPage: {fileID: 726680238}
   _ipAddressInput: {fileID: 546091099}
+  Setup: 
 --- !u!114 &151076135
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5276,8 +5277,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d8fac4ffad0e48c7a6f911c50b510d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Y>k__BackingField: 1
-  <Owner>k__BackingField: 0
+  Y: 1
+  Owner: 87
   <PinnedSquare>k__BackingField: {fileID: 809968782}
 --- !u!1 &169267416
 GameObject:
@@ -6285,8 +6286,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65eb73c966cc34bb9b87c9b435998b7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Y>k__BackingField: 2
-  <Owner>k__BackingField: 78
+  Y: 2
+  Owner: 78
 --- !u!1 &223777130
 GameObject:
   m_ObjectHideFlags: 0
@@ -8884,8 +8885,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d8fac4ffad0e48c7a6f911c50b510d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Y>k__BackingField: 5
-  <Owner>k__BackingField: 0
+  Y: 5
+  Owner: 66
   <PinnedSquare>k__BackingField: {fileID: 525152247}
 --- !u!1 &328690231
 GameObject:
@@ -9764,7 +9765,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 355329700}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
@@ -24494,8 +24495,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d8fac4ffad0e48c7a6f911c50b510d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Y>k__BackingField: 5
-  <Owner>k__BackingField: 0
+  Y: 5
+  Owner: 66
   <PinnedSquare>k__BackingField: {fileID: 1577302641}
 --- !u!1 &979302061
 GameObject:
@@ -25645,7 +25646,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bbc4c498061f3499fa4ff39ac43c65f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _firstFocusItem: {fileID: 41724513}
+  _firstFocusItem: {fileID: 1308156602}
   _popFocusItem: {fileID: 148425695}
 --- !u!114 &1015779895
 MonoBehaviour:
@@ -28068,8 +28069,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65eb73c966cc34bb9b87c9b435998b7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Y>k__BackingField: 0
-  <Owner>k__BackingField: 87
+  Y: 0
+  Owner: 87
 --- !u!1 &1154905705
 GameObject:
   m_ObjectHideFlags: 0
@@ -32768,7 +32769,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1308156602}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
@@ -41052,8 +41053,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d8fac4ffad0e48c7a6f911c50b510d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Y>k__BackingField: 1
-  <Owner>k__BackingField: 0
+  Y: 1
+  Owner: 87
   <PinnedSquare>k__BackingField: {fileID: 110572244}
 --- !u!1 &1703783451
 GameObject:
@@ -45569,8 +45570,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65eb73c966cc34bb9b87c9b435998b7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <Y>k__BackingField: 4
-  <Owner>k__BackingField: 66
+  Y: 4
+  Owner: 66
 --- !u!1 &1849925924
 GameObject:
   m_ObjectHideFlags: 0
@@ -50960,7 +50961,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2027432081}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
