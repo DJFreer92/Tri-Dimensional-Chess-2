@@ -4683,6 +4683,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1088b6eadcc4245f28bd457611ec04ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _whitePiecesParent: {fileID: 1663892940}
+  _blackPiecesParent: {fileID: 1643350935}
   _pieceScale: 0.75
   _xSpacing: 0.75
   _zSpacing: 0.75

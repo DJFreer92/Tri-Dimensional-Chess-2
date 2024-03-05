@@ -3,17 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using static PieceType;
+using static PieceTypeColor;
 
 public static class AnnotationConverter {
 	private const int _MAX_INT_FILE = 5, _MAX_RANK = 9, _MAX_INT_BOARD = 5;
 	private static readonly char[] _FILES = {'z', 'a', 'b', 'c', 'd', 'e'};
 	private static readonly string[] _MAIN_BOARDS = {"W", "N", "B"};
-	private static readonly Dictionary<char, PieceType> _PIECES = new() {
+	private static readonly Dictionary<char, PieceType> _PIECES_TYPE = new() {
 		{'K', KING},
 		{'Q', QUEEN},
 		{'R', ROOK},
 		{'B', BISHOP},
 		{'N', KNIGHT}
+	};
+	private static readonly Dictionary<char, PieceTypeColor> _PIECES_TYPE_COLOR = new() {
+		{'K', WHITE_KING},
+		{'Q', WHITE_QUEEN},
+		{'R', WHITE_ROOK},
+		{'B', WHITE_BISHOP},
+		{'N', WHITE_KNIGHT},
+		{'P', WHITE_PAWN},
+		{'D', WHITE_PAWN},
+		{'k', BLACK_KING},
+		{'q', BLACK_QUEEN},
+		{'r', BLACK_ROOK},
+		{'b', BLACK_BISHOP},
+		{'n', BLACK_KNIGHT},
+		{'p', BLACK_PAWN},
+		{'d', BLACK_PAWN}
 	};
 
 	///<summary>
@@ -132,7 +149,19 @@ public static class AnnotationConverter {
 		);
 	}
 
+	///<summary>
+	///Converts a piece to character to a piece type
+	///</summary>
+	///<returns>Piece type of the given character</returns>
 	public static PieceType CharToPiece(this char charPiece) {
-		return _PIECES[charPiece];
+		return _PIECES_TYPE[charPiece];
+	}
+
+	///<summary>
+	///Converts a piece character to a piece type and color
+	///</summary>
+	///<returns>Piece type and color of the given piece character</returns>
+	public static PieceTypeColor CharToPieceColor(this char charPiece) {
+		return _PIECES_TYPE_COLOR[charPiece];
 	}
 }

@@ -1,20 +1,21 @@
 public enum PieceTypeColor : byte {
-	WHITE_KING = 0,
-	WHITE_QUEEN = 1,
-	WHITE_ROOK = 2,
-	WHITE_BISHOP = 3,
-	WHITE_KNIGHT = 4,
-	WHITE_PAWN = 5,
-	BLACK_KING = 6,
-	BLACK_QUEEN = 7,
-	BLACK_ROOK = 8,
-	BLACK_BISHOP = 9,
-	BLACK_KNIGHT = 10,
-	BLACK_PAWN = 11
+	NONE = 0,
+	WHITE_KING = 1,
+	WHITE_QUEEN = 2,
+	WHITE_ROOK = 3,
+	WHITE_BISHOP = 4,
+	WHITE_KNIGHT = 5,
+	WHITE_PAWN = 6,
+	BLACK_KING = 7,
+	BLACK_QUEEN = 8,
+	BLACK_ROOK = 9,
+	BLACK_BISHOP = 10,
+	BLACK_KNIGHT = 11,
+	BLACK_PAWN = 12
 }
 
 public static class PieceTypeColorExtensions {
-	public static PieceType GetPieceType(this PieceTypeColor ptc) => (PieceType) ((byte) ptc % 6 + 1);
+	public static PieceType GetPieceType(this PieceTypeColor ptc) => (PieceType) ((byte) ptc % 7 + 1);
 
 	public static bool GetColor(this PieceTypeColor ptc) => ptc < PieceTypeColor.BLACK_KING;
 }

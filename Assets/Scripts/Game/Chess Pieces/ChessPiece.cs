@@ -128,6 +128,28 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 	}
 
 	///<summary>
+	///Returns the prefab of the given piece and color
+	///</summary>
+	///<returns>Prefab of the given piece and color</returns>
+	public static GameObject GetPrefab(PieceTypeColor ptc) {
+		switch (ptc) {
+			case PieceTypeColor.WHITE_KING: return King.WhitePrefab;
+			case PieceTypeColor.BLACK_KING: return King.BlackPrefab;
+			case PieceTypeColor.WHITE_QUEEN: return Queen.WhitePrefab;
+			case PieceTypeColor.BLACK_QUEEN: return Queen.BlackPrefab;
+			case PieceTypeColor.WHITE_ROOK: return Rook.WhitePrefab;
+			case PieceTypeColor.BLACK_ROOK: return Rook.BlackPrefab;
+			case PieceTypeColor.WHITE_BISHOP: return Bishop.WhitePrefab;
+			case PieceTypeColor.BLACK_BISHOP: return Bishop.BlackPrefab;
+			case PieceTypeColor.WHITE_KNIGHT: return Knight.WhitePrefab;
+			case PieceTypeColor.BLACK_KNIGHT: return Knight.BlackPrefab;
+			case PieceTypeColor.WHITE_PAWN: return Pawn.WhitePrefab;
+			case PieceTypeColor.BLACK_PAWN: return Pawn.BlackPrefab;
+		}
+		return null;
+	}
+
+	///<summary>
 	///Move the position of the piece to the given square
 	///</summary>
 	///<param name="sqr">The square to move the piece to</param>
@@ -144,34 +166,16 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 		if (Type == type) return this;
 
 		Square sqr = GetSquare();
-		GameObject newGameObj;
-		ChessPiece newPiece = null;
+		GameObject newGameObj = CreateGameObject(ChessPiece.GetPrefab(type.GetPieceTypeColor(IsWhite)));
+		ChessPiece newPiece = newGameObj.GetComponent<ChessPiece>();
 		switch (type) {
-			case PieceType.QUEEN:
-				newGameObj = CreateGameObject(IsWhite ? Queen.WhitePrefab : Queen.BlackPrefab);
-				newPiece = newGameObj.GetComponent<Queen>();
-				break;
-			case PieceType.ROOK:
-				newGameObj = CreateGameObject(IsWhite ? Rook.WhitePrefab : Rook.BlackPrefab);
-				newPiece = newGameObj.GetComponent<Rook>();
-				(newPiece as Rook).HasCastlingRights = false;
-				break;
-			case PieceType.BISHOP:
-				newGameObj = CreateGameObject(IsWhite ? Bishop.WhitePrefab : Bishop.BlackPrefab);
-				newPiece = newGameObj.GetComponent<Bishop>();
-				(newPiece as Bishop).SquareColorIsWhite = GetSquare().IsWhite;
-				break;
-			case PieceType.KNIGHT:
-				newGameObj = CreateGameObject(IsWhite ? Knight.WhitePrefab : Knight.BlackPrefab);
-				newPiece = newGameObj.GetComponent<Knight>();
-				break;
-			case PieceType.PAWN:
-				newGameObj = CreateGameObject(IsWhite ? Pawn.WhitePrefab : Pawn.BlackPrefab);
-				newPiece = newGameObj.GetComponent<Pawn>();
-				(newPiece as Pawn).HasDSMoveRights = false;
-				break;
+			case PieceType.ROOK: (newPiece as Rook).HasCastlingRights = false;
+			break;
+			case PieceType.BISHOP: (newPiece as Bishop).SquareColorIsWhite = GetSquare().IsWhite;
+			break;
+			case PieceType.PAWN: (newPiece as Pawn).HasDSMoveRights = false;
+			break;
 		}
-
 		sqr.GamePiece = newPiece;
 
 		return newPiece;

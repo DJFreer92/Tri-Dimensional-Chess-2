@@ -7,3 +7,8 @@ public enum PieceType : byte {
 	KNIGHT = 2,
 	PAWN = 1
 }
+
+public static class PieceTypeExtensions {
+	public static PieceTypeColor GetPieceTypeColor(this PieceType pt, bool isWhite) =>
+		(PieceTypeColor) (7 - (int) pt + (isWhite ? 0 : 6));
+}

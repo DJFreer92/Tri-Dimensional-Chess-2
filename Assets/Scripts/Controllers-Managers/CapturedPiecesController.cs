@@ -5,6 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(Game))]
 [DisallowMultipleComponent]
 public class CapturedPiecesController : MonoSingleton<CapturedPiecesController> {
+	[SerializeField] private Transform _whitePiecesParent;
+	[SerializeField] private Transform _blackPiecesParent;
 	public Action<PieceType, bool> OnPieceCaptured, OnCapturedPieceRemoved;
 	public Action OnCapturedPiecesCleared;
 	[SerializeField] [Range(0.1f, 1f)] private float _pieceScale;
@@ -40,18 +42,7 @@ public class CapturedPiecesController : MonoSingleton<CapturedPiecesController> 
 			return;
 		}
 
-		ChessPiece newPiece = null;
-		switch (type) {
-			case PieceType.QUEEN: newPiece = Instantiate((isWhite ? Queen.BlackPrefab : Queen.WhitePrefab)).GetComponent<Queen>();
-			break;
-			case PieceType.ROOK: newPiece = Instantiate((isWhite ? Rook.BlackPrefab : Rook.WhitePrefab)).GetComponent<Rook>();
-			break;
-			case PieceType.BISHOP: newPiece = Instantiate((isWhite ? Bishop.BlackPrefab : Bishop.WhitePrefab)).GetComponent<Bishop>();
-			break;
-			case PieceType.KNIGHT: newPiece = Instantiate((isWhite ? Knight.BlackPrefab : Knight.WhitePrefab)).GetComponent<Knight>();
-			break;
-			default: return;
-		}
+		ChessPiece newPiece = Instantiate(ChessPiece.GetPrefab(type.GetPieceTypeColor(isWhite)), _whitePiecesParent).GetComponent<ChessPiece>();
 		_createdPieces.Add(newPiece);
 		newPiece.SetCaptured();
 	}
