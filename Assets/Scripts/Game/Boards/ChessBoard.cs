@@ -8,12 +8,12 @@ using System.Text;
 public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	//coordinates of castling pieces
 	#region Castling Coordinates
-	public static Vector3Int whiteKingCoords = new Vector3Int(4, 1, 0);
-	public static Vector3Int blackKingCoords = new Vector3Int(4, 5, 9);
-	public static Vector3Int whiteKingSideRookCoords = new Vector3Int(5, 1, 0);
-	public static Vector3Int whiteQueenSideRookCoords = Vector3Int.up;
-	public static Vector3Int blackKingSideRookCoords = new Vector3Int(5, 5, 9);
-	public static Vector3Int blackQueenSideRookCoords = new Vector3Int(0, 5, 9);
+	public static Vector3Int WhiteKingCoords = new Vector3Int(4, 1, 0);
+	public static Vector3Int BlackKingCoords = new Vector3Int(4, 5, 9);
+	public static Vector3Int WhiteKingSideRookCoords = new Vector3Int(5, 1, 0);
+	public static Vector3Int WhiteQueenSideRookCoords = Vector3Int.up;
+	public static Vector3Int BlackKingSideRookCoords = new Vector3Int(5, 5, 9);
+	public static Vector3Int BlackQueenSideRookCoords = new Vector3Int(0, 5, 9);
 	#endregion
 	//x and z directions
 	private static int[][] _XZDirections = new int[][] {
@@ -144,8 +144,8 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 				foreach(Square sqr in GetEnumerableSquares()) {
 					if (sqr.GamePiece is not Rook || sqr.GamePiece.IsWhite != Char.IsUpper(castlingRight)) continue;
 					Rook rook = sqr.GamePiece as Rook;
-					if ((castlingRight == 'K' && sqr.Coords == whiteKingSideRookCoords) ||
-						(castlingRight == 'k' && sqr.Coords == blackKingSideRookCoords)
+					if ((castlingRight == 'K' && sqr.Coords == WhiteKingSideRookCoords) ||
+						(castlingRight == 'k' && sqr.Coords == BlackKingSideRookCoords)
 					) rook.SetKingSide(true);
 					if (rook.IsKingSide != (Char.ToUpper(castlingRight) == 'K')) continue;
 					rook.SetCastlingRights(true);

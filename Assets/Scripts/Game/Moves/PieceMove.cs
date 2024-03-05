@@ -86,11 +86,11 @@ public sealed class PieceMove : Move {
 			//get the starting squares for the king and rook
 			Square kingSqr;
 			if (MoveEvents.Contains(MoveEvent.CASTLING_KING_SIDE)) {
-				kingSqr = ChessBoard.Instance.GetSquareAt(Player.IsWhite ? ChessBoard.whiteKingSideRookCoords : ChessBoard.blackKingSideRookCoords);
+				kingSqr = ChessBoard.Instance.GetSquareAt(Player.IsWhite ? ChessBoard.WhiteKingSideRookCoords : ChessBoard.BlackKingSideRookCoords);
 			} else {
-				kingSqr = ChessBoard.Instance.GetSquareAt(Player.IsWhite ? ChessBoard.whiteQueenSideRookCoords : ChessBoard.blackQueenSideRookCoords);
+				kingSqr = ChessBoard.Instance.GetSquareAt(Player.IsWhite ? ChessBoard.WhiteQueenSideRookCoords : ChessBoard.BlackQueenSideRookCoords);
 			}
-			Square rookSqr = ChessBoard.Instance.GetSquareAt(Player.IsWhite ? ChessBoard.whiteKingCoords : ChessBoard.blackKingCoords);
+			Square rookSqr = ChessBoard.Instance.GetSquareAt(Player.IsWhite ? ChessBoard.WhiteKingCoords : ChessBoard.BlackKingCoords);
 
 			//get the king and the rook
 			King king = kingSqr.GamePiece as King;
