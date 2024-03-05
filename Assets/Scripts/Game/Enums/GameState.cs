@@ -17,6 +17,7 @@ public enum GameState : ushort {
 	BLACK_RESIGNATION = (1 << 11),
 	WHITE_TIMEOUT_LOSE = (1 << 12),
 	BLACK_TIMEOUT_LOSE = (1 << 13),
+	ANALYSIS = (1 << 14),
 	ACTIVE = (WHITE_TURN | BLACK_TURN),
 	INACTIVE = (UInt16.MaxValue ^ ACTIVE),
 	POST_GAME = (INACTIVE ^ PRE_GAME),
