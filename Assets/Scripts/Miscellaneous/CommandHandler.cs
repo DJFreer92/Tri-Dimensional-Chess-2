@@ -37,15 +37,17 @@ public class CommandHandler {
 	///</summary>
 	public void UndoCommand() {
 		if (_index == 0) return;
-		_commands[_index--].Undo();
+		_commands[--_index].Undo();
 	}
 
 	///<summary>
 	///Undoes the last command and removes it from the list
 	///</summary>
-	public void UndoAndRemoveCommand() {
+	public bool UndoAndRemoveCommand() {
+		if (_index == 0) return false;
 		UndoCommand();
 		_commands.RemoveAt(_index);
+		return true;
 	}
 
 	///<summary>
@@ -53,6 +55,13 @@ public class CommandHandler {
 	///</summary>
 	public void UndoAllCommands() {
 		while (_index > 0) UndoCommand();
+	}
+
+	///<summary>
+	///Redo the next command
+	///</summary>
+	public void RedoCommand() {
+		ExecuteCommand();
 	}
 
 	///<summary>
