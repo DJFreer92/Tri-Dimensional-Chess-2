@@ -5,8 +5,9 @@ using System.IO;
 using System.Text;
 
 public class PGNBuilder {
-	private string _event, _site, _date, _round, _whitePlayer, _blackPlayer, _annotator, _result, _timeControl, _startTime, _termination, _mode, _setup;
-	private List<string> _moves;
+	private string _event, _site, _date, _round, _whitePlayer, _blackPlayer, _annotator, _result, _timeControl, _startTime, _termination, _mode;
+	public string Setup {get; private set;}
+	public List<string> Moves {get; private set;}
 
 	public PGNBuilder(string evnt, string site, string round, string whitePlayer, string blackPlayer, string annotator, string timeControl, string setup, bool isOverTheBoard = false) {
 		if (evnt == null) throw new ArgumentNullException(nameof(evnt), "Event cannot be null.");
@@ -23,9 +24,9 @@ public class PGNBuilder {
 		_blackPlayer = blackPlayer;
 		_annotator = annotator;
 		_timeControl = timeControl;
-		_setup = setup;
+		Setup = setup;
 		_mode = isOverTheBoard ? "OTB" : "ICS";
-		_moves = new List<string>();
+		Moves = new();
 		SetDateTime();
 	}
 
@@ -36,13 +37,73 @@ public class PGNBuilder {
 		_whitePlayer = whitePlayer;
 		_blackPlayer = blackPlayer;
 		_timeControl = timeControl;
-		_setup = setup;
+		Setup = setup;
 		_event = "Freeplay";
 		_site = "The Internet";
 		_round = "N/A";
 		_mode = "ICS";
-		_moves = new List<string>();
+		Moves = new();
 		SetDateTime();
+	}
+
+	private PGNBuilder() {}
+
+	///<summary>
+	///Builds the given PGN and returns the object reference
+	///</summary>
+	///<param name="pgn">The PGN to build</param>
+	public static PGNBuilder BuildPGN(string pgn) {
+		var builder = new PGNBuilder();
+		string[] sections = pgn.Split('\n');
+		foreach (string section in sections) {
+			if (section[0] == '\n') continue;
+			if (section[0] != '1') {
+				int spaceIndex = section.IndexOf(' ');
+				string data = section.Substring(spaceIndex + 2, section.Length - spaceIndex - 5);
+				switch (section.Substring(1, spaceIndex)) {
+					case "Event": builder._event = data;
+					continue;
+					case "Site": builder._site = data;
+					continue;
+					case "Date": builder._date = data;
+					continue;
+					case "Round": builder._round = data;
+					continue;
+					case "WhitePlayer": builder._whitePlayer = data;
+					continue;
+					case "BlackPlayer": builder._blackPlayer = data;
+					continue;
+					case "Annotator": builder._annotator = data;
+					continue;
+					case "Result": builder._result = data;
+					continue;
+					case "TimeControl": builder._timeControl = data;
+					continue;
+					case "StartTime": builder._startTime = data;
+					continue;
+					case "Termination": builder._termination = data;
+					continue;
+					case "Mode": builder._mode = data;
+					continue;
+					case "Setup": builder.Setup = data;
+					continue;
+					default: continue;
+				}
+			}
+
+			while (section.Length > 0) {
+				section.Remove(0, section.IndexOf(' ') + 1);
+				int index = section.IndexOf(' ');
+				if (index == -1) {
+					builder.Moves.Add(section.Substring(0, section.Length));
+					break;
+				}
+				builder.Moves.Add(section.Substring(0, index));
+				section.Remove(0, index + 1);
+			}
+			break;
+		}
+		return builder;
 	}
 
 	///<summary>
@@ -59,7 +120,7 @@ public class PGNBuilder {
 	///</summary>
 	///<param name="move">The move to record</param>
 	public void AddMove(string move) {
-		_moves.Add(move);
+		Moves.Add(move);
 	}
 
 	///<summary>
@@ -78,13 +139,13 @@ public class PGNBuilder {
 	///<param name="filePath">The file path to export the PGN to</param>
 	public void Export(string filePath) {
 		if (String.IsNullOrEmpty(filePath)) throw new ArgumentException(nameof(filePath), "Invalid file path.");
-		if (_moves.Count == 0) return;
+		if (Moves.Count == 0) return;
 
-		var moves = new StringBuilder("1. ").Append(_moves[0]);
-		for (int i = 1; i < _moves.Count; i++) {
+		var moves = new StringBuilder("1. ").Append(Moves[0]);
+		for (int i = 1; i < Moves.Count; i++) {
 			moves.Append(" ");
 			if (i % 2 == 0) moves.Append(i / 2).Append(". ");
-			moves.Append(_moves[i]);
+			moves.Append(Moves[i]);
 		}
 
 		using (var outFile = new StreamWriter(Path.Combine(filePath, "test.pgn"))) {
@@ -96,14 +157,14 @@ public class PGNBuilder {
 			outFile.WriteLine($"[Black \"{_blackPlayer}\"]");
 			if (_annotator != null) outFile.WriteLine($"[Annotator \"[{_annotator}]\"]");
 			outFile.WriteLine($"[Result \"{_result}\"]");
-			outFile.WriteLine($"[PlyCount \"{_moves.Count}\"]");
+			outFile.WriteLine($"[PlyCount \"{Moves.Count}\"]");
 			outFile.WriteLine($"[TimeControl \"{_timeControl}\"]");
 			outFile.WriteLine($"[Time \"{_startTime}\"]");
 			outFile.WriteLine($"[Termination \"{_termination}\"]");
 			outFile.WriteLine($"[Mode \"{_mode}\"]");
-			outFile.WriteLine("");
+			outFile.WriteLine();
 			outFile.WriteLine(moves);
-			outFile.WriteLine($"[SetUp \"{_setup}\"]");
+			outFile.WriteLine($"[SetUp \"{Setup}\"]");
 			outFile.WriteLine("[Variant \"Star Trek Tri-Dimensional\"]");
 		}
 	}

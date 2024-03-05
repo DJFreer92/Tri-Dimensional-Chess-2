@@ -1,10 +1,20 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+
+using static PieceType;
 
 public static class AnnotationConverter {
 	private const int _MAX_INT_FILE = 5, _MAX_RANK = 9, _MAX_INT_BOARD = 5;
 	private static readonly char[] _FILES = {'z', 'a', 'b', 'c', 'd', 'e'};
 	private static readonly string[] _MAIN_BOARDS = {"W", "N", "B"};
+	private static readonly Dictionary<char, PieceType> _PIECES = new() {
+		{'K', KING},
+		{'Q', QUEEN},
+		{'R', ROOK},
+		{'B', BISHOP},
+		{'N', KNIGHT}
+	};
 
 	///<summary>
 	///Converts the vector of a square into an annotation
@@ -19,6 +29,22 @@ public static class AnnotationConverter {
 		if (coords.y > _MAX_INT_BOARD) throw new ArgumentOutOfRangeException("Board out of range");
 		if (coords.z > _MAX_RANK) throw new ArgumentOutOfRangeException("Rank out of range");
 		return $"{coords.x.IndexToFile()}{coords.z}" + coords.VectorToBoard();
+	}
+
+	///<summary>
+	///Converts an annotation into a vector of a square
+	///</summary>
+	///<param name="annotation">The square annotation</param>
+	///<returns>Vector of a square</returns>
+	public static Vector3Int AnnotationToVector(this string annotation) {
+		if (annotation == null) throw new ArgumentNullException(nameof(annotation), "Annotation cannot be null");
+		return new Vector3Int(
+			_FILES[annotation[0]],
+			annotation.Length == 3 ?
+				Array.IndexOf(_MAIN_BOARDS, annotation[2]) :
+				(annotation[4] - 1) / 2,
+			annotation[1]
+		);
 	}
 
 	///<summary>
@@ -83,9 +109,30 @@ public static class AnnotationConverter {
 	///<params name="board">The annotation of the board</params>
 	///<returns>The index of the board</returns>
 	public static int BoardToIndex(this string board) {
+		if (board == null) throw new ArgumentNullException(nameof(board), "Board annotation cannot be null");
 		int x = Array.IndexOf(_MAIN_BOARDS, board);
 		if (x != -1) return x * 2;
 		x = Convert.ToInt32(board[^1]);
 		return (x % 2 == 0) ? (x - 1) : x;
+	}
+
+	///<summary>
+	///Converts a board annotation to a pinned square vector
+	///</summary>
+	///<param name="board">The annotation of the board</param>
+	///<returns>The vector of the square the board is pinned to</returns>
+	public static Vector3Int BoardToVector(this string board) {
+		if (board == null) throw new ArgumentNullException(nameof(board), "Board annotation cannot be null");
+		return new Vector3Int(
+			board[0] == 'Q' ? 1 : 4,
+			BoardToIndex(board),
+			board[^1] % 2 == 0 ?
+				board[^1] :
+				board[^1] + 2 * (board[^1] / 2 - 1)
+		);
+	}
+
+	public static PieceType CharToPiece(this char charPiece) {
+		return _PIECES[charPiece];
 	}
 }
