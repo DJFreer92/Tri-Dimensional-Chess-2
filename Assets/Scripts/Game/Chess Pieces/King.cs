@@ -12,7 +12,7 @@ public sealed class King : ChessPiece {
 	//black king prefab gameobject
 	public static GameObject BlackPrefab {get; private set;}
 	//whether the king is in check
-	public bool IsInCheck {get; private set;}
+	public bool IsInCheck;
 	//has castling rights
 	public bool HasCastlingRights = true;
 
