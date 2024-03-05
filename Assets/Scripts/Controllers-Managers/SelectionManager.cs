@@ -8,7 +8,7 @@ public abstract class SelectionManager : MonoBehaviour {
 	[HideInInspector] public SelectionHandler LastSelected;
 
 	protected virtual void Update() {
-		if (EventSystem.current.currentSelectedGameObject != null && EventSystem.current.currentSelectedGameObject != LastSelected.gameObject)
+		if (EventSystem.current.currentSelectedGameObject != null && EventSystem.current.currentSelectedGameObject != LastSelected?.gameObject)
 			LastSelected = null;
 	}
 
