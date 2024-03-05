@@ -55,10 +55,7 @@ public sealed class SelectionHandler : MonoBehaviour, IPointerEnterHandler, IPoi
 
 	public void OnSelect(BaseEventData eventData) {
 		StartCoroutine(AnimateElement(true));
-		if (_verticalSelectionManager != null) {
-			Debug.Log("setting as last selected");
-			_verticalSelectionManager.LastSelected = this;
-		}
+		if (_verticalSelectionManager != null) _verticalSelectionManager.LastSelected = this;
 		if (_horizontalSelectionManager != null) _horizontalSelectionManager.LastSelected = this;
 	}
 
