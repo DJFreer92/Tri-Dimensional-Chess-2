@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 [RequireComponent(typeof(Canvas))]
 [DisallowMultipleComponent]
 public class MenuController : MonoSingleton<MenuController> {
 	[SerializeField] private Page _initialPage;
 	[SerializeField] private Canvas _rootCanvas;
+	[SerializeField] private TMP_Text _ipAddressText;
 	private Stack<Page> _pageStack = new();
 
 	private void Start() {
@@ -73,11 +75,19 @@ public class MenuController : MonoSingleton<MenuController> {
 	}
 
 	///<summary>
+	///Sets the IP address in the IP address textbox
+	///</summary>
+	public void SetIPAddress() {
+		_ipAddressText.text = $"IP Address: {Server.Instance.GetIPAddress()}";
+	}
+
+	///<summary>
 	///Quit the application
 	///</summary>
 	public void OnQuitButton() {
 		Server.Instance.ShutDown();
 		Client.Instance.ShutDown();
 		Application.Quit();
+		Debug.Log("Application Quit");
 	}
 }
