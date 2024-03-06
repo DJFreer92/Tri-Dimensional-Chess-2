@@ -2,6 +2,8 @@ using System;
 using Unity.Collections;
 using Unity.Networking.Transport;
 using UnityEngine;
+using System.Linq;
+using System.Net;
 
 [DisallowMultipleComponent]
 public sealed class Server : MonoSingleton<Server> {
@@ -144,4 +146,12 @@ public sealed class Server : MonoSingleton<Server> {
 		msg.Serialize(ref writer);
 		_driver.EndSend(writer);
 	}
+
+	///<summary>
+	///returns the ip address of the server
+	///</summary>
+	public string GetIPAddress() => Dns.GetHostEntry(Dns.GetHostName())
+		.AddressList.First(
+		f => f.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+		.ToString();
 }
