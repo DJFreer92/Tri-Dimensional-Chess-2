@@ -145,7 +145,7 @@ public sealed class King : ChessPiece {
 			}
 			int xDiff = Math.Abs(square.Coords.x - sqr.Coords.x);
 			int zDiff = Math.Abs(square.Coords.z - sqr.Coords.z);
-			if (xDiff > 1 || zDiff > 1) continue;
+			if (xDiff > 1 || zDiff > 1 || xDiff + zDiff == 0) continue;
 			if (sqr.HasPiece() && PieceOnSqr.IsWhite == IsWhite) continue;
 			if (!King.WillBeInCheck(new PieceMove(Game.Instance.GetPlayer(IsWhite), square, sqr))) moves.Add(sqr);
 		}

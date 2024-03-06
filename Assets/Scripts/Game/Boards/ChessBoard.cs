@@ -41,12 +41,13 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		{"KL5", new Vector3Int(4, 4, 5)},
 		{"KL6", new Vector3Int(4, 4, 8)}
 	};
-	//holds the boards of the chessboard
-	[field: SerializeField] public List<Board> Boards {get; private set;}
 	//piece's gameobject parents
-	public Transform whitePiecesParent, blackPieceParent;
+	[field: SerializeField] public Transform WhitePiecesParent {get; private set;}
+	[field: SerializeField] public Transform BlackPiecesParent {get; private set;}
 	//attackboard prefab gameobject
 	[SerializeField] private GameObject _attackboardPrefab;
+	//holds the boards of the chessboard
+	[field: SerializeField] public List<Board> Boards {get; private set;}
 
 	///<summary>
 	///Constructs a chessboard position from a FEN position
@@ -184,7 +185,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 				ChessPiece.GetPrefab(pieceChar.CharToPieceColor()),
 				sqr.gameObject.transform.position,
 				Quaternion.identity,
-				Char.IsUpper(pieceChar) ? whitePiecesParent : blackPieceParent
+				Char.IsUpper(pieceChar) ? WhitePiecesParent : BlackPiecesParent
 			).GetComponent<ChessPiece>();
 			if (Char.ToUpper(pieceChar) == 'P') (piece as Pawn).RevokeDSMoveRights();
 			if (Char.IsLower(pieceChar)) piece.gameObject.transform.Rotate(Vector3.up * 180);
@@ -302,15 +303,15 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 				z += direction[1];
 
 				//if the x or z coordinate is out of the boards bounds break out of the loop
-				if (x < 0 || x >= 6 || z < 0 || z >= 10) break;
+				if (x < 0 || x >= 5 || z < 0 || z >= 9) break;
 
 				//loop for Squares at the desired coordinates
 				foreach (Square sqr in GetEnumerableSquares()) {
+					//if there is not a piece on the square or the coordinates do not match the coordinates of the square, continue checking squares
+					if (!sqr.HasPiece() || sqr.Coords.x != x || sqr.Coords.z != z) continue;
+
 					//get the piece on the square
 					ChessPiece piece = sqr.GamePiece;
-
-					//if there is not a piece at the desired coordinates, continue checking Squares
-					if (sqr.Coords.x != x || sqr.Coords.z != z || piece == null) continue;
 
 					//mark for the while loop to end after this iteration
 					end = true;
@@ -318,23 +319,31 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 					//if the piece is not the color of the attacking pieces, continue checking Squares
 					if (attackingPiecesAreWhite != piece.IsWhite) continue;
 
-					//if the piece is a knight, continue checking Squares
-					if (piece is Knight) continue;
-
-					if (piece is King) {  //if the piece is a king
-						//if the piece is one square away, return attacker found
-						if (Math.Abs(square.Coords.x - x) + Math.Abs(square.Coords.z - z) == 1) return true;
-					} else if (piece is Queen) {
-						return true;
-					} else if (piece is Rook) {  //if the piece is a rook
-						//if the direction isn't diagonal, return attacker found
-						if (direction[0] == 0 || direction[1] == 0) return true;
-					} else if (piece is Bishop) {  //if the piece is a bishop
-						//if the direction is diagonal, return attacker found
-						if (direction[0] != 0 && direction[1] != 0) return true;
-					} else if (piece is Pawn) {  //if the piece is a pawn
-						//if the pawn is in range to attack the piece and the pawn is facing the correct direction, return attacker found
-						if (direction[0] != 0 && direction[1] != 0 && (Math.Abs(square.Coords.x - x) == 1) && direction[1] == (piece.IsWhite ? -1 : 1)) return true;
+					switch (piece.Type) {
+						case PieceType.KING:
+							int xDiff = Math.Abs(square.Coords.x - x);
+							int zDiff = Math.Abs(square.Coords.z - z);
+							//if the piece is one square away, return attacker found
+							if (xDiff <= 1 && zDiff <= 1 && xDiff + zDiff != 0) return true;
+						continue;
+						case PieceType.QUEEN: return true;
+						case PieceType.ROOK:
+							//if the direction isn't diagonal, return attacker found
+							if (direction[0] == 0 || direction[1] == 0) return true;
+						continue;
+						case PieceType.BISHOP:
+							//if the direction is diagonal, return attacker found
+							if (direction[0] != 0 && direction[1] != 0) return true;
+						continue;
+						case PieceType.KNIGHT: continue;
+						case PieceType.PAWN:
+							//if the pawn is in range to attack the piece and the pawn is facing the correct direction, return attacker found
+							if (direction[0] != 0 &&
+								direction[1] != 0 &&
+								(Math.Abs(square.Coords.x - x) == 1) &&
+								direction[1] == (piece.IsWhite ? -1 : 1)
+							) return true;
+						continue;
 					}
 				}
 			}

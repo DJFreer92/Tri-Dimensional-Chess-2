@@ -188,7 +188,7 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 				prefab,  //gameobject prefab
 				sqr.transform.position,  //vector3 position
 				transform.rotation,  //quarternion rotation
-				IsWhite ? ChessBoard.Instance.whitePiecesParent : ChessBoard.Instance.blackPieceParent  //parent transform
+				IsWhite ? ChessBoard.Instance.WhitePiecesParent : ChessBoard.Instance.BlackPiecesParent  //parent transform
 			);
 
 			//enable the mesh collider
