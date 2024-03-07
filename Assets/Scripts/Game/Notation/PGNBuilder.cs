@@ -46,6 +46,20 @@ public class PGNBuilder {
 		SetDateTime();
 	}
 
+	public PGNBuilder(string whitePlayer, string blackPlayer, string setup) {
+		if (whitePlayer == null) throw new ArgumentNullException(nameof(whitePlayer), "White Player cannot be null.");
+		if (blackPlayer == null) throw new ArgumentNullException(nameof(blackPlayer), "Black Player cannot be null.");
+		_whitePlayer = whitePlayer;
+		_blackPlayer = blackPlayer;
+		Setup = setup;
+		_event = "Freeplay";
+		_site = "The Internet";
+		_round = "N/A";
+		_mode = "ICS";
+		Moves = new();
+		SetDateTime();
+	}
+
 	private PGNBuilder() {}
 
 	///<summary>
@@ -134,38 +148,46 @@ public class PGNBuilder {
 	}
 
 	///<summary>
+	///Returns the PGN
+	///</summary>
+	///<returns>PGN</returns>
+	public string GetPGN() {
+		if (Moves.Count == 0) return null;
+
+		var str = new StringBuilder();
+		str.Append($"[Event \"{_event}\"]");
+		str.Append($"[Site \"{_site}\"]");
+		str.Append($"[Date \"{_date}\"]");
+		str.Append($"[Round \"{_round}\"]");
+		str.Append($"[White \"{_whitePlayer}\"]");
+		str.Append($"[Black \"{_blackPlayer}\"]");
+		if (_annotator != null) str.Append($"[Annotator \"[{_annotator}]\"]");
+		str.Append($"[Result \"{_result}\"]");
+		str.Append($"[PlyCount \"{Moves.Count}\"]");
+		if (_timeControl != null) str.Append($"[TimeControl \"{_timeControl}\"]");
+		str.Append($"[Time \"{_startTime}\"]");
+		str.Append($"[Termination \"{_termination}\"]");
+		str.Append($"[Mode \"{_mode}\"]\n");
+		str.Append($"[SetUp \"{Setup}\"]");
+		str.Append("[Variant \"Star Trek Tri-Dimensional\"]");
+		str.Append("1. ").Append(Moves[0]);
+		for (int i = 1; i < Moves.Count; i++) {
+			str.Append(" ");
+			if (i % 2 == 0) str.Append(i / 2).Append(". ");
+			str.Append(Moves[i]);
+		}
+		return str.ToString();
+	}
+
+	///<summary>
 	///Exports the PGN
 	///</summary>
 	///<param name="filePath">The file path to export the PGN to</param>
 	public void Export(string filePath) {
 		if (String.IsNullOrEmpty(filePath)) throw new ArgumentException(nameof(filePath), "Invalid file path.");
-		if (Moves.Count == 0) return;
-
-		var moves = new StringBuilder("1. ").Append(Moves[0]);
-		for (int i = 1; i < Moves.Count; i++) {
-			moves.Append(" ");
-			if (i % 2 == 0) moves.Append(i / 2).Append(". ");
-			moves.Append(Moves[i]);
-		}
 
 		using (var outFile = new StreamWriter(Path.Combine(filePath, "test.pgn"))) {
-			outFile.WriteLine($"[Event \"{_event}\"]");
-			outFile.WriteLine($"[Site \"{_site}\"]");
-			outFile.WriteLine($"[Date \"{_date}\"]");
-			outFile.WriteLine($"[Round \"{_round}\"]");
-			outFile.WriteLine($"[White \"{_whitePlayer}\"]");
-			outFile.WriteLine($"[Black \"{_blackPlayer}\"]");
-			if (_annotator != null) outFile.WriteLine($"[Annotator \"[{_annotator}]\"]");
-			outFile.WriteLine($"[Result \"{_result}\"]");
-			outFile.WriteLine($"[PlyCount \"{Moves.Count}\"]");
-			outFile.WriteLine($"[TimeControl \"{_timeControl}\"]");
-			outFile.WriteLine($"[Time \"{_startTime}\"]");
-			outFile.WriteLine($"[Termination \"{_termination}\"]");
-			outFile.WriteLine($"[Mode \"{_mode}\"]");
-			outFile.WriteLine();
-			outFile.WriteLine(moves);
-			outFile.WriteLine($"[SetUp \"{Setup}\"]");
-			outFile.WriteLine("[Variant \"Star Trek Tri-Dimensional\"]");
+			outFile.Write(GetPGN());
 		}
 	}
 }
