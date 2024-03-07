@@ -185,6 +185,7 @@ public sealed class PieceMove : Move {
 			king.HasCastlingRights = false;
 			rook.HasCastlingRights = false;
 
+			MoveEvents.Add(MoveEvent.CASTLING_KING_SIDE);
 			return;
 		}
 
@@ -202,6 +203,8 @@ public sealed class PieceMove : Move {
 
 		king.HasCastlingRights = false;
 		rook.HasCastlingRights = false;
+
+		MoveEvents.Add(MoveEvent.CASTLING_QUEEN_SIDE);
 	}
 
 	///<summary>
