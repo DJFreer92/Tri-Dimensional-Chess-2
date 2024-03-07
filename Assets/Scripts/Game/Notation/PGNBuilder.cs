@@ -40,7 +40,6 @@ public class PGNBuilder {
 		Setup = setup;
 		_event = "Freeplay";
 		_site = "The Internet";
-		_round = "N/A";
 		_mode = "ICS";
 		Moves = new();
 		SetDateTime();
@@ -54,7 +53,6 @@ public class PGNBuilder {
 		Setup = setup;
 		_event = "Freeplay";
 		_site = "The Internet";
-		_round = "N/A";
 		_mode = "ICS";
 		Moves = new();
 		SetDateTime();
@@ -125,7 +123,7 @@ public class PGNBuilder {
 	///</summary>
 	private void SetDateTime() {
 		DateTime dateTime = DateTime.Now;
-		_date = dateTime.ToString("yyyy.mm.dd");
+		_date = dateTime.ToString("yyyy.MM.dd");
 		_startTime = dateTime.ToString("hh:mm:ss");
 	}
 
@@ -155,21 +153,21 @@ public class PGNBuilder {
 		if (Moves.Count == 0) return null;
 
 		var str = new StringBuilder();
-		str.Append($"[Event \"{_event}\"]");
-		str.Append($"[Site \"{_site}\"]");
-		str.Append($"[Date \"{_date}\"]");
-		str.Append($"[Round \"{_round}\"]");
-		str.Append($"[White \"{_whitePlayer}\"]");
-		str.Append($"[Black \"{_blackPlayer}\"]");
-		if (_annotator != null) str.Append($"[Annotator \"[{_annotator}]\"]");
-		str.Append($"[Result \"{_result}\"]");
-		str.Append($"[PlyCount \"{Moves.Count}\"]");
-		if (_timeControl != null) str.Append($"[TimeControl \"{_timeControl}\"]");
-		str.Append($"[Time \"{_startTime}\"]");
-		str.Append($"[Termination \"{_termination}\"]");
+		str.Append($"[Event \"{_event}\"]\n");
+		str.Append($"[Site \"{_site}\"]\n");
+		str.Append($"[Date \"{_date}\"]\n");
+		if (_round != null) str.Append($"[Round \"{_round}\"]\n");
+		str.Append($"[White \"{_whitePlayer}\"]\n");
+		str.Append($"[Black \"{_blackPlayer}\"]\n");
+		if (_annotator != null) str.Append($"[Annotator \"[{_annotator}]\"]\n");
+		if (_result != null) str.Append($"[Result \"{_result}\"]\n");
+		str.Append($"[PlyCount \"{Moves.Count}\"]\n");
+		if (_timeControl != null) str.Append($"[TimeControl \"{_timeControl}\"]\n");
+		str.Append($"[Time \"{_startTime}\"]\n");
+		if (_termination != null) str.Append($"[Termination \"{_termination}\"]\n");
 		str.Append($"[Mode \"{_mode}\"]\n");
-		str.Append($"[SetUp \"{Setup}\"]");
-		str.Append("[Variant \"Star Trek Tri-Dimensional\"]");
+		str.Append($"[SetUp \"{Setup}\"]\n");
+		str.Append("[Variant \"Star Trek Tri-Dimensional\"]\n\n");
 		str.Append("1. ").Append(Moves[0]);
 		for (int i = 1; i < Moves.Count; i++) {
 			str.Append(" ");
