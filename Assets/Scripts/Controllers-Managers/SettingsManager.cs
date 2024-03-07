@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Game))]
@@ -12,6 +11,7 @@ public class SettingsManager : MonoSingleton<SettingsManager> {
 	[field: SerializeField] public bool AutoQueen {get; private set;}
 	[field: SerializeField] public bool FigurineNotation {get; private set;}
 	[field: SerializeField] public bool TestMode {get; private set;}
+	[SerializeField] private GameObject _analysisSettings;
 
 	///<summary>
 	///Toggle the auto queen setting
@@ -35,5 +35,13 @@ public class SettingsManager : MonoSingleton<SettingsManager> {
 	public void ToggleTestMode() {
 		TestMode = !TestMode;
 		OnTestModeChange?.Invoke(FigurineNotation);
+	}
+
+	///<summary>
+	///Shows or hides the analysis settings
+	///</summary>
+	///<param name="show">Whether to show or hide the analysis settings</param>
+	public void ShowAnalysisSettings(bool show) {
+		_analysisSettings.SetActive(show);
 	}
 }
