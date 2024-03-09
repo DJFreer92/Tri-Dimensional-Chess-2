@@ -4,7 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Game))]
 [DisallowMultipleComponent]
-public class CapturedPiecesController : MonoSingleton<CapturedPiecesController> {
+public sealed class CapturedPiecesController : MonoSingleton<CapturedPiecesController> {
 	[SerializeField] private Transform _whitePiecesParent;
 	[SerializeField] private Transform _blackPiecesParent;
 	public Action<PieceType, bool> OnPieceCaptured, OnCapturedPieceRemoved;
@@ -42,7 +42,10 @@ public class CapturedPiecesController : MonoSingleton<CapturedPiecesController> 
 			return;
 		}
 
-		ChessPiece newPiece = Instantiate(ChessPiece.GetPrefab(type.GetPieceTypeColor(isWhite)), _whitePiecesParent).GetComponent<ChessPiece>();
+		ChessPiece newPiece = Instantiate(
+			ChessPiece.GetPrefab(type.GetPieceTypeColor(!isWhite)),
+			!isWhite ? _whitePiecesParent : _blackPiecesParent
+		).GetComponent<ChessPiece>();
 		_createdPieces.Add(newPiece);
 		newPiece.SetCaptured();
 	}
