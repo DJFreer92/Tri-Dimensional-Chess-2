@@ -11,7 +11,7 @@ public sealed class AttackBoard : Board, IMovable {
 	///<summary>
 	///Clears the attackboard
 	///</summary>
-	public override void Clear(){
+	public override void Clear() {
 		base.Clear();
 		Destroy(gameObject);
 	}
@@ -149,17 +149,17 @@ public sealed class AttackBoard : Board, IMovable {
 
 		//calculate the change in x and z positions
 		int xDiff = 0, zDiff = 0;
-		if (Math.Abs(move.EndSqr.Coords.x - move.StartSqr.Coords.x) > 1) {  //if the board is moving in the x direction
+		if (Math.Abs(move.EndSqr.Coords.x - move.StartPinSqr.Coords.x) > 1) {  //if the board is moving in the x direction
 			//calculate the change in x position
-			xDiff = Math.Sign(move.StartSqr.Coords.x - move.EndSqr.Coords.x) * 4;
+			xDiff = Math.Sign(move.StartPinSqr.Coords.x - move.EndSqr.Coords.x) * 4;
 		} else {  //the board is moving in the z direction
 			//calculate the change in z position
-			zDiff = (move.StartSqr.Coords.y == PinnedSquare.Coords.y) ? 4 : 2;
-			zDiff *= Math.Sign(move.StartSqr.Coords.z - move.EndSqr.Coords.z);
+			zDiff = (move.StartPinSqr.Coords.y + 1 == PinnedSquare.Coords.y) ? 4 : 2;
+			zDiff *= Math.Sign(move.StartPinSqr.Coords.z - move.EndSqr.Coords.z);
 		}
 
 		//change the y value of the attackboard
-		Y = move.StartSqr.Coords.y + 1;
+		Y = move.StartPinSqr.Coords.y + 1;
 
 		//move all the Squares on the attackboard to their old positions
 		foreach (Square sqr in Squares)
@@ -167,11 +167,11 @@ public sealed class AttackBoard : Board, IMovable {
 
 		//calculate the displacement of the attackboard from the end square in the x and z directions
 		float xDisplace = 0.5f, zDisplace = 0.5f;
-		if (move.StartSqr.Coords.x == 1) xDisplace *= -1;
-		if (move.StartSqr.Coords.z % 2 == 1) zDisplace *= -1;
+		if (move.StartPinSqr.Coords.x == 1) xDisplace *= -1;
+		if (move.StartPinSqr.Coords.z % 2 == 1) zDisplace *= -1;
 
 		//change the position of the attackboard
-		transform.position = move.StartSqr.transform.position + new Vector3(xDisplace, 1.5f, zDisplace);
+		transform.position = move.StartPinSqr.transform.position + new Vector3(xDisplace, 1.5f, zDisplace);
 
 		//move the pieces to the new location of their Squares
 		UpdatePiecePositions();
@@ -180,7 +180,7 @@ public sealed class AttackBoard : Board, IMovable {
 		PinnedSquare.IsOccupiedByAB = false;
 
 		//set the end square as the new pinned square and set as occupied
-		PinnedSquare = move.StartSqr;
+		PinnedSquare = move.StartPinSqr;
 		PinnedSquare.IsOccupiedByAB = true;
 
 		//set the annotation of the attackboard

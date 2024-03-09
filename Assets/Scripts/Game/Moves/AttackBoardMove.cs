@@ -4,11 +4,14 @@ using System.Text;
 public sealed class AttackBoardMove : Move {
 	//the attackboard being moved
 	public AttackBoard BoardMoved {get; private set;}
+	//the square the board moved was pinned to at the start of the move
+	public Square StartPinSqr {get; private set;}
 	//the annotation of the attackboard being moved before it has moved
 	private readonly string _boardMovedAnnotationAtStart;
 
 	public AttackBoardMove(Player player, Square start, Square end) : base(player, start, end) {
 		BoardMoved = ChessBoard.Instance.GetBoardWithSquare(start) as AttackBoard;
+		StartPinSqr = BoardMoved.PinnedSquare;
 		_boardMovedAnnotationAtStart = start.Coords.VectorToBoard();
 	}
 
