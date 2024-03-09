@@ -55,6 +55,7 @@ public class CapturedPiecesController : MonoSingleton<CapturedPiecesController> 
 		List<ChessPiece> capturedPieces = piece.IsWhite ? _capturedWhitePieces : _capturedBlackPieces;
 		foreach (ChessPiece pc in capturedPieces) {
 			if (pc != piece) continue;
+			pc.gameObject.transform.localScale = Vector3.one;
 			capturedPieces.Remove(pc);
 			return;
 		}
