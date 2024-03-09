@@ -171,7 +171,7 @@ public class PGNBuilder {
 		str.Append("1. ").Append(Moves[0]);
 		for (int i = 1; i < Moves.Count; i++) {
 			str.Append(" ");
-			if (i % 2 == 0) str.Append(i / 2).Append(". ");
+			if (i % 2 == 0) str.Append(i / 2 + 1).Append(". ");
 			str.Append(Moves[i]);
 		}
 		return str.ToString();
