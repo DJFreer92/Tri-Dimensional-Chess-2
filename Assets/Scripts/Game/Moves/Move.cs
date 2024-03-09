@@ -35,6 +35,73 @@ public abstract class Move : ICommand {
 	public abstract void Undo();
 
 	///<summary>
+	///Build the move from the given annotation
+	///</summary>
+	public static Move BuildMove(string annotatedMove, bool isWhite) {
+		Move move;
+		int seperationIndex;
+
+		if (annotatedMove.Contains('-') && !annotatedMove.Contains("O-O")) {
+			seperationIndex = annotatedMove.IndexOf('-');
+
+			move = new AttackBoardMove(
+				Game.Instance.GetPlayer(isWhite),
+				ChessBoard.Instance.GetSquareAt(annotatedMove.Substring(0, seperationIndex).BoardToVector()),
+				ChessBoard.Instance.GetSquareAt(annotatedMove.Substring(seperationIndex).BoardToVector())
+			);
+		} else if (annotatedMove.Contains("O-O")) {
+			Square rookSqr;
+
+			if (annotatedMove.Contains("O-O-O")) {
+				rookSqr = isWhite ?
+					ChessBoard.Instance.GetSquareAt(ChessBoard.WhiteQueenSideRookCoords) :
+					ChessBoard.Instance.GetSquareAt(ChessBoard.BlackQueenSideRookCoords);
+			} else {
+				rookSqr = isWhite ?
+					ChessBoard.Instance.GetSquareAt(ChessBoard.WhiteKingSideRookCoords) :
+					ChessBoard.Instance.GetSquareAt(ChessBoard.BlackKingSideRookCoords);
+			}
+
+			move = new PieceMove(
+				Game.Instance.GetPlayer(isWhite),
+				isWhite ?
+					ChessBoard.Instance.GetSquareAt(ChessBoard.WhiteKingCoords) :
+					ChessBoard.Instance.GetSquareAt(ChessBoard.BlackKingCoords),
+				rookSqr
+			);
+		} else {
+			seperationIndex = annotatedMove.IndexOf('x');
+
+			if (seperationIndex != -1)
+				for (int i = 2; i < annotatedMove.Length; i++)
+					if (Char.IsLower(annotatedMove[i])) seperationIndex = i;
+
+			move = new PieceMove(
+				Game.Instance.GetPlayer(isWhite),
+				ChessBoard.Instance.GetSquareAt(annotatedMove.Substring(
+					Char.IsUpper(annotatedMove[0]) ? 1 : 0,
+					seperationIndex
+				).AnnotationToVector()),
+				ChessBoard.Instance.GetSquareAt(annotatedMove.Substring(seperationIndex).AnnotationToVector())
+			);
+		}
+
+		if (annotatedMove.Contains('x')) move.MoveEvents.Add(MoveEvent.CAPTURE);
+		if (annotatedMove.Contains("e.p.")) move.MoveEvents.Add(MoveEvent.EN_PASSANT);
+		else if (annotatedMove.Contains('=')) {
+			move.MoveEvents.Add(MoveEvent.PROMOTION);
+			move.Promotion = annotatedMove[annotatedMove.IndexOf('=') + 1].CharToPiece();
+		}
+		if (annotatedMove.Contains('#')) move.MoveEvents.Add(MoveEvent.CHECK, MoveEvent.CHECKMATE);
+		else if (annotatedMove.Contains('+')) {
+			move.MoveEvents.Add(MoveEvent.CHECK);
+			ChessBoard.Instance.GetKing(!isWhite).IsInCheck = true;
+		}
+
+		return move;
+	}
+
+	///<summary>
 	///Requests for the user to choose a chess piece to promote to and waits until a choice is made
 	///</summary>
 	public IEnumerator GetPromotionChoice() {
