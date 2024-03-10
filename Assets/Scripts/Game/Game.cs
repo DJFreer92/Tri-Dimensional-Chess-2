@@ -16,8 +16,8 @@ public sealed class Game : MonoSingleton<Game> {
 	//port that the server and client can connect to
 	private const int _CONNECTION_PORT = 8005;
 	//starting positions
-	public const string STANDARD_START_FEN = "b6B6w1W1 nbbn/dddd/4/4|4/4/4/4|4/4/DDDD/NBBN|rq/dd|kr/dd|DD/RQ|DD/KR w KQkq - 0 1";
-	public const string SIX_ATTACKBOARD_START_FEN = "b6B6n4N3w1W1 nbbn/dddd/4/4|4/4/4/4|4/4/DDDD/NBBN|rq/dd|kr/dd|2/2|2/2|DD/RQ|DD/KR w KQkq - 0 1";
+	public const string ORIGINAL_FEN = "b6B6w1W1 nbbn/dddd/4/4|4/4/4/4|4/4/DDDD/NBBN|rq/dd|kr/dd|DD/RQ|DD/KR w KQkq - 0 1";
+	public const string NEXT_GEN_FEN = "b6B6n4N3w1W1 nbbn/dddd/4/4|4/4/4/4|4/4/DDDD/NBBN|rq/dd|kr/dd|2/2|2/2|DD/RQ|DD/KR w KQkq - 0 1";
 	//listeners
 	public Action OnGameStateChange, OnCurrentPlayerChange;
 	public Action<Player> OnCurrentPlayerChangeWParam;
@@ -73,10 +73,13 @@ public sealed class Game : MonoSingleton<Game> {
 	private Player _curPlayer;
 	public CommandHandler MoveCommandHandler {get; private set;}
 	private Player[] _players = new Player[2];
+	private PGNBuilder _pgnBuilder;
+	public string Setup;
 	private Square _selectedSquare;
 	private List<Square> _availableMoves, _availableABMoves;
 	private List<string> _prevPositions;
 	private List<int> _prevAvailableMovesCount;
+	public int MoveCount {get; private set;}
 	private int _moveRuleCount;
 
 	//used for multiplayer
@@ -182,7 +185,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///<summary>
 	///Initializes the game
 	///</summary>
-	public void Init(string fen = STANDARD_START_FEN) {
+	public void Init() {
 		//set the status of the game to active
 		_state = GameState.WHITE_TURN;
 
@@ -191,9 +194,6 @@ public sealed class Game : MonoSingleton<Game> {
 
 		//set the player of the white pieces to the current turn
 		CurPlayer = GetPlayer(true);
-
-		//load the position from the fen
-		LoadFEN(fen);
 
 		//clear the moves that have been played
 		MovesPlayed = new();
@@ -209,13 +209,48 @@ public sealed class Game : MonoSingleton<Game> {
 		_prevPositions = new();
 		_prevAvailableMovesCount = new();
 
+		//initialize move count
+		MoveCount = 0;
+
 		//initialize move rule count
 		_moveRuleCount = 0;
+
+		//load the position from the fen
+		LoadFEN(Setup);
+
+		//initialize the PGN builder
+		_pgnBuilder = new PGNBuilder("Player 1", "Player 2", Setup);
 
 		//clear the captured pieces
 		CapturedPiecesController.Instance.ClearCapturedPieces();
 
-		Debug.Log(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, (MovesPlayed.Count / 2 + 1)));
+		Debug.Log(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount));
+		Debug.Log(_pgnBuilder.GetPGN());
+	}
+
+	///<summary>
+	///Starts a local game
+	///</summary>
+	public void StartLocalGame() {
+		_isLocalGame = true;
+		Server.Instance.Init(_CONNECTION_PORT);
+		Client.Instance.Init("127.0.0.1", _CONNECTION_PORT);
+	}
+
+	///<summary>
+	///Loads the given PGN
+	///</summary>
+	///<param name="pgn">The PGN to load</param>
+	public void LoadPGN(string pgn) {
+		PGNBuilder builder = PGNBuilder.BuildPGN(pgn);
+		Setup = builder.Setup;
+		Init();
+		bool moveIsWhite = true;
+		foreach (string annotatedMove in builder.Moves) {
+			MovesPlayed.Add(Move.BuildMove(annotatedMove, moveIsWhite));
+			moveIsWhite = !moveIsWhite;
+		}
+		MoveCount = MovesPlayed.Count / 2 + 1;
 	}
 
 	///<summary>
@@ -225,8 +260,9 @@ public sealed class Game : MonoSingleton<Game> {
 	public void LoadFEN(string fen) {
 		string[] sections = fen.Split(' ');
 		ChessBoard.Instance.ConstructPosition(fen);
-		if (sections[2] == "w" && !CurPlayer.IsWhite) SwitchCurrentPlayer();
+		if (sections[2] == "w" != CurPlayer.IsWhite) SwitchCurrentPlayer();
 		_moveRuleCount = Int32.Parse(sections[5]);
+		MoveCount = Int32.Parse(sections[6]);
 	}
 
 	///<summary>
@@ -391,12 +427,13 @@ public sealed class Game : MonoSingleton<Game> {
 	public void FinishTurn(Move move) {
 		//record the move
 		MovesPlayed.Add(move);
+		_pgnBuilder.AddMove(move.GetAnnotation());
+
+		//update the move count
+		if (!CurPlayer.IsWhite) MoveCount++;
 
 		//check if the game was won or is a draw
 		UpdateGameState();
-
-		Debug.Log(State);
-		Debug.Log(State.Is(GameState.ACTIVE));
 
 		//switch to the next player's turn
 		if (State.Is(GameState.ACTIVE)) NextTurn();
@@ -448,7 +485,7 @@ public sealed class Game : MonoSingleton<Game> {
 		}
 
 		//add the last position to the previous positions
-		_prevPositions.Add(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, (MovesPlayed.Count / 2 + 1)));
+		_prevPositions.Add(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount));
 
 		//threefold repetition
 		//if a piece was captured on the last move
@@ -504,7 +541,8 @@ public sealed class Game : MonoSingleton<Game> {
 		//switch the current turn
 		SwitchCurrentPlayer();
 
-		Debug.Log(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MovesPlayed.Count / 2 + 1));
+		Debug.Log(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount));
+		Debug.Log(_pgnBuilder.GetPGN());
 	}
 
 	///<summary>
@@ -565,7 +603,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	///<returns>Whether it is currently the first move of either player</returns>
 	public bool IsFirstMove() {
-		return MovesPlayed.Count < 2;
+		return MoveCount == 1;
 	}
 
 	///<summary>
@@ -618,6 +656,42 @@ public sealed class Game : MonoSingleton<Game> {
 		if (!_isLocalGame) return;
 
 		NextTurn();
+	}
+
+	///<summary>
+	///Undoes the last move
+	///</summary>
+	public void OnUndoLastMoveButton() {
+		MoveCommandHandler.UndoCommand();
+	}
+
+	///<summary>
+	///Undoes all the moves
+	///</summary>
+	public void OnUndoAllMovesButton() {
+		MoveCommandHandler.UndoAllCommands();
+	}
+
+	///<summary>
+	///Redoes the next move
+	///</summary>
+	public void OnRedoNextMoveButton() {
+		MoveCommandHandler.RedoCommand();
+	}
+
+	///<summary>
+	///Redoes all the moves
+	///</summary>
+	public void OnRedoAllMovesButton() {
+		MoveCommandHandler.RedoAllCommands();
+	}
+
+	///<summary>
+	///Takeback the last move
+	///</summary>
+	public void OnTakebackMoveButton() {
+		MoveCommandHandler.RedoAllCommands();
+		if (MoveCommandHandler.UndoAndRemoveCommand()) SwitchCurrentPlayer();
 	}
 
 	//Server
