@@ -119,6 +119,15 @@ public class PGNBuilder {
 	}
 
 	///<summary>
+	///Psuedo verifies the given PGN
+	///</summary>
+	///<param name="pgn">The PGN to be verified</param>
+	///<returns>Whether the PGN is psuedo valid</returns>
+	public static bool VerifyPGN(string pgn) {
+		return true;
+	}
+
+	///<summary>
 	///Sets the date and time of the start of the game
 	///</summary>
 	private void SetDateTime() {

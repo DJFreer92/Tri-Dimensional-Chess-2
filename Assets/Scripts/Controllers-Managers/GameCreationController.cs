@@ -79,10 +79,14 @@ public sealed class GameCreationController : MonoSingleton<GameCreationControlle
 	public void CreateGame() {
 		if (!VerifySettings()) return;
 
-		if (IsSelected(_originalButton)) Game.Instance.Setup = Game.ORIGINAL_FEN;
-		else if (IsSelected(_nextGenButton)) Game.Instance.Setup = Game.NEXT_GEN_FEN;
-		else if (IsSelected(_useFENButton)) Game.Instance.Setup = _fenPGNInput.text;
+		string fen = null;
+
+		if (IsSelected(_originalButton)) fen = Game.ORIGINAL_FEN;
+		else if (IsSelected(_nextGenButton)) fen = Game.NEXT_GEN_FEN;
+		else if (IsSelected(_useFENButton)) fen = _fenPGNInput.text;
 		else Game.Instance.LoadPGN(_fenPGNInput.text);
+
+		Game.Instance.Setup = _fenPGNInput.text;
 
 		if (IsSelected(_localButton)) {
 			Game.Instance.StartLocalGame();
@@ -99,46 +103,25 @@ public sealed class GameCreationController : MonoSingleton<GameCreationControlle
 	}
 
 	///<summary>
-	///Verify that the settings are valid, if they're not display a message to change the settings
+	///Verifies that the settings are valid, if they're not displays a message to change the settings
 	///</summary>
 	///<returns>Whether the settings are valid</returns>
 	private bool VerifySettings() {
 		bool valid = true;
-		if (!IsSelected(_localButton) && !IsSelected(_hostButton) && !IsSelected(_analysisButton)) {
-			MessageManager.Instance.CreateMessage("Must select game mode");
+		
+		if (!IsSelected(_usePGNButton) && !FENBuilder.VerifyFEN(_fenPGNInput.text)) {
+			MessageManager.Instance.CreateMessage("Must enter a valid FEN");
+			valid = false;
+		} else if (IsSelected(_usePGNButton) && !PGNBuilder.VerifyPGN(_fenPGNInput.text)) {
+			MessageManager.Instance.CreateMessage("Must enter a valid PGN");
 			valid = false;
 		}
 
-		if (!IsSelected(_originalButton) && !IsSelected(_nextGenButton) && !IsSelected(_useFENButton) && !IsSelected(_usePGNButton)) {
-			MessageManager.Instance.CreateMessage("Must select a variant");
-			valid = false;
-		} else if (IsSelected(_useFENButton) && _fenPGNInput.text == "") {
-			MessageManager.Instance.CreateMessage("Must enter an FEN");
-			valid = false;
-		} else if (IsSelected(_usePGNButton) && _fenPGNInput.text == "") {
-			MessageManager.Instance.CreateMessage("Must enter a PGN");
-			valid = false;
-		}
-
-		if (!IsSelected(_fiveZeroButton) &&
-			!IsSelected(_fiveThreeButton) &&
-			!IsSelected(_tenZeroButton) &&
-			!IsSelected(_tenFiveButton) &&
-			!IsSelected(_fifteenTenButton) &&
-			!IsSelected(_thirtyZeroButton) &&
-			!IsSelected(_thirtyTwentyButton) &&
-			!IsSelected(_sixtyZeroButton) &&
-			!IsSelected(_sixtyThirtyButton) &&
-			!IsSelected(_noneButton) &&
-			!IsSelected(_customButton)
-		) {
-			MessageManager.Instance.CreateMessage("Must select a time control");
-			valid = false;
-		} else if (IsSelected(_customButton) && _timeInput.text == "") {
-			MessageManager.Instance.CreateMessage("Must enter custom time control");
+		if (IsSelected(_customButton) && _timeInput.text == "") {
+			MessageManager.Instance.CreateMessage("Must enter time");
 			valid = false;
 		} else if (IsSelected(_customButton) && _incrementInput.text == "") {
-			MessageManager.Instance.CreateMessage("Must enter custom time control");
+			MessageManager.Instance.CreateMessage("Must enter increment");
 			valid = false;
 		}
 
