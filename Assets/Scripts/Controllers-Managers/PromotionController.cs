@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +8,7 @@ public sealed class PromotionController : MonoSingleton<PromotionController> {
 	[SerializeField] private Button _whiteQueenBtn, _whiteRookBtn, _whiteBishopBtn, _whiteKnightBtn, _blackQueenBtn, _blackRookBtn, _blackBishopBtn, _blackKnightBtn;
 	public bool SelectionInProgress {get => _moveInProgress != null;}
 	private Move _moveInProgress;
+	private bool _isOpponentPromotion;
 
 	protected override void Awake() {
 		base.Awake();
@@ -27,8 +27,9 @@ public sealed class PromotionController : MonoSingleton<PromotionController> {
 	///Opens the promotation panel
 	///</summary>
 	///<param name="move">The move</param>
-	public void ShowPromotionOptions(Move move) {
+	public void ShowPromotionOptions(Move move, bool isOpponentPromotion = false) {
 		_moveInProgress = move;
+		_isOpponentPromotion = isOpponentPromotion;
 
 		//if auto queen is enabled, automatically promote to a queen
 		if (SettingsManager.Instance.AutoQueen) {
@@ -36,8 +37,8 @@ public sealed class PromotionController : MonoSingleton<PromotionController> {
 			return;
 		}
 
-		_whiteBtns.SetActive(move.Player.IsWhite);
-		_blackBtns.SetActive(!move.Player.IsWhite);
+		_whiteBtns.SetActive(_isOpponentPromotion ? !move.Player.IsWhite : move.Player.IsWhite);
+		_blackBtns.SetActive(_isOpponentPromotion ? move.Player.IsWhite : !move.Player.IsWhite);
 
 		//focus the queen button
 		_promotionPage.SetFirstFocusItem((move.Player.IsWhite ? _whiteQueenBtn : _blackQueenBtn).gameObject);
@@ -58,7 +59,9 @@ public sealed class PromotionController : MonoSingleton<PromotionController> {
 	///</summary>
 	///<param name="type">The type of piece<param>
 	private void Promote(PieceType type) {
-		_moveInProgress.Promotion = type;
+		if (_isOpponentPromotion) _moveInProgress.OpponentPromotion = type;
+		else _moveInProgress.Promotion = type;
 		_moveInProgress = null;
+		_isOpponentPromotion = false;
 	}
 }

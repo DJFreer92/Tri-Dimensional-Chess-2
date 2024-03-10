@@ -14,6 +14,8 @@ public abstract class Move : ICommand {
 	public bool UseFigurineNotation;
 	//what type of piece the user has selected to promote a pawn to
 	public PieceType Promotion = PieceType.NONE;
+	//what type of piece the opponent has selected to promote a pawn to
+	public PieceType OpponentPromotion = PieceType.NONE;
 	//the square the pawn being en passant is on
 	protected Square EnPassantCaptureSqr;
 
@@ -104,19 +106,20 @@ public abstract class Move : ICommand {
 	///<summary>
 	///Requests for the user to choose a chess piece to promote to and waits until a choice is made
 	///</summary>
-	public IEnumerator GetPromotionChoice() {
-		PromotionController.Instance.ShowPromotionOptions(this);
+	///<param name="isOpponentPromotion">Whether the promotion is for the opponent's pawn
+	public IEnumerator GetPromotionChoice(bool isOpponentPromotion = false) {
+		PromotionController.Instance.ShowPromotionOptions(this, isOpponentPromotion);
 
 		Debug.Log("Waiting for promotion selection...");
 		yield return new WaitUntil(() => !PromotionController.Instance.SelectionInProgress);
 
-		if (Promotion == PieceType.NONE) {
+		if ((isOpponentPromotion ? OpponentPromotion : Promotion) == PieceType.NONE) {
 			Debug.Log("Promotion selection aborted.");
 			Game.Instance.MoveCommandHandler.UndoAndRemoveCommand();
+		} else {
+			Debug.Log("Promotion selection recieved.");
+			Execute();
 		}
-
-		Debug.Log("Promotion selection recieved.");
-		Execute();
 	}
 
 	///<summary>

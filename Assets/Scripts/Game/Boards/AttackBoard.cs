@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
+using Unity.VisualScripting;
 
 [DisallowMultipleComponent]
 public sealed class AttackBoard : Board, IMovable {
@@ -83,7 +84,7 @@ public sealed class AttackBoard : Board, IMovable {
 			//if the move is a pawn promotion, ask the user what piece to promote to, then wait
 			if (pawn.CanBePromoted(move, newSquare)) {
 				Game.Instance.StartCoroutine(move.GetPromotionChoice());
-				throw new Exception("Must wait for pormotion choice");
+				throw new Exception("Must wait for promotion choice");
 			}
 		}
 
@@ -115,7 +116,7 @@ public sealed class AttackBoard : Board, IMovable {
 		//set the annotation of the attackboard
 		SetBoardAnnotation();
 
-		//if the piece is not a pawn or it cannot be promoted, return
+		//if there is not a pawn promotion
 		if (move.Promotion == PieceType.NONE) return;
 
 		//execute the promotion

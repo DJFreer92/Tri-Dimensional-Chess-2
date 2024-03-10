@@ -19,7 +19,24 @@ public sealed class AttackBoardMove : Move {
 	///Executes the move
 	///</summary>
 	public override void Execute() {
+		//if there was an opponent pawn promotion
+		if (MoveEvents.Contains(MoveEvent.OPPONENT_PROMOTION)) {
+			//promote the opponent's pawn
+			(StartPinSqr.GamePiece as Pawn).Promote(OpponentPromotion);
+			return;
+		}
+
+		//make board move
 		BoardMoved.Move(this);
+
+		//if there is not an opponent pawn on the square the attack board was pinned to, return
+		if (StartPinSqr.GamePiece.Type != PieceType.PAWN || StartPinSqr.GamePiece.IsWhite == Player.IsWhite) return;
+		//if the pawn is not at the end of the board, return
+		if (Player.IsWhite ? StartPinSqr.Coords.z != 1 : StartPinSqr.Coords.z != 8) return;
+
+		//promote the opponent's pawn
+		MoveEvents.Add(MoveEvent.OPPONENT_PROMOTION);
+		Game.Instance.StartCoroutine(GetPromotionChoice(true));
 	}
 
 	///<summary>
