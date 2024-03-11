@@ -135,3 +135,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsWhite: 0
+  Type: 6
+  IsInCheck: 0
+  HasCastlingRights: 1

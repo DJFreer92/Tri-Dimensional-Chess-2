@@ -135,4 +135,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsWhite: 0
-  SquareColorIsWhite: 0
+  Type: 3
+  <SquareColorIsWhite>k__BackingField: 0

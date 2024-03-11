@@ -134,4 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b8fbf071ac494fe3903353f132def6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <IsWhite>k__BackingField: 1
+  IsWhite: 1
+  Type: 1
+  HasDSMoveRights: 1
+  JustMadeDSMove: 0

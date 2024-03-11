@@ -135,3 +135,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsWhite: 0
+  Type: 1
+  HasDSMoveRights: 1
+  JustMadeDSMove: 0

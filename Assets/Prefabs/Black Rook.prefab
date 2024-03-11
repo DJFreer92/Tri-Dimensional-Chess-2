@@ -135,3 +135,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsWhite: 0
+  Type: 4
+  HasCastlingRights: 1
+  <IsKingSide>k__BackingField: 0
