@@ -32,7 +32,7 @@ public sealed class King : ChessPiece {
 				move.StartSqr.GamePiece = move.EndSqr.GamePiece;
 				move.EndSqr.GamePiece = move.PieceMoved;
 
-				willBeInCheck = ChessBoard.Instance.IsKingInCheck(move.Player.IsWhite);
+				willBeInCheck = ChessBoard.Instance.GetKingCheckEvaluation(move.Player.IsWhite);
 
 				//assign the pieces back to their old Squares
 				move.EndSqr.GamePiece = move.StartSqr.GamePiece;
@@ -59,7 +59,7 @@ public sealed class King : ChessPiece {
 			rookSqr.GamePiece = null;
 			kingLandingSqr.GamePiece = king;
 
-			willBeInCheck = ChessBoard.Instance.IsKingInCheck(move.Player.IsWhite);
+			willBeInCheck = ChessBoard.Instance.GetKingCheckEvaluation(move.Player.IsWhite);
 
 			//assign the pieces back to their old Squares
 			kingSqr.GamePiece = king;
@@ -111,7 +111,7 @@ public sealed class King : ChessPiece {
 		}
 
 		//determine whether the move puts the king in check
-		bool willBeInCheck = ChessBoard.Instance.IsKingInCheck(move.Player.IsWhite);
+		bool willBeInCheck = ChessBoard.Instance.GetKingCheckEvaluation(move.Player.IsWhite);
 
 		//move all the Squares on the attackboard back to their old positions
 		foreach (Square sqr in move.BoardMoved.Squares) {
