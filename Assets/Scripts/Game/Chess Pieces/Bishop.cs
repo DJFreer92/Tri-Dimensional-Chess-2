@@ -9,7 +9,7 @@ public sealed class Bishop : ChessPiece {
 	//black bishop prefab gameobject
 	public static GameObject BlackPrefab {get; private set;}
 	//whether the color of squares the bishop travels on is white
-	[field: SerializeField] public bool SquareColorIsWhite {get; set;}
+	public bool SquareColorIsWhite;
 
 	///<summary>
 	///Returns a list of all the bishop's available moves
