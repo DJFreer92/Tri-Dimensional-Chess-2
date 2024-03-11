@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-[DisallowMultipleComponent]
 public sealed class Bishop : ChessPiece {
 	//the notation and figurine characters of the bishop
 	private const string _STANDARD_CHARACTER = "B", _FIGURINE_CHARACTER = "♗";
@@ -25,7 +23,7 @@ public sealed class Bishop : ChessPiece {
 		for (var xd = -1; xd <= 1; xd += 2) {
 			for (var zd = -1; zd <= 1; zd += 2) {
 				bool blocked = false;
-				for (var dist = 1; dist < 9; dist++) {
+				for (var dist = 1; dist <= 5; dist++) {
 					int x = xd * dist + square.Coords.x;
 					int z = zd * dist + square.Coords.z;
 					if (x < 0 || x > 5 || z < 0 || z > 9) break;
