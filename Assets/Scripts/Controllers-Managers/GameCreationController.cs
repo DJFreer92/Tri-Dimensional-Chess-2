@@ -108,7 +108,7 @@ public sealed class GameCreationController : MonoSingleton<GameCreationControlle
 	///<returns>Whether the settings are valid</returns>
 	private bool VerifySettings() {
 		bool valid = true;
-		
+
 		if (!IsSelected(_usePGNButton) && !FENBuilder.VerifyFEN(_fenPGNInput.text)) {
 			MessageManager.Instance.CreateMessage("Must enter a valid FEN");
 			valid = false;
@@ -116,6 +116,8 @@ public sealed class GameCreationController : MonoSingleton<GameCreationControlle
 			MessageManager.Instance.CreateMessage("Must enter a valid PGN");
 			valid = false;
 		}
+
+		if (IsSelected(_analysisButton)) return valid;
 
 		if (IsSelected(_customButton) && _timeInput.text == "") {
 			MessageManager.Instance.CreateMessage("Must enter time");
