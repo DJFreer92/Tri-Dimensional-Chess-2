@@ -23,10 +23,11 @@ public sealed class Queen : ChessPiece {
 		for (var xd = -1; xd <= 1; xd++) {
 			for (var zd = -1; zd <= 1; zd++) {
 				bool blocked = false;
-				for (var dist = 1; dist < 9; dist++) {
+				for (var dist = 1; dist <= 9; dist++) {
 					int x = xd * dist + square.Coords.x;
 					int z = zd * dist + square.Coords.z;
 					if (x < 0 || x > 5 || z < 0 || z > 9) break;
+					Debug.Log($"Checking square at x:{x} z:{z}");
 					foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
 						if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
 						if (sqr.HasPiece()) {

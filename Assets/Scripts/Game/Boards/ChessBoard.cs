@@ -16,7 +16,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	public static Vector3Int BlackQueenSideRookCoords = new Vector3Int(0, 5, 9);
 	#endregion
 	//x and z directions
-	private static int[][] _XZDirections = new int[][] {
+	private static readonly int[][] _XZDirections = new int[][] {
 		new int[] {-1, -1},
 		new int[] {-1, 0},
 		new int[] {-1, 1},
@@ -27,7 +27,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		new int[] {1, 1}
 	};
 	//the square positions of each possible attackboard position
-	private static Dictionary<string, Vector3Int> _ABPins = new() {
+	private static readonly Dictionary<string, Vector3Int> _ABPins = new() {
 		{"QL1", new Vector3Int(1, 0, 1)},
 		{"QL2", new Vector3Int(1, 0, 4)},
 		{"QL3", new Vector3Int(1, 2, 3)},
@@ -157,7 +157,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 						(castlingRight == 'k' && sqr.Coords == BlackKingSideRookCoords)
 					) rook.SetKingSide(true);
 					if (rook.IsKingSide != (Char.ToUpper(castlingRight) == 'K')) continue;
-					rook.SetCastlingRights(true);
+					rook.HasCastlingRights = true;
 				}
 			}
 			if (castling.ToLower() == castling) {
@@ -293,8 +293,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		//check for attacking pieces
 		foreach (int[] direction in _XZDirections) {
 			//get the x and z coordinates of the square
-			int x = square.Coords.x;
-			int z = square.Coords.z;
+			int x = square.Coords.x, z = square.Coords.z;
 
 			bool end = false;
 			while (!end) {
@@ -303,23 +302,20 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 				z += direction[1];
 
 				//if the x or z coordinate is out of the boards bounds break out of the loop
-				if (x < 0 || x >= 5 || z < 0 || z >= 9) break;
+				if (x < 0 || x > 5 || z < 0 || z > 9) break;
 
-				//loop for Squares at the desired coordinates
+				//loop for squares at the desired coordinates
 				foreach (Square sqr in GetEnumerableSquares()) {
 					//if there is not a piece on the square or the coordinates do not match the coordinates of the square, continue checking squares
 					if (!sqr.HasPiece() || sqr.Coords.x != x || sqr.Coords.z != z) continue;
 
-					//get the piece on the square
-					ChessPiece piece = sqr.GamePiece;
-
 					//mark for the while loop to end after this iteration
 					end = true;
 
-					//if the piece is not the color of the attacking pieces, continue checking Squares
-					if (attackingPiecesAreWhite != piece.IsWhite) continue;
+					//if the piece is not the color of the attacking pieces, continue checking squares
+					if (attackingPiecesAreWhite != sqr.GamePiece.IsWhite) continue;
 
-					switch (piece.Type) {
+					switch (sqr.GamePiece.Type) {
 						case PieceType.KING:
 							int xDiff = Math.Abs(square.Coords.x - x);
 							int zDiff = Math.Abs(square.Coords.z - z);
@@ -341,7 +337,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 							if (direction[0] != 0 &&
 								direction[1] != 0 &&
 								(Math.Abs(square.Coords.x - x) == 1) &&
-								direction[1] == (piece.IsWhite ? -1 : 1)
+								direction[1] == (sqr.GamePiece.IsWhite ? -1 : 1)
 							) return true;
 						continue;
 					}
@@ -355,12 +351,12 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 			int x = square.Coords.x + offset[0];
 			int z = square.Coords.z + offset[1];
 
-			//loop for Squares at the desired coordinates
+			//loop for squares at the desired coordinates
 			foreach (Square sqr in GetEnumerableSquares()) {
-				//if the square does not have a piece, continue checking Squares
+				//if the square does not have a piece, continue checking squares
 				if (!sqr.HasPiece()) continue;
 
-				//if the piece is not the color of the attacking pieces, continue checking Squares
+				//if the piece is not the color of the attacking pieces, continue checking squares
 				if (attackingPiecesAreWhite != sqr.GamePiece.IsWhite) continue;
 
 				//if there is a knight at the desired coordinates, return attacker found

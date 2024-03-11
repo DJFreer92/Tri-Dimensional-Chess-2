@@ -5337,6 +5337,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4847875238209083233, guid: ccee41f18e74140b284d10c6a57ff9c3, type: 3}
+      propertyPath: Type
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4847875238209083233, guid: ccee41f18e74140b284d10c6a57ff9c3, type: 3}
       propertyPath: IsWhite
       value: 1
       objectReference: {fileID: 0}
@@ -5694,6 +5698,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5946184090132602454, guid: 4a9bfd8d4bd48469b8d3bfa2d003b99e, type: 3}
+      propertyPath: Type
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5778,6 +5786,10 @@ PrefabInstance:
     - target: {fileID: 5186614680879517932, guid: 2cfba82065520441a986dadd04e64481, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7191714104690932873, guid: 2cfba82065520441a986dadd04e64481, type: 3}
+      propertyPath: Type
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7191714104690932873, guid: 2cfba82065520441a986dadd04e64481, type: 3}
       propertyPath: IsWhite
@@ -6207,6 +6219,10 @@ PrefabInstance:
     - target: {fileID: 4521209430210846315, guid: 4a9bfd8d4bd48469b8d3bfa2d003b99e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5946184090132602454, guid: 4a9bfd8d4bd48469b8d3bfa2d003b99e, type: 3}
+      propertyPath: Type
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -7087,6 +7103,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1643350935}
     m_Modifications:
+    - target: {fileID: 2876611121089346385, guid: 4e22581ec65774ae7b44c326d737934c, type: 3}
+      propertyPath: Type
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7139344101382980457, guid: 4e22581ec65774ae7b44c326d737934c, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -8766,6 +8786,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1663892940}
     m_Modifications:
     - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
+      propertyPath: Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
       propertyPath: IsWhite
       value: 1
       objectReference: {fileID: 0}
@@ -10338,6 +10362,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1663892940}
     m_Modifications:
     - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
+      propertyPath: Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
       propertyPath: IsWhite
       value: 1
       objectReference: {fileID: 0}
@@ -11820,6 +11848,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1663892940}
     m_Modifications:
+    - target: {fileID: 1910713294350402251, guid: 44728b85917924b649036f11ac4155b1, type: 3}
+      propertyPath: Type
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 1910713294350402251, guid: 44728b85917924b649036f11ac4155b1, type: 3}
       propertyPath: IsWhite
       value: 1
@@ -19043,6 +19075,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1643350935}
     m_Modifications:
+    - target: {fileID: 8058253339127883449, guid: 2731af4fd52cf484bbc4a3ce94f41d9a, type: 3}
+      propertyPath: Type
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8517028979668407356, guid: 2731af4fd52cf484bbc4a3ce94f41d9a, type: 3}
       propertyPath: m_Name
       value: Black Knight 2
@@ -19633,6 +19669,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1663892940}
     m_Modifications:
+    - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
+      propertyPath: Type
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
       propertyPath: IsWhite
       value: 1
@@ -20756,6 +20796,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1643350935}
     m_Modifications:
+    - target: {fileID: 2489246237496440572, guid: 8fb4bdaccc72346eab18d3265a6f841e, type: 3}
+      propertyPath: Type
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3823828117495716735, guid: 8fb4bdaccc72346eab18d3265a6f841e, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -21190,6 +21234,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1663892940}
     m_Modifications:
+    - target: {fileID: 1910713294350402251, guid: 44728b85917924b649036f11ac4155b1, type: 3}
+      propertyPath: Type
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 1910713294350402251, guid: 44728b85917924b649036f11ac4155b1, type: 3}
       propertyPath: IsWhite
       value: 1
@@ -25780,6 +25828,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1663892940}
     m_Modifications:
     - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
+      propertyPath: Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
       propertyPath: IsWhite
       value: 1
       objectReference: {fileID: 0}
@@ -26939,6 +26991,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1663892940}
     m_Modifications:
     - target: {fileID: 1258012485913167515, guid: c5646de822a014db895da3d878471f5d, type: 3}
+      propertyPath: Type
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1258012485913167515, guid: c5646de822a014db895da3d878471f5d, type: 3}
       propertyPath: IsWhite
       value: 1
       objectReference: {fileID: 0}
@@ -27767,6 +27823,10 @@ PrefabInstance:
     - target: {fileID: 1997249429687014459, guid: ccee41f18e74140b284d10c6a57ff9c3, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4847875238209083233, guid: ccee41f18e74140b284d10c6a57ff9c3, type: 3}
+      propertyPath: Type
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4847875238209083233, guid: ccee41f18e74140b284d10c6a57ff9c3, type: 3}
       propertyPath: IsWhite
@@ -43320,6 +43380,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1643350935}
     m_Modifications:
+    - target: {fileID: 8058253339127883449, guid: 2731af4fd52cf484bbc4a3ce94f41d9a, type: 3}
+      propertyPath: Type
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8517028979668407356, guid: 2731af4fd52cf484bbc4a3ce94f41d9a, type: 3}
       propertyPath: m_Name
       value: Black Knight 1
@@ -43790,6 +43854,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7191714104690932873, guid: 2cfba82065520441a986dadd04e64481, type: 3}
+      propertyPath: Type
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7191714104690932873, guid: 2cfba82065520441a986dadd04e64481, type: 3}
       propertyPath: IsWhite
       value: 1
       objectReference: {fileID: 0}
@@ -44024,6 +44092,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5946184090132602454, guid: 4a9bfd8d4bd48469b8d3bfa2d003b99e, type: 3}
+      propertyPath: Type
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -44053,6 +44125,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1643350935}
     m_Modifications:
+    - target: {fileID: 2489246237496440572, guid: 8fb4bdaccc72346eab18d3265a6f841e, type: 3}
+      propertyPath: Type
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2489246237496440572, guid: 8fb4bdaccc72346eab18d3265a6f841e, type: 3}
       propertyPath: SquareColorIsWhite
       value: 1
@@ -45448,6 +45524,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5946184090132602454, guid: 4a9bfd8d4bd48469b8d3bfa2d003b99e, type: 3}
+      propertyPath: Type
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -46054,6 +46134,10 @@ PrefabInstance:
     - target: {fileID: 4521209430210846315, guid: 4a9bfd8d4bd48469b8d3bfa2d003b99e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5946184090132602454, guid: 4a9bfd8d4bd48469b8d3bfa2d003b99e, type: 3}
+      propertyPath: Type
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -47033,6 +47117,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3129183910438444258, guid: beea51377bba4484c8e9ec3aad9533de, type: 3}
+      propertyPath: Type
+      value: 5
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -47485,6 +47573,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1663892940}
     m_Modifications:
+    - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
+      propertyPath: Type
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
       propertyPath: IsWhite
       value: 1
@@ -48592,6 +48684,10 @@ PrefabInstance:
     - target: {fileID: 4521209430210846315, guid: 4a9bfd8d4bd48469b8d3bfa2d003b99e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5946184090132602454, guid: 4a9bfd8d4bd48469b8d3bfa2d003b99e, type: 3}
+      propertyPath: Type
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -50215,6 +50311,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1643350935}
     m_Modifications:
     - target: {fileID: 228428453607916592, guid: bd5b97e4385894c9581dfebaafe9400d, type: 3}
+      propertyPath: Type
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 228428453607916592, guid: bd5b97e4385894c9581dfebaafe9400d, type: 3}
       propertyPath: IsKingSide
       value: 1
       objectReference: {fileID: 0}
@@ -50596,6 +50696,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1663892940}
     m_Modifications:
+    - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
+      propertyPath: Type
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
       propertyPath: IsWhite
       value: 1
@@ -51175,6 +51279,10 @@ PrefabInstance:
     - target: {fileID: 4521209430210846315, guid: 4a9bfd8d4bd48469b8d3bfa2d003b99e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5946184090132602454, guid: 4a9bfd8d4bd48469b8d3bfa2d003b99e, type: 3}
+      propertyPath: Type
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -52429,6 +52537,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1663892940}
     m_Modifications:
+    - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
+      propertyPath: Type
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
       propertyPath: IsWhite
       value: 1
@@ -55009,6 +55121,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8680219589710659799, guid: 90fcfb6b5bdaf4ffa98a06dd409fdb1c, type: 3}
+      propertyPath: Type
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8680219589710659799, guid: 90fcfb6b5bdaf4ffa98a06dd409fdb1c, type: 3}
       propertyPath: IsWhite
       value: 1
       objectReference: {fileID: 0}
@@ -55235,6 +55351,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5946184090132602454, guid: 4a9bfd8d4bd48469b8d3bfa2d003b99e, type: 3}
+      propertyPath: Type
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -55399,6 +55519,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 1663892940}
     m_Modifications:
     - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
+      propertyPath: Type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 274354835169583104, guid: f8afe5f38cec54d319918179d646e501, type: 3}
       propertyPath: IsWhite
       value: 1
       objectReference: {fileID: 0}
@@ -55491,6 +55615,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1643350935}
     m_Modifications:
+    - target: {fileID: 228428453607916592, guid: bd5b97e4385894c9581dfebaafe9400d, type: 3}
+      propertyPath: Type
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 8881985743250876909, guid: bd5b97e4385894c9581dfebaafe9400d, type: 3}
       propertyPath: m_RootOrder
       value: 2

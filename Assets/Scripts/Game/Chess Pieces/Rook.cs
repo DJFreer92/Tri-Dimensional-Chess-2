@@ -23,14 +23,6 @@ public sealed class Rook : ChessPiece {
 	}
 
 	///<summary>
-	///Sets whether the rook has castling rights
-	///</summary>
-	///<param name="hasRights">Whether the rook has castling rights</param>
-	public void SetCastlingRights(bool hasRights) {
-		HasCastlingRights = hasRights;
-	}
-
-	///<summary>
 	///Returns a list of all the rook's available moves
 	///</summary>
 	///<param name="asWhite">Whether the rook is being moved by white</param>
@@ -43,7 +35,7 @@ public sealed class Rook : ChessPiece {
 			for (var zd = -1; zd <= 1; zd++) {
 				if (xd != 0 && zd != 0) continue;
 				bool blocked = false;
-				for (var dist = 1; dist < 9; dist++) {
+				for (var dist = 1; dist <= 9; dist++) {
 					int x = xd * dist + square.Coords.x;
 					int z = zd * dist + square.Coords.z;
 					if (x < 0 || x > 5 || z < 0 || z > 9) break;
