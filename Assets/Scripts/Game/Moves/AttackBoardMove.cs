@@ -29,10 +29,7 @@ public sealed class AttackBoardMove : Move {
 		//make board move
 		BoardMoved.Move(this);
 
-		//if there is not an opponent pawn on the square the attack board was pinned to, return
-		if (StartPinSqr.GamePiece.Type != PieceType.PAWN || StartPinSqr.GamePiece.IsWhite == Player.IsWhite) return;
-		//if the pawn is not at the end of the board, return
-		if (Player.IsWhite ? StartPinSqr.Coords.z != 1 : StartPinSqr.Coords.z != 8) return;
+		if (!CausesOpponentPromotion()) return;
 
 		//promote the opponent's pawn
 		MoveEvents.Add(MoveEvent.OPPONENT_PROMOTION);
@@ -59,5 +56,16 @@ public sealed class AttackBoardMove : Move {
 		if (MoveEvents.Contains(MoveEvent.PROMOTION)) move.Append(BoardMoved.GetPieces()[0].GetCharacter(UseFigurineNotation));
 
 		return move.Append(base.GetAnnotation()).ToString();
+	}
+
+	///<summary>
+	///Returns whether the attack board move will cause an opponent promotion
+	///</summary>
+	///<returns>Whether the attack board move will cause an opponent promotion</returns>
+	public bool CausesOpponentPromotion() {
+		//if there is not an opponent pawn on the square the attack board was pinned to, return does not cause opponent promotion
+		if (StartPinSqr.GamePiece.Type != PieceType.PAWN || StartPinSqr.GamePiece.IsWhite == Player.IsWhite) return false;
+		//returns if the pawn is at the end of the board
+		return Player.IsWhite ? StartPinSqr.Coords.z == 1 : StartPinSqr.Coords.z == 8;
 	}
 }
