@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
 
-[DisallowMultipleComponent]
 public sealed class King : ChessPiece {
 	//the notation and figurine characters of the king
 	private const string _STANDARD_CHARACTER = "K", _FIGURINE_CHARACTER = "♔";
@@ -112,6 +111,37 @@ public sealed class King : ChessPiece {
 
 		//determine whether the move puts the king in check
 		bool willBeInCheck = ChessBoard.Instance.GetKingCheckEvaluation(move.Player.IsWhite);
+
+		/*if the king was not put into check by the attack board move and the move causes an opponent promotion,
+		 *determine whether the promotion could put the king into check
+		 */
+		if (!willBeInCheck && move.CausesOpponentPromotion()) {
+			//get the pawn that would be promoted and the square it is on
+			Square sqr = move.BoardMoved.PinnedSquare;
+			var pawn = sqr.GamePiece as Pawn;
+
+			//simulate the pawn promoting to a queen and determine whether that puts the king in check
+			Queen tempQueen = pawn.gameObject.AddComponent<Queen>();
+			tempQueen.IsWhite = pawn.IsWhite;
+			tempQueen.Type = PieceType.QUEEN;
+			sqr.GamePiece = tempQueen;
+			willBeInCheck = ChessBoard.Instance.GetKingCheckEvaluation(move.Player.IsWhite);
+			Destroy(tempQueen);
+
+			//if the pawn promoting to a queen does not put the king into check
+			if (!willBeInCheck) {
+				//simulate the pawn promoting to a knight and determine whether that puts the king in check
+				Knight tempKnight = pawn.gameObject.AddComponent<Knight>();
+				tempKnight.IsWhite = pawn.IsWhite;
+				tempKnight.Type = PieceType.KNIGHT;
+				sqr.GamePiece = tempKnight;
+				willBeInCheck = ChessBoard.Instance.GetKingCheckEvaluation(move.Player.IsWhite);
+				Destroy(tempKnight);
+			}
+
+			//reset the pawn
+			sqr.GamePiece = pawn;
+		}
 
 		//move all the Squares on the attackboard back to their old positions
 		foreach (Square sqr in move.BoardMoved.Squares) {

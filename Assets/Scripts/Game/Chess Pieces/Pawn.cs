@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
 
-[DisallowMultipleComponent]
 public sealed class Pawn : ChessPiece {
 	//the notation and figurine characters of the pawn
 	private const string _STANDARD_CHARACTER = "", _FIGURINE_CHARACTER = "";

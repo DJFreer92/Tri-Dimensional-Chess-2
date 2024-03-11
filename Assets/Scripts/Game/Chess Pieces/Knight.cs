@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[DisallowMultipleComponent]
 public sealed class Knight : ChessPiece {
 	//the notation and figurine characters of the knight
 	private const string _STANDARD_CHARACTER = "N", _FIGURINE_CHARACTER = "♘";

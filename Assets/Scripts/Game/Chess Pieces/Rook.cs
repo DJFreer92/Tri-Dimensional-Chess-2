@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[DisallowMultipleComponent]
 public sealed class Rook : ChessPiece {
 	//the notation and figurine characters of the rook
 	private const string _STANDARD_CHARACTER = "R", _FIGURINE_CHARACTER = "♖";

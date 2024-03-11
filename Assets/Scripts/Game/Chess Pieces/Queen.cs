@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-[DisallowMultipleComponent]
 public sealed class Queen : ChessPiece {
 	//the notation and figurine characters of the queen
 	private const string _STANDARD_CHARACTER = "Q", _FIGURINE_CHARACTER = "♕";

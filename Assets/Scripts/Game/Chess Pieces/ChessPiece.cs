@@ -4,10 +4,9 @@ using UnityEngine.EventSystems;
 using System.Text;
 
 [RequireComponent(typeof(Highlight))]
-[DisallowMultipleComponent]
 public abstract class ChessPiece : MonoBehaviour, IMovable {
-	[field: SerializeField] public bool IsWhite {get; private set;}
-	public PieceType Type {get; private set;}
+	public bool IsWhite;
+	public PieceType Type;
 	public bool HasBeenCaptured {get; private set;}
 	//the highlight component
 	private Highlight _highlight;
