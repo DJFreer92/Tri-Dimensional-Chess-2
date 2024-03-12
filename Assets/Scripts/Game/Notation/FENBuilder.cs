@@ -2,7 +2,6 @@ using UnityEngine;
 using System;
 using System.IO;
 using System.Text;
-using UnityEngine.Analytics;
 
 /* Uses standard FEN notation with noteable exceptions to account for the special board setup of Tri-Dimensional Chess.
  * - Attackboard position are donoted a 'W' or 'w' for white owned, 'B' or 'b' for black owned, and 'N' or 'n' for neutral boards
