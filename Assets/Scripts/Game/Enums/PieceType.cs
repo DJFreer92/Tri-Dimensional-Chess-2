@@ -1,3 +1,5 @@
+using static PieceType;
+
 public enum PieceType : byte {
 	NONE = 0,
 	KING = 6,
@@ -11,4 +13,17 @@ public enum PieceType : byte {
 public static class PieceTypeExtensions {
 	public static PieceTypeColor GetPieceTypeColor(this PieceType pt, bool isWhite) =>
 		(PieceTypeColor) (7 - (int) pt + (isWhite ? 0 : 6));
+
+	public static PieceType GetTypeFromChar(this char pieceChar) {
+		return char.ToUpper(pieceChar) switch {
+			'K' => KING,
+			'Q' => QUEEN,
+			'R' => ROOK,
+			'B' => BISHOP,
+			'N' => KNIGHT,
+			'P' => PAWN,
+			'D' => PAWN,
+			_ => NONE,
+		};
+	}
 }
