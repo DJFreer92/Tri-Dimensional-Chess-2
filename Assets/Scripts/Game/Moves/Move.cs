@@ -14,10 +14,10 @@ public abstract class Move : ICommand {
 	public bool UseFigurineNotation;
 	//what type of piece the user has selected to promote a pawn to
 	public PieceType Promotion = PieceType.NONE;
-	//what type of piece the opponent has selected to promote a pawn to
-	public PieceType OpponentPromotion = PieceType.NONE;
+	//what type of piece the secondary promotion is to
+	public PieceType SecondaryPromotion = PieceType.NONE;
 	//the square the pawn being en passant is on
-	protected Square EnPassantCaptureSqr;
+	protected Square _enPassantCaptureSqr;
 
 	public Move(Player player, Square start, Square end) {
 		Player = player;
@@ -35,6 +35,11 @@ public abstract class Move : ICommand {
 	///Undoes the move
 	///</summary>
 	public abstract void Undo();
+
+	///<summary>
+	///Redoes the move
+	///</summary>
+	public abstract void Redo();
 
 	///<summary>
 	///Build the move from the given annotation
@@ -106,20 +111,28 @@ public abstract class Move : ICommand {
 	///<summary>
 	///Requests for the user to choose a chess piece to promote to and waits until a choice is made
 	///</summary>
-	///<param name="isOpponentPromotion">Whether the promotion is for the opponent's pawn
-	public IEnumerator GetPromotionChoice(bool isOpponentPromotion = false) {
-		PromotionController.Instance.ShowPromotionOptions(this, isOpponentPromotion);
+	///<param name="isSecondaryPromotion">Whether the promotion is for the opponent's pawn
+	public IEnumerator GetPromotionChoice(bool isSecondaryPromotion = false) {
+		//stop move from occuring while the promotion is in progress
+		Game.Instance.AllowMoves = false;
 
+		//display the promotion options
+		PromotionController.Instance.ShowPromotionOptions(
+			this,
+			isSecondaryPromotion ? (this as AttackBoardMove).StartPinSqr.GamePiece.IsWhite : Player.IsWhite,
+			isSecondaryPromotion
+		);
+
+		//wait for the player to make a selection
 		Debug.Log("Waiting for promotion selection...");
 		yield return new WaitUntil(() => !PromotionController.Instance.SelectionInProgress);
+		Debug.Log("Promotion selection recieved.");
 
-		if ((isOpponentPromotion ? OpponentPromotion : Promotion) == PieceType.NONE) {
-			Debug.Log("Promotion selection aborted.");
-			Game.Instance.MoveCommandHandler.UndoAndRemoveCommand();
-		} else {
-			Debug.Log("Promotion selection recieved.");
-			Execute();
-		}
+		//execute the promotion
+		Execute();
+
+		//allow moves to be made
+		Game.Instance.AllowMoves = true;
 	}
 
 	///<summary>
