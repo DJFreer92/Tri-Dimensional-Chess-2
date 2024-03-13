@@ -11,19 +11,35 @@ public sealed class CapturedPiecesController : MonoSingleton<CapturedPiecesContr
 	public Action OnCapturedPiecesCleared;
 	[SerializeField] [Range(0.1f, 1f)] private float _pieceScale;
 	[SerializeField] [Range(0.25f, 2f)] private float _xSpacing, _zSpacing;
-	private List<ChessPiece> _capturedWhitePieces = new(), _capturedBlackPieces = new();
-	private List<ChessPiece> _createdPieces = new();
+	private List<ChessPiece> _capturedWhitePieces = new(), _capturedBlackPieces = new(), _placeholderPieces = new();
 
 	///<summary>
-	///Adds the given piece to the captured pieces
+	///Adds a piece of the given type and color to the captured pieces
 	///</summary>
-	///<param name="piece">Captured piece</param>
-	public void AddPiece(ChessPiece piece) {
-		if (piece is King) return;
-		List<ChessPiece> capturedPieces = piece.IsWhite ? _capturedWhitePieces : _capturedBlackPieces;
-		capturedPieces.Add(piece);
+	///<param name="type">The type of piece to be added</param>
+	///<param name="isWhite">Whether the piece being added is white</param>
+	///<param name="isPlaceholderPiece">Whether the piece being added is a placeholder for a piece of the opposite color that couldn't be removed</param>
+	public void AddPieceOfType(PieceType type, bool isWhite, bool isPlaceholderPiece = false) {
+		if (type == PieceType.KING) return;
+		ChessPiece placeholder = FindInPlaceholders(type, !isWhite);
+		List<ChessPiece> capturedPieces;
+		if (placeholder != null) {
+			capturedPieces = isWhite ? _capturedBlackPieces : _capturedWhitePieces;
+			capturedPieces.Remove(placeholder);
+			_placeholderPieces.Remove(placeholder);
+			Destroy(placeholder.gameObject);
+		} else {
+			ChessPiece newPiece = Instantiate(
+				ChessPiece.GetPrefab(type.GetPieceTypeColor(isWhite)),
+				!isWhite ? _whitePiecesParent : _blackPiecesParent
+			).GetComponent<ChessPiece>();
+			newPiece.enabled = false;
+			capturedPieces = isWhite ? _capturedWhitePieces : _capturedBlackPieces;
+			capturedPieces.Add(newPiece);
+			if (isPlaceholderPiece) _placeholderPieces.Add(newPiece);
+		}
 		UpdatePositions(capturedPieces);
-		OnPieceCaptured?.Invoke(piece.Type, piece.IsWhite);
+		OnPieceCaptured?.Invoke(type, isWhite);
 	}
 
 	///<summary>
@@ -35,34 +51,21 @@ public sealed class CapturedPiecesController : MonoSingleton<CapturedPiecesContr
 	public void RemovePieceOfType(PieceType type, bool isWhite) {
 		OnCapturedPieceRemoved?.Invoke(type, isWhite);
 		List<ChessPiece> capturedPieces = isWhite ? _capturedWhitePieces : _capturedBlackPieces;
+		ChessPiece placeholder = FindInPlaceholders(type, isWhite);
+		if (placeholder != null) {
+			capturedPieces.Remove(placeholder);
+			_placeholderPieces.Remove(placeholder);
+			Destroy(placeholder);
+			return;
+		}
 		foreach (ChessPiece piece in capturedPieces) {
 			if (piece.Type != type) continue;
-			Destroy(piece.gameObject);
 			capturedPieces.Remove(piece);
+			Destroy(piece.gameObject);
 			return;
 		}
 
-		ChessPiece newPiece = Instantiate(
-			ChessPiece.GetPrefab(type.GetPieceTypeColor(!isWhite)),
-			!isWhite ? _whitePiecesParent : _blackPiecesParent
-		).GetComponent<ChessPiece>();
-		_createdPieces.Add(newPiece);
-		newPiece.SetCaptured();
-	}
-
-	///<summary>
-	///Removes the given piece from the captured pieces
-	///</summary>
-	///<param name="piece">The piece to be removed</param>
-	public void RemovePiece(ChessPiece piece) {
-		List<ChessPiece> capturedPieces = piece.IsWhite ? _capturedWhitePieces : _capturedBlackPieces;
-		foreach (ChessPiece pc in capturedPieces) {
-			if (pc != piece) continue;
-			pc.gameObject.transform.localScale = Vector3.one;
-			capturedPieces.Remove(pc);
-			return;
-		}
-		throw new ArgumentException("Piece is not captured", nameof(piece));
+		AddPieceOfType(type, !isWhite, true);
 	}
 
 	///<summary>
@@ -71,11 +74,10 @@ public sealed class CapturedPiecesController : MonoSingleton<CapturedPiecesContr
 	public void ClearCapturedPieces() {
 		foreach (ChessPiece piece in _capturedWhitePieces) Destroy(piece.gameObject);
 		foreach (ChessPiece piece in _capturedBlackPieces) Destroy(piece.gameObject);
-		foreach (ChessPiece piece in _createdPieces) Destroy(piece.gameObject);
 
 		_capturedWhitePieces = new();
 		_capturedBlackPieces = new();
-		_createdPieces = new();
+		_placeholderPieces = new();
 
 		OnCapturedPiecesCleared?.Invoke();
 	}
@@ -89,9 +91,9 @@ public sealed class CapturedPiecesController : MonoSingleton<CapturedPiecesContr
 		for (var i = 0; i < capturedPieces.Count; i++) {
 			GameObject obj = capturedPieces[i].gameObject;
 			obj.transform.localScale = _pieceScale * Vector3.one;
-			var position = new Vector3(2f, 0f, (_zSpacing * -2));
-			position.z += (i % 5) * _zSpacing;
-			position.x += (i / 5) * _xSpacing;
+			var position = new Vector3(2f, 0f, _zSpacing * -2);
+			position.z += i % 5 * _zSpacing;
+			position.x += i / 5 * _xSpacing;
 			if (capturedPieces[i].IsWhite) position.x *= -1;
 			obj.transform.SetPositionAndRotation(position, obj.transform.rotation);
 		}
@@ -114,5 +116,16 @@ public sealed class CapturedPiecesController : MonoSingleton<CapturedPiecesContr
 			capturedPieces.Insert(i, highestPiece);
 			}
 		}
+	}
+
+	///<summary>
+	///Returns a piece of the given type and color in the placeholder pieces, returns null if there isn't a mathcing piece in the placeholders
+	///</summary>
+	///<param name="type">The type of piece to be found</param>
+	///<param name="isWhite">Whether the piece being found is white</param>
+	private ChessPiece FindInPlaceholders(PieceType type, bool isWhite) {
+		foreach (ChessPiece piece in _placeholderPieces)
+			if (piece.Type == type && piece.IsWhite == isWhite) return piece;
+		return null;
 	}
 }
