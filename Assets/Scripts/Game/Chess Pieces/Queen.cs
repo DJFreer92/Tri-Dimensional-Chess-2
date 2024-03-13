@@ -26,7 +26,6 @@ public sealed class Queen : ChessPiece {
 					int x = xd * dist + square.Coords.x;
 					int z = zd * dist + square.Coords.z;
 					if (x < 0 || x > 5 || z < 0 || z > 9) break;
-					Debug.Log($"Checking square at x:{x} z:{z}");
 					foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
 						if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
 						if (sqr.HasPiece()) {
