@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CommandHandler {
-	private List<ICommand> _commands = new();
+	private readonly List<ICommand> _commands = new();
 	private int _index;
 
 	///<summary>
@@ -10,25 +10,16 @@ public class CommandHandler {
 	///</summary>
 	///<param name="command">The command to be added and executed</param>
 	public void AddCommand(ICommand command) {
-		if (_commands.Count > _index) _commands.RemoveRange(_index, _commands.Count - _index);
+		if (AreCommandsWaiting()) _commands.RemoveRange(_index, _commands.Count - _index);
 		_commands.Add(command);
 		ExecuteCommand();
-	}
-
-	///<summary>
-	///Adds the given command to the list but only executes it if it is the next command
-	///</summary>
-	///<param name="command">The command to add</param>
-	public void AddCommandToEnd(ICommand command) {
-		_commands.Add(command);
-		if (_index + 1 == _commands.Count) ExecuteCommand();
 	}
 
 	///<summary>
 	///Executes the next command
 	///</summary>
 	private void ExecuteCommand() {
-		if (_commands.Count == _index) return;
+		if (!AreCommandsWaiting()) return;
 		_commands[_index++].Execute();
 	}
 
@@ -54,22 +45,29 @@ public class CommandHandler {
 	///Undoes all the commands
 	///</summary>
 	public void UndoAllCommands() {
-		while (_index > 0) UndoCommand();
+		while (AreCommandsWaiting()) UndoCommand();
 	}
 
 	///<summary>
 	///Redo the next command
 	///</summary>
 	public void RedoCommand() {
-		ExecuteCommand();
+		if (!AreCommandsWaiting()) return;
+		_commands[_index++].Redo();
 	}
 
 	///<summary>
 	///Redoes all the commands
 	///</summary>
 	public void RedoAllCommands() {
-		while (_index < _commands.Count) ExecuteCommand();
+		while (AreCommandsWaiting()) RedoCommand();
 	}
+
+	///<summary>
+	///Returns whether there are any commands waiting to be executed
+	///</summary>
+	///<returns>Whether there are any commands waiting to be executed
+	public bool AreCommandsWaiting() => _index < _commands.Count;
 }
 
 public interface ICommand {
@@ -82,4 +80,9 @@ public interface ICommand {
 	///Undoes the command
 	///</summary>
 	void Undo();
+
+	///<summary>
+	///Redoes the command
+	///</summary>
+	void Redo();
 }
