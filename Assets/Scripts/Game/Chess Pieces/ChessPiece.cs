@@ -5,7 +5,7 @@ using System.Text;
 
 [RequireComponent(typeof(Highlight))]
 public abstract class ChessPiece : MonoBehaviour, IMovable {
-	public bool IsWhite;
+	[field: SerializeField] public bool IsWhite {get; private set;}
 	public PieceType Type;
 	public bool HasBeenCaptured {get; private set;}
 	//the highlight component
@@ -101,21 +101,23 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 	}
 
 	///<summary>
-	///Set whether the piece had been captured
+	///Sets the piece as captured
 	///</summary>
 	public void SetCaptured() {
 		HasBeenCaptured = true;
 		_highlight.ToggleHighlight(false);
 		_highlight.ToggleHover(false);
-		Game.Instance.GetComponent<CapturedPiecesController>().AddPiece(this);
+		CapturedPiecesController.Instance.AddPieceOfType(Type, IsWhite);
+		gameObject.SetActive(false);
 	}
 
 	///<summary>
-	///Set the piece as having not been captured
+	///Sets the piece as not captured
 	///</summary>
 	public void SetUncaptured() {
+		gameObject.SetActive(true);
 		HasBeenCaptured = false;
-		CapturedPiecesController.Instance.RemovePiece(this);
+		CapturedPiecesController.Instance.RemovePieceOfType(Type, IsWhite);
 	}
 
 	///<summary>
@@ -129,23 +131,24 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 	///<summary>
 	///Returns the prefab of the given piece and color
 	///</summary>
+	///<param name="ptc">The desired piece and color of the prefab</param>
 	///<returns>Prefab of the given piece and color</returns>
 	public static GameObject GetPrefab(PieceTypeColor ptc) {
-		switch (ptc) {
-			case PieceTypeColor.WHITE_KING: return King.WhitePrefab;
-			case PieceTypeColor.BLACK_KING: return King.BlackPrefab;
-			case PieceTypeColor.WHITE_QUEEN: return Queen.WhitePrefab;
-			case PieceTypeColor.BLACK_QUEEN: return Queen.BlackPrefab;
-			case PieceTypeColor.WHITE_ROOK: return Rook.WhitePrefab;
-			case PieceTypeColor.BLACK_ROOK: return Rook.BlackPrefab;
-			case PieceTypeColor.WHITE_BISHOP: return Bishop.WhitePrefab;
-			case PieceTypeColor.BLACK_BISHOP: return Bishop.BlackPrefab;
-			case PieceTypeColor.WHITE_KNIGHT: return Knight.WhitePrefab;
-			case PieceTypeColor.BLACK_KNIGHT: return Knight.BlackPrefab;
-			case PieceTypeColor.WHITE_PAWN: return Pawn.WhitePrefab;
-			case PieceTypeColor.BLACK_PAWN: return Pawn.BlackPrefab;
-		}
-		return null;
+		return ptc switch {
+			PieceTypeColor.WHITE_KING => King.WhitePrefab,
+			PieceTypeColor.BLACK_KING => King.BlackPrefab,
+			PieceTypeColor.WHITE_QUEEN => Queen.WhitePrefab,
+			PieceTypeColor.BLACK_QUEEN => Queen.BlackPrefab,
+			PieceTypeColor.WHITE_ROOK => Rook.WhitePrefab,
+			PieceTypeColor.BLACK_ROOK => Rook.BlackPrefab,
+			PieceTypeColor.WHITE_BISHOP => Bishop.WhitePrefab,
+			PieceTypeColor.BLACK_BISHOP => Bishop.BlackPrefab,
+			PieceTypeColor.WHITE_KNIGHT => Knight.WhitePrefab,
+			PieceTypeColor.BLACK_KNIGHT => Knight.BlackPrefab,
+			PieceTypeColor.WHITE_PAWN => Pawn.WhitePrefab,
+			PieceTypeColor.BLACK_PAWN => Pawn.BlackPrefab,
+			_ => null
+		};
 	}
 
 	///<summary>
@@ -157,6 +160,19 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 	}
 
 	///<summary>
+	///Unpromotes a piece, converts it back into a pawn
+	///</summary>
+	///<returns>The pawn the piece was converted to</returns>
+	public Pawn Unpromote() {
+		Pawn pawn = ConvertTo(PieceType.PAWN) as Pawn;
+
+		CapturedPiecesController.Instance.RemovePieceOfType(PieceType.PAWN, IsWhite);
+		CapturedPiecesController.Instance.AddPieceOfType(Type, !IsWhite);
+
+		return pawn;
+	}
+
+	///<summary>
 	///Converts the piece to a different piece
 	///</summary>
 	///<param name="type">The type of piece to convert to</param>
@@ -165,7 +181,7 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 		if (Type == type) return this;
 
 		Square sqr = GetSquare();
-		GameObject newGameObj = CreateGameObject(ChessPiece.GetPrefab(type.GetPieceTypeColor(IsWhite)));
+		GameObject newGameObj = CreateGameObject(GetPrefab(type.GetPieceTypeColor(IsWhite)));
 		ChessPiece newPiece = newGameObj.GetComponent<ChessPiece>();
 		switch (type) {
 			case PieceType.ROOK: (newPiece as Rook).HasCastlingRights = false;
