@@ -122,10 +122,9 @@ public sealed class Pawn : ChessPiece {
 	///<summary>
 	///Returns whether the pawn can be legally promoted
 	///</summary>
-	///<param name="move">The move</param>
 	///<param name="sqr">The square the pawn is on</param>
 	///<returns>Whether the pawn can be legally promoted</returns>
-	public bool CanBePromoted(Move move, Square sqr) {
+	public bool CanBePromoted(Square sqr) {
 		//if the pawn hasn't reached the 8th rank for white or 1st rank for black, return cannot be promoted
 		if (IsWhite ? (sqr.Coords.z < 8) : (sqr.Coords.z > 1)) return false;
 
@@ -151,7 +150,7 @@ public sealed class Pawn : ChessPiece {
 		ChessPiece newPiece = ConvertTo(promotion);
 
 		//remove the new piece from the captured pieces
-		CapturedPiecesController.Instance.RemovePieceOfType(promotion, IsWhite);
+		CapturedPiecesController.Instance.RemovePieceOfType(promotion, !IsWhite);
 
 		//set the pawn as captured
 		SetCaptured();
@@ -168,13 +167,6 @@ public sealed class Pawn : ChessPiece {
 	public void MovePiece(Square startSqr, Square endSqr) {
 		if (Math.Abs(startSqr.Coords.z - endSqr.Coords.z) == 2) JustMadeDSMove = true;
 		base.MoveTo(endSqr);
-	}
-
-	///<summary>
-	///Revokes the pawn's double square move rights
-	///</summary>
-	public void RevokeDSMoveRights() {
-		HasDSMoveRights = false;
 	}
 
 	///<summary>
