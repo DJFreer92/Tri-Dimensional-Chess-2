@@ -115,14 +115,14 @@ public sealed class King : ChessPiece {
 		/*if the king was not put into check by the attack board move and the move causes an opponent promotion,
 		 *determine whether the promotion could put the king into check
 		 */
-		if (!willBeInCheck && move.CausesOpponentPromotion()) {
+		if (!willBeInCheck && move.CausesSecondaryPromotion() && move.StartPinSqr.GamePiece.IsWhite != move.Player.IsWhite) {
 			//get the pawn that would be promoted and the square it is on
 			Square sqr = move.BoardMoved.PinnedSquare;
 			var pawn = sqr.GamePiece as Pawn;
 
 			//simulate the pawn promoting to a queen and determine whether that puts the king in check
 			Queen tempQueen = pawn.gameObject.AddComponent<Queen>();
-			tempQueen.IsWhite = pawn.IsWhite;
+			tempQueen.SetWhite(pawn.IsWhite);
 			tempQueen.Type = PieceType.QUEEN;
 			sqr.GamePiece = tempQueen;
 			willBeInCheck = ChessBoard.Instance.GetKingCheckEvaluation(move.Player.IsWhite);
@@ -132,7 +132,7 @@ public sealed class King : ChessPiece {
 			if (!willBeInCheck) {
 				//simulate the pawn promoting to a knight and determine whether that puts the king in check
 				Knight tempKnight = pawn.gameObject.AddComponent<Knight>();
-				tempKnight.IsWhite = pawn.IsWhite;
+				tempKnight.SetWhite(pawn.IsWhite);
 				tempKnight.Type = PieceType.KNIGHT;
 				sqr.GamePiece = tempKnight;
 				willBeInCheck = ChessBoard.Instance.GetKingCheckEvaluation(move.Player.IsWhite);
