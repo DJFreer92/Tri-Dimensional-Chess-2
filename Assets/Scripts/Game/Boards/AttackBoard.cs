@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
-using Unity.VisualScripting;
 
 [DisallowMultipleComponent]
 public sealed class AttackBoard : Board, IMovable {
@@ -82,7 +81,7 @@ public sealed class AttackBoard : Board, IMovable {
 			newSquare.Coords = new Vector3Int(newSquare.Coords.x + xDiff, move.EndSqr.Coords.y + 1, newSquare.Coords.z + zDiff);
 
 			//if the move is a pawn promotion, ask the user what piece to promote to, then wait
-			if (pawn.CanBePromoted(move, newSquare)) {
+			if (pawn.CanBePromoted(newSquare)) {
 				Game.Instance.StartCoroutine(move.GetPromotionChoice());
 				throw new Exception("Must wait for promotion choice");
 			}
@@ -104,7 +103,7 @@ public sealed class AttackBoard : Board, IMovable {
 		transform.position = move.EndSqr.transform.position + new Vector3(xDisplace, 1.5f, zDisplace);
 
 		//move the pieces to the new location of their Squares
-		UpdatePiecePositions();
+		UpdatePiecePositions(move);
 
 		//set the current pinned square as unoccupied
 		PinnedSquare.IsOccupiedByAB = false;
@@ -136,16 +135,14 @@ public sealed class AttackBoard : Board, IMovable {
 	public void Unmove(AttackBoardMove move) {
 		//if there was a promotion
 		if (move.MoveEvents.Contains(MoveEvent.PROMOTION)) {
-			//get the piece that was promoted
-			ChessPiece promotedPiece = null;
 			foreach (Square sqr in Squares) {
 				if (!sqr.HasPiece()) continue;
-				promotedPiece = sqr.GamePiece;
+				//unpromote the piece
+				ChessPiece piece = sqr.GamePiece;
+				sqr.GamePiece.Unpromote();
+				Destroy(piece.gameObject);
 				break;
 			}
-
-			//convert the promoted piece back into a pawn
-			promotedPiece.ConvertTo(PieceType.PAWN);
 		}
 
 		//calculate the change in x and z positions
@@ -155,14 +152,14 @@ public sealed class AttackBoard : Board, IMovable {
 			xDiff = Math.Sign(move.StartPinSqr.Coords.x - move.EndSqr.Coords.x) * 4;
 		} else {  //the board is moving in the z direction
 			//calculate the change in z position
-			zDiff = (move.StartPinSqr.Coords.y + 1 == PinnedSquare.Coords.y) ? 4 : 2;
+			zDiff = (move.StartPinSqr.Coords.y == PinnedSquare.Coords.y) ? 4 : 2;
 			zDiff *= Math.Sign(move.StartPinSqr.Coords.z - move.EndSqr.Coords.z);
 		}
 
 		//change the y value of the attackboard
 		Y = move.StartPinSqr.Coords.y + 1;
 
-		//move all the Squares on the attackboard to their old positions
+		//move all the squares on the attackboard to their old positions
 		foreach (Square sqr in Squares)
 			sqr.Coords = new Vector3Int(sqr.Coords.x + xDiff, Y, sqr.Coords.z + zDiff);
 
@@ -174,8 +171,8 @@ public sealed class AttackBoard : Board, IMovable {
 		//change the position of the attackboard
 		transform.position = move.StartPinSqr.transform.position + new Vector3(xDisplace, 1.5f, zDisplace);
 
-		//move the pieces to the new location of their Squares
-		UpdatePiecePositions();
+		//if there is a piece on the attackboard move it to the new location of their square
+		UpdatePiecePositions(move, true);
 
 		//set the current pinned square as unoccupied
 		PinnedSquare.IsOccupiedByAB = false;
@@ -194,13 +191,46 @@ public sealed class AttackBoard : Board, IMovable {
 	///<summary>
 	///Update the positions of all the pieces on the attackboard
 	///</summary>
-	private void UpdatePiecePositions() {
-		foreach (Square sqr in Squares) {
-			if (!sqr.HasPiece()) continue;
-			sqr.GamePiece.transform.position = sqr.transform.position;
-			if (sqr.GamePiece is King) (sqr.GamePiece as King).HasCastlingRights = false;
-			if (sqr.GamePiece is Rook) (sqr.GamePiece as Rook).HasCastlingRights = false;
-			(sqr.GamePiece as Pawn)?.RevokeDSMoveRights();
+	///<param name="move">The move where the piece positions are changing</param>
+	///<param name="isUndo">Whether the move is an undo</param>
+	private void UpdatePiecePositions(AttackBoardMove move, bool isUndo = false) {
+		ChessPiece piece = null;
+		foreach (Square sqr in Squares)
+			if (sqr.HasPiece()) piece = sqr.GamePiece;
+
+		if (piece == null) return;
+
+		piece.MoveTo(piece.GetSquare());
+
+		if (isUndo) {
+			if (move.MoveEvents.Contains(MoveEvent.LOST_CASTLING_RIGHTS)) {
+				if (piece is King) (piece as King).HasCastlingRights = true;
+				else (piece as Rook).HasCastlingRights = true;
+				return;
+			}
+
+			if (move.MoveEvents.Contains(MoveEvent.LOST_DOUBLE_SQUARE_MOVE_RIGHTS))
+				(piece as Pawn).HasDSMoveRights = true;
+
+			return;
+		}
+
+		switch (piece.Type) {
+			case PieceType.KING:
+				if (!(piece as King).HasCastlingRights) return;
+				(piece as King).HasCastlingRights = false;
+				move.MoveEvents.Add(MoveEvent.LOST_CASTLING_RIGHTS);
+			return;
+			case PieceType.ROOK:
+				if (!(piece as Rook).HasCastlingRights) return;
+				(piece as Rook).HasCastlingRights = false;
+				move.MoveEvents.Add(MoveEvent.LOST_CASTLING_RIGHTS);
+			return;
+			case PieceType.PAWN:
+				if (!(piece as Pawn).HasDSMoveRights) return;
+				(piece as Pawn).HasDSMoveRights = false;
+				move.MoveEvents.Add(MoveEvent.LOST_DOUBLE_SQUARE_MOVE_RIGHTS);
+			return;
 		}
 	}
 
