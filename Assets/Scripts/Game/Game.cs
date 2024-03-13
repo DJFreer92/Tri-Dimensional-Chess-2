@@ -81,6 +81,7 @@ public sealed class Game : MonoSingleton<Game> {
 	private List<int> _prevAvailableMovesCount;
 	public int MoveCount {get; private set;}
 	private int _moveRuleCount;
+	public bool AllowMoves;
 
 	//used for multiplayer
 	private int _playerCount = 0;  //server only
@@ -224,6 +225,9 @@ public sealed class Game : MonoSingleton<Game> {
 		//clear the captured pieces
 		CapturedPiecesController.Instance.ClearCapturedPieces();
 
+		//allow moves to be made
+		AllowMoves = true;
+
 		Debug.Log(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount));
 		Debug.Log(_pgnBuilder.GetPGN());
 	}
@@ -288,6 +292,9 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	///<param name="square">The square to be selected</param>
 	public void SelectSquare(Square square) {
+		//if moves are currently not allowed to be made
+		if (!AllowMoves) return;
+
 		//if it is not this player's turn, exit
 		if (_myPlayer != CurPlayer) return;
 
@@ -412,6 +419,7 @@ public sealed class Game : MonoSingleton<Game> {
 	private void MakeMove(Square startSqr, Square endSqr, bool isABMove) {
 		Move move = isABMove ? new AttackBoardMove(CurPlayer, startSqr, endSqr) : new PieceMove(CurPlayer, startSqr, endSqr);
 		try {
+			MoveCommandHandler.RedoAllCommands();
 			MoveCommandHandler.AddCommand(move);
 		} catch (Exception ex) {
 			Debug.Log(ex.Message);
@@ -663,6 +671,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	public void OnUndoLastMoveButton() {
 		MoveCommandHandler.UndoCommand();
+		AllowMoves = false;
 	}
 
 	///<summary>
@@ -670,6 +679,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	public void OnUndoAllMovesButton() {
 		MoveCommandHandler.UndoAllCommands();
+		AllowMoves = false;
 	}
 
 	///<summary>
@@ -677,6 +687,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	public void OnRedoNextMoveButton() {
 		MoveCommandHandler.RedoCommand();
+		if (!MoveCommandHandler.AreCommandsWaiting()) AllowMoves = true;
 	}
 
 	///<summary>
@@ -684,6 +695,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	public void OnRedoAllMovesButton() {
 		MoveCommandHandler.RedoAllCommands();
+		AllowMoves = true;
 	}
 
 	///<summary>
@@ -692,6 +704,11 @@ public sealed class Game : MonoSingleton<Game> {
 	public void OnTakebackMoveButton() {
 		MoveCommandHandler.RedoAllCommands();
 		if (MoveCommandHandler.UndoAndRemoveCommand()) SwitchCurrentPlayer();
+		if (_prevPositions.Count > 0) _prevPositions.RemoveAt(_prevPositions.Count - 1);
+		if (_prevAvailableMovesCount.Count > 0) _prevAvailableMovesCount.RemoveAt(_prevAvailableMovesCount.Count - 1);
+		if (_moveRuleCount > 0) _moveRuleCount--;
+		if (CurPlayer.IsWhite) MoveCount--;
+		AllowMoves = true;
 	}
 
 	//Server
@@ -734,7 +751,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///<param name="msg">Incoming message</param>
 	private void OnWelcomeClient(NetMessage msg) {
 		NetWelcome welcomeMsg = msg as NetWelcome;
-		_players = new Player[2] {new Player(true), new Player(false)};
+		_players = new Player[2] {new(true), new(false)};
 		_myPlayer = GetPlayer(welcomeMsg.IsAssignedWhitePieces);
 		if (_isLocalGame) Server.Instance.Broadcast(new NetStartGame());
 	}
