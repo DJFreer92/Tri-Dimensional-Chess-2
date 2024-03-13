@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 /* Uses standard FEN notation with noteable exceptions to account for the special board setup of Tri-Dimensional Chess.
  * - Attackboard position are donoted a 'W' or 'w' for white owned, 'B' or 'b' for black owned, and 'N' or 'n' for neutral boards
@@ -29,13 +30,13 @@ public static class FENBuilder {
 		var fen = new StringBuilder();
 
 		//sort boards
-		Board[] boards = FENBuilder.SortBoards(board.Boards.ToArray());
+		Board[] boards = SortBoards(board.Boards.ToArray());
 
 		//attackboards
 		var atkbrds = new StringBuilder();
 		foreach (Board brd in boards) {
 			if (brd is not AttackBoard) continue;
-			string abfen = Char.ToString((Char) brd.Owner);
+			string abfen = char.ToString((char) brd.Owner);
 			if (brd.Annotation[0] == 'Q') abfen = abfen.ToLower();
 			abfen += brd.Annotation[^1];
 			atkbrds.Append(abfen);
@@ -114,6 +115,8 @@ public static class FENBuilder {
 
 		if (sections.Length != 7) return false;
 		if (sections[0].Length % 2 == 1 && sections[0] != "-") return false;
+		if (sections[1].Count(x => x == 'K') != 1) return false;
+		if (sections[1].Count(x => x == 'k') != 1) return false;
 		string[] boards = sections[1].Split('|');
 		if (boards.Length != sections[0].Length / 2 + 3) return false;
 		for (int i = 0; i < boards.Length; i++) {
