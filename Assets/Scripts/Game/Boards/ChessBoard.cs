@@ -8,12 +8,14 @@ using System.Text;
 public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	//coordinates of castling pieces
 	#region Castling Coordinates
-	public static Vector3Int WhiteKingCoords = new Vector3Int(4, 1, 0);
-	public static Vector3Int BlackKingCoords = new Vector3Int(4, 5, 9);
-	public static Vector3Int WhiteKingSideRookCoords = new Vector3Int(5, 1, 0);
-	public static Vector3Int WhiteQueenSideRookCoords = Vector3Int.up;
-	public static Vector3Int BlackKingSideRookCoords = new Vector3Int(5, 5, 9);
-	public static Vector3Int BlackQueenSideRookCoords = new Vector3Int(0, 5, 9);
+	public static readonly Vector3Int WhiteKingCoords = new(4, 1, 0);
+	public static readonly Vector3Int BlackKingCoords = new(4, 5, 9);
+	public static readonly Vector3Int WhiteKingSideRookCoords = new(5, 1, 0);
+	public static readonly Vector3Int WhiteQueenSideRookCoords = Vector3Int.up;
+	public static readonly Vector3Int BlackKingSideRookCoords = new(5, 5, 9);
+	public static readonly Vector3Int BlackQueenSideRookCoords = new(0, 5, 9);
+	public static readonly Vector3Int WhiteQueenSideKingLandingCoords = new(1, 1, 0);
+	public static readonly Vector3Int BlackQueenSideKingLandingCoords = new(1, 5, 9);
 	#endregion
 	//x and z directions
 	private static readonly int[][] _XZDirections = new int[][] {
@@ -69,11 +71,11 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		if (attackboards != "-") {
 			for (int i = 0; i < (attackboards.Length / 2); i++) {
 				string atckbrd = attackboards.Substring(i * 2, 2);
-				bool queenSide = Char.IsLower(atckbrd[0]);
-				int rank = (int) Char.GetNumericValue(atckbrd[^1]);
+				bool queenSide = char.IsLower(atckbrd[0]);
+				int rank = (int) char.GetNumericValue(atckbrd[^1]);
 				Square pinSqr = GetSquareAt(_ABPins[(queenSide ? "QL" : "KL") + atckbrd[^1]]);
 				pinSqr.IsOccupiedByAB = true;
-				GameObject abGameObject = GameObject.Instantiate(
+				GameObject abGameObject = Instantiate(
 					_attackboardPrefab,
 					new Vector3(
 						pinSqr.gameObject.transform.position.x + (queenSide ? -0.5f : 0.5f),
@@ -81,11 +83,11 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 						pinSqr.gameObject.transform.position.z + ((rank % 2 == 1) ? -0.5f : 0.5f)
 					),
 					Quaternion.identity,
-					ChessBoard.Instance.gameObject.transform
+					gameObject.transform
 				);
 				AttackBoard ab = abGameObject.GetComponent<AttackBoard>();
 				Boards.Insert(i, ab);
-				ab.Owner = (Ownership) Char.ToUpper(atckbrd[0]);
+				ab.Owner = (Ownership) char.ToUpper(atckbrd[0]);
 				ab.Y = pinSqr.Coords.y + 1;
 				ab.SetPinnedSquare(pinSqr);
 				foreach (Square sqr in ab) {
@@ -102,18 +104,18 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		//pieces on main boards
 		string[] boardPieces = pieces.Split('|');
 		for (int i = 0; i < 3; i++) {
-			Board brd = Boards[Boards.Count - (3 - i)];
+			Board brd = Boards[^(3 - i)];
 			string[] ranksOfPieces = boardPieces[i].Split('/');
 
 			for (int z = 0; z < 4; z++) {
 				string rankPieces = ranksOfPieces[z];
 				int piecesIndex = 0;
 				for (int x = 1; x <= 4; x++, piecesIndex++) {
-					if (Char.IsDigit(rankPieces[piecesIndex])) {
-						x += (int) Char.GetNumericValue(rankPieces[piecesIndex]) - 1;
+					if (char.IsDigit(rankPieces[piecesIndex])) {
+						x += (int) char.GetNumericValue(rankPieces[piecesIndex]) - 1;
 						continue;
 					}
-					Square sqr = brd.GetSquareAt(new Vector3Int(x, (4 - i * 2), (8 - i * 2 - z)));
+					Square sqr = brd.GetSquareAt(new Vector3Int(x, 4 - i * 2, 8 - i * 2 - z));
 					sqr.GamePiece = CreatePiece(sqr, rankPieces[piecesIndex]);
 				}
 			}
@@ -123,18 +125,12 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 			AttackBoard ab = Boards[i - 3] as AttackBoard;
 			string[] ranksOfPieces = boardPieces[i].Split('/');
 
-			int startX = ab.PinnedSquare.Coords.x;
-			if (Char.IsLower(attackboards[(i - 3) * 2])) startX--;
-			int y = ab.PinnedSquare.Coords.y + 1;
-			int startZ = ab.PinnedSquare.Coords.z;
-			if (attackboards[(i - 3) * 2 + 1] % 2 == 0) startZ++;
-
 			for (int z = 0; z < 2; z++) {
 				string rankPieces = ranksOfPieces[z];
 				int piecesIndex = 0;
 				for (int x = 0; x < 2; x++, piecesIndex++) {
-					if (Char.IsDigit(rankPieces[piecesIndex])) {
-						x += (int) Char.GetNumericValue(rankPieces[piecesIndex]) - 1;
+					if (char.IsDigit(rankPieces[piecesIndex])) {
+						x += (int) char.GetNumericValue(rankPieces[piecesIndex]) - 1;
 						continue;
 					}
 					Square sqr = ab.Squares[z * 2 + x];
@@ -151,12 +147,12 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 			}
 			foreach (char castlingRight in castling) {
 				foreach(Square sqr in GetEnumerableSquares()) {
-					if (sqr.GamePiece is not Rook || sqr.GamePiece.IsWhite != Char.IsUpper(castlingRight)) continue;
+					if (sqr.GamePiece is not Rook || sqr.GamePiece.IsWhite != char.IsUpper(castlingRight)) continue;
 					Rook rook = sqr.GamePiece as Rook;
 					if ((castlingRight == 'K' && sqr.Coords == WhiteKingSideRookCoords) ||
 						(castlingRight == 'k' && sqr.Coords == BlackKingSideRookCoords)
 					) rook.SetKingSide(true);
-					if (rook.IsKingSide != (Char.ToUpper(castlingRight) == 'K')) continue;
+					if (rook.IsKingSide != (char.ToUpper(castlingRight) == 'K')) continue;
 					rook.HasCastlingRights = true;
 				}
 			}
@@ -171,29 +167,51 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		if (enPassant != "-") {
 			(GetSquareAt(
 				new Vector3Int(enPassant[0].FileToIndex(),
-				enPassant.Substring(2).BoardToIndex(),
-				(int) Char.GetNumericValue(enPassant[1])
+				enPassant[2..].BoardToIndex(),
+				(int) char.GetNumericValue(enPassant[1])
 			)).GamePiece as Pawn).JustMadeDSMove = true;
 		}
 
 		//update check states
 		UpdateKingCheckState(currentPlayer == "w");
+	}
 
-		//inner functions
-		ChessPiece CreatePiece(Square sqr, char pieceChar) {
-			ChessPiece piece = Instantiate(
-				ChessPiece.GetPrefab(pieceChar.CharToPieceColor()),
-				sqr.gameObject.transform.position,
-				Quaternion.identity,
-				Char.IsUpper(pieceChar) ? WhitePiecesParent : BlackPiecesParent
-			).GetComponent<ChessPiece>();
-			if (Char.ToUpper(pieceChar) == 'P') (piece as Pawn).RevokeDSMoveRights();
-			if (Char.IsLower(pieceChar)) piece.gameObject.transform.Rotate(Vector3.up * 180);
-			piece.gameObject.GetComponent<MeshCollider>().enabled = true;
-			piece.SetWhite(Char.IsUpper(pieceChar));
-			if (Char.ToUpper(pieceChar) == 'B') (piece as Bishop).SquareColorIsWhite = sqr.IsWhite;
-			return piece;
-		}
+	///<summary>
+	///Creates a piece associated with the given character on the given square
+	///</summary>
+	///<param name="sqr">The square to place the piece on</param>
+	///<param name="pieceChar">The character associated with the piece being created</param>
+	///<returns>The piece created</returns>
+	public ChessPiece CreatePiece(Square sqr, char pieceChar) {
+		return CreatePiece(
+			pieceChar.GetTypeFromChar(),
+			char.IsUpper(pieceChar),
+			sqr,
+			char.ToUpper(pieceChar) == 'D'
+		);
+	}
+
+	///<summary>
+	///Creates a piece of the given type and color, and places it on the given square
+	///</summary>
+	///<param name="type">The type of piece to create</param>
+	///<param name="isWhite">Whether the piece to be created should be white</param>
+	///<param name="sqr">The square to place the piece on</param>
+	///<param name="atStartingPosition">Whether the piece is being created at its starting position</param>
+	///<returns>The created piece</returns>
+	public ChessPiece CreatePiece(PieceType type, bool isWhite, Square sqr, bool atStartingPosition = false) {
+		ChessPiece piece = Instantiate(
+			ChessPiece.GetPrefab(type.GetPieceTypeColor(isWhite)),
+			sqr.gameObject.transform.position,
+			Quaternion.identity,
+			isWhite ? WhitePiecesParent : BlackPiecesParent
+		).GetComponent<ChessPiece>();
+		if (type == PieceType.PAWN && !atStartingPosition) (piece as Pawn).HasDSMoveRights = false;
+		if (!isWhite) piece.gameObject.transform.Rotate(Vector3.up * 180);
+		piece.gameObject.GetComponent<MeshCollider>().enabled = true;
+		piece.SetWhite(isWhite);
+		if (type == PieceType.BISHOP) (piece as Bishop).SquareColorIsWhite = sqr.IsWhite;
+		return piece;
 	}
 
 	///<summary>
