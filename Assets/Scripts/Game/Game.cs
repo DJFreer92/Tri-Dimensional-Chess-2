@@ -275,7 +275,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///<param name="isWhite">Whether the desired player is or isn't the white player</param>
 	///<returns>The player of the given pieces</returns>
 	public Player GetPlayer(bool isWhite) {
-		return !(isWhite ^ _players[0].IsWhite) ? _players[0] : _players[1];
+		return (isWhite != _players[0].IsWhite) ? _players[0] : _players[1];
 	}
 
 	///<summary>
