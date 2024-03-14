@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public sealed class PromotionController : MonoSingleton<PromotionController> {
 	[Header("References")]
-	[SerializeField] private Page _promotionPage;
+	[SerializeField] private GameObject _promotionUI;
 	[SerializeField] private GameObject _whiteBtns, _blackBtns;
 	[SerializeField] private Button _whiteQueenBtn, _whiteRookBtn, _whiteBishopBtn, _whiteKnightBtn, _blackQueenBtn, _blackRookBtn, _blackBishopBtn, _blackKnightBtn;
 	public bool SelectionInProgress {get => _moveInProgress != null;}
@@ -43,10 +44,10 @@ public sealed class PromotionController : MonoSingleton<PromotionController> {
 		_blackBtns.SetActive(!isWhite);
 
 		//focus the queen button
-		_promotionPage.SetFirstFocusItem((isWhite ? _whiteQueenBtn : _blackQueenBtn).gameObject);
+		EventSystem.current.SetSelectedGameObject((isWhite ? _whiteQueenBtn : _blackQueenBtn).gameObject);
 
 		//open the promotion page
-		MenuController.Instance.PushPage(_promotionPage);
+		_promotionUI.SetActive(true);
 	}
 
 	///<summary>

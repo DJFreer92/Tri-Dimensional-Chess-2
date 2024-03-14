@@ -670,6 +670,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///Undoes the last move
 	///</summary>
 	public void OnUndoLastMoveButton() {
+		if (!AllowMoves) return;
 		MoveCommandHandler.UndoCommand();
 		AllowMoves = false;
 	}
@@ -678,6 +679,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///Undoes all the moves
 	///</summary>
 	public void OnUndoAllMovesButton() {
+		if (!AllowMoves) return;
 		MoveCommandHandler.UndoAllCommands();
 		AllowMoves = false;
 	}
@@ -686,6 +688,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///Redoes the next move
 	///</summary>
 	public void OnRedoNextMoveButton() {
+		if (!AllowMoves) return;
 		MoveCommandHandler.RedoCommand();
 		if (!MoveCommandHandler.AreCommandsWaiting()) AllowMoves = true;
 	}
@@ -694,6 +697,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///Redoes all the moves
 	///</summary>
 	public void OnRedoAllMovesButton() {
+		if (!AllowMoves) return;
 		MoveCommandHandler.RedoAllCommands();
 		AllowMoves = true;
 	}
@@ -702,6 +706,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///Takeback the last move
 	///</summary>
 	public void OnTakebackMoveButton() {
+		if (!AllowMoves) return;
 		MoveCommandHandler.RedoAllCommands();
 		if (MoveCommandHandler.UndoAndRemoveCommand()) SwitchCurrentPlayer();
 		if (_prevPositions.Count > 0) _prevPositions.RemoveAt(_prevPositions.Count - 1);
