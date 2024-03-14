@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
+using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 public sealed class AttackBoard : Board, IMovable {
@@ -239,6 +240,16 @@ public sealed class AttackBoard : Board, IMovable {
 	///</summary>
 	public override void SetBoardAnnotation() {
 		Annotation = Squares[0].Coords.VectorToBoard();
+	}
+
+	///<summary>
+	///Selects the attackboard
+	///</summary>
+	public void Select() {
+		Square square = null;
+		foreach (Square sqr in this)
+			if (!sqr.HasPiece()) square = sqr;
+		if (square != null) Game.Instance.SelectSquare(square);
 	}
 
 	///<summary>

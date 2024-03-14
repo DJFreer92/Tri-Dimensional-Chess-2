@@ -8,11 +8,11 @@ using System.Text;
 [DisallowMultipleComponent]
 public class Board : MonoBehaviour, IEnumerable {
 	private static readonly char[] _FILE_ORDER = {'z', 'a', 'b', 'c', 'd', 'e'};
-	[SerializeField] public int Y;
+	public int Y;
 	//squares on the board
 	public List<Square> Squares {get; private set;}
 	//holds if the owner of the attackboard is white, black, or if it is neutral
-	[SerializeField] public Ownership Owner;
+	public Ownership Owner;
 	//annotation of the board
 	public string Annotation {get; protected set;}
 
@@ -104,7 +104,7 @@ public class Board : MonoBehaviour, IEnumerable {
 	///Sets the annotation of the board
 	///</summary>
 	public virtual void SetBoardAnnotation() {
-		Annotation = Char.ToString((char) Owner);
+		Annotation = char.ToString((char) Owner);
 	}
 
 	///<summary>
