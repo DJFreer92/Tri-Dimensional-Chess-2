@@ -265,8 +265,8 @@ public sealed class Game : MonoSingleton<Game> {
 		string[] sections = fen.Split(' ');
 		ChessBoard.Instance.ConstructPosition(fen);
 		if (sections[2] == "w" != CurPlayer.IsWhite) SwitchCurrentPlayer();
-		_moveRuleCount = Int32.Parse(sections[5]);
-		MoveCount = Int32.Parse(sections[6]);
+		_moveRuleCount = int.Parse(sections[5]);
+		MoveCount = int.Parse(sections[6]);
 	}
 
 	///<summary>
@@ -275,7 +275,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///<param name="isWhite">Whether the desired player is or isn't the white player</param>
 	///<returns>The player of the given pieces</returns>
 	public Player GetPlayer(bool isWhite) {
-		return (isWhite != _players[0].IsWhite) ? _players[0] : _players[1];
+		return (isWhite == _players[0].IsWhite) ? _players[0] : _players[1];
 	}
 
 	///<summary>
