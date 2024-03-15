@@ -69,19 +69,20 @@ public sealed class Game : MonoSingleton<Game> {
 
 	[SerializeField] private Page _gameUIPage;
 	[SerializeField] private TMP_InputField _ipAddressInput;
+	[HideInInspector] public string Setup;
+	[HideInInspector] public bool AllowMoves;
+	[HideInInspector] public bool AllowButtons;
+	public CommandHandler MoveCommandHandler {get; private set;}
+	public int MoveCount {get; private set;}
 	private GameState _state;
 	private Player _curPlayer;
-	public CommandHandler MoveCommandHandler {get; private set;}
 	private Player[] _players = new Player[2];
 	private PGNBuilder _pgnBuilder;
-	public string Setup;
 	private Square _selectedSquare;
 	private List<Square> _availableMoves, _availableABMoves;
 	private List<string> _prevPositions;
 	private List<int> _prevAvailableMovesCount;
-	public int MoveCount {get; private set;}
 	private int _moveRuleCount;
-	public bool AllowMoves;
 
 	//used for multiplayer
 	private int _playerCount = 0;  //server only
@@ -670,7 +671,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///Undoes the last move
 	///</summary>
 	public void OnUndoLastMoveButton() {
-		if (!AllowMoves) return;
+		if (!AllowButtons) return;
 		MoveCommandHandler.UndoCommand();
 		AllowMoves = false;
 	}
@@ -679,7 +680,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///Undoes all the moves
 	///</summary>
 	public void OnUndoAllMovesButton() {
-		if (!AllowMoves) return;
+		if (!AllowButtons) return;
 		MoveCommandHandler.UndoAllCommands();
 		AllowMoves = false;
 	}
@@ -688,7 +689,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///Redoes the next move
 	///</summary>
 	public void OnRedoNextMoveButton() {
-		if (!AllowMoves) return;
+		if (!AllowButtons) return;
 		MoveCommandHandler.RedoCommand();
 		if (!MoveCommandHandler.AreCommandsWaiting()) AllowMoves = true;
 	}
@@ -697,7 +698,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///Redoes all the moves
 	///</summary>
 	public void OnRedoAllMovesButton() {
-		if (!AllowMoves) return;
+		if (!AllowButtons) return;
 		MoveCommandHandler.RedoAllCommands();
 		AllowMoves = true;
 	}
@@ -706,7 +707,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///Takeback the last move
 	///</summary>
 	public void OnTakebackMoveButton() {
-		if (!AllowMoves) return;
+		if (!AllowButtons) return;
 		MoveCommandHandler.RedoAllCommands();
 		if (MoveCommandHandler.UndoAndRemoveCommand()) SwitchCurrentPlayer();
 		if (_prevPositions.Count > 0) _prevPositions.RemoveAt(_prevPositions.Count - 1);

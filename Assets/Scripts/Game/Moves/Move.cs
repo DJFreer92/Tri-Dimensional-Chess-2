@@ -115,6 +115,7 @@ public abstract class Move : ICommand {
 	public IEnumerator GetPromotionChoice(bool isSecondaryPromotion = false) {
 		//stop move from occuring while the promotion is in progress
 		Game.Instance.AllowMoves = false;
+		Game.Instance.AllowButtons = false;
 
 		//display the promotion options
 		PromotionController.Instance.ShowPromotionOptions(
@@ -133,6 +134,7 @@ public abstract class Move : ICommand {
 
 		//allow moves to be made
 		Game.Instance.AllowMoves = true;
+		Game.Instance.AllowButtons = true;
 	}
 
 	///<summary>
