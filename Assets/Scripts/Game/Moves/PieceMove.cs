@@ -58,7 +58,9 @@ public sealed class PieceMove : Move {
 				_enPassantCaptureSqr.GamePiece = null;
 
 				MoveEvents.Add(MoveEvent.EN_PASSANT);
-			} else if ((PieceMoved as Pawn).HasDSMoveRights)  {  //if the move is from the starting position
+			}
+			//if the pawn has double square move rights remove them
+			if ((PieceMoved as Pawn).HasDSMoveRights)  {
 				(PieceMoved as Pawn).HasDSMoveRights = false;
 				MoveEvents.Add(MoveEvent.LOST_DOUBLE_SQUARE_MOVE_RIGHTS);
 			}
@@ -214,6 +216,10 @@ public sealed class PieceMove : Move {
 		Square kingSqr = kingIsPrimary ? StartSqr : EndSqr;
 		Square rookSqr = kingIsPrimary ? EndSqr : StartSqr;
 
+		//remove the future castling rights of the king and rook
+		king.HasCastlingRights = false;
+		rook.HasCastlingRights = false;
+
 		//move the rook to the king's position
 		rook.MoveTo(kingSqr);
 
@@ -225,9 +231,6 @@ public sealed class PieceMove : Move {
 			//assign the pieces to their new squares
 			kingSqr.GamePiece = rook;
 			rookSqr.GamePiece = king;
-
-			king.HasCastlingRights = false;
-			rook.HasCastlingRights = false;
 
 			MoveEvents.Add(MoveEvent.CASTLING_KING_SIDE);
 			return;
@@ -244,9 +247,6 @@ public sealed class PieceMove : Move {
 		kingLandingSqr.GamePiece = king;
 		kingSqr.GamePiece = rook;
 		rookSqr.GamePiece = null;
-
-		king.HasCastlingRights = false;
-		rook.HasCastlingRights = false;
 
 		MoveEvents.Add(MoveEvent.CASTLING_QUEEN_SIDE);
 	}
