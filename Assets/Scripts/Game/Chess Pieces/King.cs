@@ -166,10 +166,11 @@ public sealed class King : ChessPiece {
 			if (PieceOnSqr is Rook && HasCastlingRights && IsWhite == PieceOnSqr.IsWhite) {
 				if (!(PieceOnSqr as Rook).HasCastlingRights || Game.Instance.IsFirstMove() || IsInCheck) continue;
 				Rook rook = PieceOnSqr as Rook;
-				if (rook.IsKingSide || !ChessBoard.Instance.GetSquareAt(sqr.Coords + Vector3Int.right).HasPiece()) {
+				Square blockingSqr = ChessBoard.Instance.GetSquareAt(sqr.Coords + Vector3Int.right);
+				if (rook.IsKingSide || (blockingSqr != null && !blockingSqr.HasPiece())) {
 					var move = new PieceMove(Game.Instance.GetPlayer(IsWhite), square, sqr);
 					move.MoveEvents.Add(rook.IsKingSide ? MoveEvent.CASTLING_KING_SIDE : MoveEvent.CASTLING_QUEEN_SIDE);
-					if (!King.WillBeInCheck(move)) moves.Add(sqr);
+					if (!WillBeInCheck(move)) moves.Add(sqr);
 				}
 				continue;
 			}
@@ -177,7 +178,7 @@ public sealed class King : ChessPiece {
 			int zDiff = Math.Abs(square.Coords.z - sqr.Coords.z);
 			if (xDiff > 1 || zDiff > 1 || xDiff + zDiff == 0) continue;
 			if (sqr.HasPiece() && PieceOnSqr.IsWhite == IsWhite) continue;
-			if (!King.WillBeInCheck(new PieceMove(Game.Instance.GetPlayer(IsWhite), square, sqr))) moves.Add(sqr);
+			if (!WillBeInCheck(new PieceMove(Game.Instance.GetPlayer(IsWhite), square, sqr))) moves.Add(sqr);
 		}
 		return moves;
 	}
