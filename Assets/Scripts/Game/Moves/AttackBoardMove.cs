@@ -68,8 +68,8 @@ public sealed class AttackBoardMove : Move {
     ///<returns>The annotation</returns>
     public override string GetAnnotation() {
 		var move = new StringBuilder();
-		//the staring board level - the ending board level
-		move.Append(_boardMovedAnnotationAtStart).Append("-").Append(EndSqr.Coords.VectorToBoard());
+		//the starting board level - the ending board level
+		move.Append(_boardMovedAnnotationAtStart).Append("-").Append(BoardMoved.Squares[0].Coords.VectorToBoard());
 
 		//had a pawn promotion
 		if (MoveEvents.Contains(MoveEvent.PROMOTION)) move.Append(BoardMoved.GetPieces()[0].GetCharacter(UseFigurineNotation));
