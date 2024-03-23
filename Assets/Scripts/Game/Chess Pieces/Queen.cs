@@ -21,6 +21,7 @@ public sealed class Queen : ChessPiece {
 		Square square = GetSquare();
 		for (var xd = -1; xd <= 1; xd++) {
 			for (var zd = -1; zd <= 1; zd++) {
+				if (xd == 0 && zd == 0) continue;
 				bool blocked = false;
 				for (var dist = 1; dist <= 9; dist++) {
 					int x = xd * dist + square.Coords.x;
