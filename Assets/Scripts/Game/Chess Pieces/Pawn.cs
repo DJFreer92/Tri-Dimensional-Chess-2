@@ -137,8 +137,8 @@ public sealed class Pawn : ChessPiece {
 		//if the pawn is on the b or c file, return can be promoted
 		if (sqr.Coords.x == 2 || sqr.Coords.x == 3) return true;
 
-		//return whether there is an attack board square directly infront of the pawn
-		return ChessBoard.Instance.GetSquareAt(new Vector3Int(sqr.Coords.x, (IsWhite ? 5 : 1), (IsWhite ? 9 : 0))) == null;
+		//return whether there isn't an attack board square directly infront of the pawn
+		return ChessBoard.Instance.GetSquareAt(new Vector3Int(sqr.Coords.x, IsWhite ? 5 : 1, IsWhite ? 9 : 0)) != null;
 	}
 
 	///<summary>
