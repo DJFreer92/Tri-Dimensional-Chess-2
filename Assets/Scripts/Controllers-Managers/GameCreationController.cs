@@ -84,9 +84,9 @@ public sealed class GameCreationController : MonoSingleton<GameCreationControlle
 		if (IsSelected(_originalButton)) fen = Game.ORIGINAL_FEN;
 		else if (IsSelected(_nextGenButton)) fen = Game.NEXT_GEN_FEN;
 		else if (IsSelected(_useFENButton)) fen = _fenPGNInput.text;
-		else Game.Instance.LoadPGN(_fenPGNInput.text);
+		else Game.Instance.StartPGN = _fenPGNInput.text;
 
-		Game.Instance.Setup = _fenPGNInput.text;
+		Game.Instance.Setup = fen;
 
 		if (IsSelected(_localButton)) {
 			Game.Instance.StartLocalGame();

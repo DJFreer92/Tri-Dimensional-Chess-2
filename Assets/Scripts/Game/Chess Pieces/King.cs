@@ -145,7 +145,7 @@ public sealed class King : ChessPiece {
 
 		//move all the Squares on the attackboard back to their old positions
 		foreach (Square sqr in move.BoardMoved.Squares) {
-			sqr.Coords = new Vector3Int(sqr.Coords.x - xDiff, move.StartSqr.Coords.y, sqr.Coords.z - zDiff);
+			sqr.Coords = new Vector3Int(sqr.Coords.x - xDiff, move.BoardMoved.Y, sqr.Coords.z - zDiff);
 		}
 
 		//return whether the move put the king in check

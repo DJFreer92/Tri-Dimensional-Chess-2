@@ -65,56 +65,57 @@ public class PGNBuilder {
 	///</summary>
 	///<param name="pgn">The PGN to build</param>
 	public static PGNBuilder BuildPGN(string pgn) {
-		var builder = new PGNBuilder();
-		string[] sections = pgn.Split('\n');
+        var builder = new PGNBuilder { Moves = new() };
+        string[] sections = pgn.Split('\n');
 		foreach (string section in sections) {
-			if (section[0] == '\n') continue;
-			if (section[0] != '1') {
-				int spaceIndex = section.IndexOf(' ');
-				string data = section.Substring(spaceIndex + 2, section.Length - spaceIndex - 5);
-				switch (section.Substring(1, spaceIndex)) {
-					case "Event": builder._event = data;
-					continue;
-					case "Site": builder._site = data;
-					continue;
-					case "Date": builder._date = data;
-					continue;
-					case "Round": builder._round = data;
-					continue;
-					case "WhitePlayer": builder._whitePlayer = data;
-					continue;
-					case "BlackPlayer": builder._blackPlayer = data;
-					continue;
-					case "Annotator": builder._annotator = data;
-					continue;
-					case "Result": builder._result = data;
-					continue;
-					case "TimeControl": builder._timeControl = data;
-					continue;
-					case "StartTime": builder._startTime = data;
-					continue;
-					case "Termination": builder._termination = data;
-					continue;
-					case "Mode": builder._mode = data;
-					continue;
-					case "Setup": builder.Setup = data;
-					continue;
-					default: continue;
-				}
-			}
+			if (string.IsNullOrEmpty(section)) continue;
+			if (section[0] == '1') break;
 
-			while (section.Length > 0) {
-				section.Remove(0, section.IndexOf(' ') + 1);
-				int index = section.IndexOf(' ');
-				if (index == -1) {
-					builder.Moves.Add(section.Substring(0, section.Length));
-					break;
-				}
-				builder.Moves.Add(section.Substring(0, index));
-				section.Remove(0, index + 1);
+			int spaceIndex = section.IndexOf(' ');
+			string data = section.Substring(spaceIndex + 2, section.Length - spaceIndex - 4);
+			switch (section[1..spaceIndex]) {
+				case "Event": builder._event = data;
+				continue;
+				case "Site": builder._site = data;
+				continue;
+				case "Date": builder._date = data;
+				continue;
+				case "Round": builder._round = data;
+				continue;
+				case "WhitePlayer": builder._whitePlayer = data;
+				continue;
+				case "BlackPlayer": builder._blackPlayer = data;
+				continue;
+				case "Annotator": builder._annotator = data;
+				continue;
+				case "Result": builder._result = data;
+				continue;
+				case "TimeControl": builder._timeControl = data;
+				continue;
+				case "StartTime": builder._startTime = data;
+				continue;
+				case "Termination": builder._termination = data;
+				continue;
+				case "Mode": builder._mode = data;
+				continue;
+				case "SetUp": builder.Setup = data;
+				continue;
+				default: continue;
 			}
-			break;
 		}
+
+		string moves = sections[^1];
+		while (moves.Length > 0) {
+			moves = moves.Remove(0, moves.IndexOf(' ') + 1);
+			int index = moves.IndexOf(' ');
+			if (index == -1) {
+				builder.Moves.Add(moves[..]);
+				break;
+			}
+			builder.Moves.Add(moves[..index]);
+			moves = moves.Remove(0, index + 1);
+		}
+
 		return builder;
 	}
 

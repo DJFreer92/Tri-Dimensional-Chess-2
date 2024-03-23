@@ -46,7 +46,7 @@ public sealed class Rook : ChessPiece {
 							if (PieceOnSqr.IsWhite == IsWhite) {
 								if (!HasCastlingRights || Game.Instance.IsFirstMove()) continue;
 								King king = PieceOnSqr as King;
-								if (!(PieceOnSqr is King) || !king.HasCastlingRights || king.IsInCheck) continue;
+								if (PieceOnSqr is not King || !king.HasCastlingRights || king.IsInCheck) continue;
 								if (!IsKingSide && ChessBoard.Instance.GetSquareAt(square.Coords + Vector3Int.right).HasPiece()) continue;
 								var move = new PieceMove(Game.Instance.GetPlayer(IsWhite), square, sqr);
 								move.MoveEvents.Add(IsKingSide ? MoveEvent.CASTLING_KING_SIDE : MoveEvent.CASTLING_QUEEN_SIDE);

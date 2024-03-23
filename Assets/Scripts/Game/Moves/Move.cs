@@ -79,17 +79,17 @@ public abstract class Move : ICommand {
 		} else {
 			seperationIndex = annotatedMove.IndexOf('x');
 
-			if (seperationIndex != -1)
+			if (seperationIndex == -1)
 				for (int i = 2; i < annotatedMove.Length; i++)
-					if (Char.IsLower(annotatedMove[i])) seperationIndex = i;
+					if (char.IsLower(annotatedMove[i])) seperationIndex = i;
 
 			move = new PieceMove(
 				Game.Instance.GetPlayer(isWhite),
 				ChessBoard.Instance.GetSquareAt(annotatedMove.Substring(
-					Char.IsUpper(annotatedMove[0]) ? 1 : 0,
+					char.IsUpper(annotatedMove[0]) ? 1 : 0,
 					seperationIndex
 				).AnnotationToVector()),
-				ChessBoard.Instance.GetSquareAt(annotatedMove.Substring(seperationIndex).AnnotationToVector())
+				ChessBoard.Instance.GetSquareAt(annotatedMove[seperationIndex..].AnnotationToVector())
 			);
 		}
 

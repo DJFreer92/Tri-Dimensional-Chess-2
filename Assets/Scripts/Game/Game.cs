@@ -70,6 +70,7 @@ public sealed class Game : MonoSingleton<Game> {
 	[SerializeField] private Page _gameUIPage;
 	[SerializeField] private TMP_InputField _ipAddressInput;
 	[HideInInspector] public string Setup;
+	[HideInInspector] public string StartPGN;
 	[HideInInspector] public bool AllowMoves;
 	[HideInInspector] public bool AllowButtons;
 	public CommandHandler MoveCommandHandler {get; private set;}
@@ -217,17 +218,20 @@ public sealed class Game : MonoSingleton<Game> {
 		//initialize move rule count
 		_moveRuleCount = 0;
 
-		//load the position from the fen
-		LoadFEN(Setup);
-
 		//initialize the PGN builder
-		_pgnBuilder = new PGNBuilder("Player 1", "Player 2", Setup);
+		if (!string.IsNullOrEmpty(StartPGN)) LoadPGN(StartPGN);
+		else {
+			//load the position from the fen
+			LoadFEN(Setup);
+			_pgnBuilder = new PGNBuilder("Player 1", "Player 2", Setup);
+		}
 
 		//clear the captured pieces
 		CapturedPiecesController.Instance.ClearCapturedPieces();
 
 		//allow moves to be made
 		AllowMoves = true;
+		AllowButtons = true;
 
 		Debug.Log(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount));
 		Debug.Log(_pgnBuilder.GetPGN());
@@ -248,9 +252,9 @@ public sealed class Game : MonoSingleton<Game> {
 	///<param name="pgn">The PGN to load</param>
 	public void LoadPGN(string pgn) {
 		PGNBuilder builder = PGNBuilder.BuildPGN(pgn);
-		Setup = builder.Setup;
-		Init();
 		bool moveIsWhite = true;
+		Setup = builder.Setup;
+		LoadFEN(Setup);
 		foreach (string annotatedMove in builder.Moves) {
 			MovesPlayed.Add(Move.BuildMove(annotatedMove, moveIsWhite));
 			moveIsWhite = !moveIsWhite;
@@ -714,6 +718,8 @@ public sealed class Game : MonoSingleton<Game> {
 		if (_prevAvailableMovesCount.Count > 0) _prevAvailableMovesCount.RemoveAt(_prevAvailableMovesCount.Count - 1);
 		if (_moveRuleCount > 0) _moveRuleCount--;
 		if (CurPlayer.IsWhite) MoveCount--;
+		MovesPlayed.RemoveAt(MovesPlayed.Count - 1);
+		_pgnBuilder.Moves.RemoveAt(_pgnBuilder.Moves.Count - 1);
 		AllowMoves = true;
 	}
 

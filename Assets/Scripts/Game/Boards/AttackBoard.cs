@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
-using UnityEngine.UI;
 
 [DisallowMultipleComponent]
 public sealed class AttackBoard : Board, IMovable {
