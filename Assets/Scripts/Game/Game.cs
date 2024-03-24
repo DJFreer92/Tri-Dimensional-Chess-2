@@ -440,7 +440,6 @@ public sealed class Game : MonoSingleton<Game> {
 	public void FinishTurn(Move move) {
 		//record the move
 		MovesPlayed.Add(move);
-		_pgnBuilder.AddMove(move.GetAnnotation());
 
 		//update the move count
 		if (!CurPlayer.IsWhite) MoveCount++;
@@ -448,9 +447,16 @@ public sealed class Game : MonoSingleton<Game> {
 		//check if the game was won or is a draw
 		UpdateGameState();
 
+		//add the move to the pgn
+		_pgnBuilder.AddMove(move.GetAnnotation());
+
 		//switch to the next player's turn
 		if (State.Is(GameState.ACTIVE)) NextTurn();
-		else Debug.Log("State: " + State);
+		else {
+			Debug.Log("State: " + State);
+			Debug.Log(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount));
+			Debug.Log(_pgnBuilder.GetPGN());
+		}
 	}
 
 	///<summary>
@@ -471,7 +477,7 @@ public sealed class Game : MonoSingleton<Game> {
 			lastMove.MoveEvents.Add(MoveEvent.CHECKMATE);
 
 			//update the game status
-			State = (CurPlayer.IsWhite ? GameState.WHITE_WIN_NORMAL : GameState.BLACK_WIN_NORMAL);
+			State = CurPlayer.IsWhite ? GameState.WHITE_WIN_NORMAL : GameState.BLACK_WIN_NORMAL;
 			return;
 		}
 
