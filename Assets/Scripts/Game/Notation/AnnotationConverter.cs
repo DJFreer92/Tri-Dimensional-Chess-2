@@ -56,7 +56,7 @@ public static class AnnotationConverter {
 	public static Vector3Int AnnotationToVector(this string annotation) {
 		if (annotation == null) throw new ArgumentNullException(nameof(annotation), "Annotation cannot be null");
 		return new Vector3Int(
-			_FILES[annotation[0]],
+			Array.IndexOf(_FILES, annotation[0]),
 			annotation.Length == 3 ?
 				Array.IndexOf(_MAIN_BOARDS, annotation[2]) :
 				(annotation[4] - 1) / 2,
