@@ -259,6 +259,7 @@ public sealed class Game : MonoSingleton<Game> {
 			move.Execute();
 			if (!move.MoveEvents.Contains(MoveEvent.PROMOTION)) FinishTurn(move);
 		}
+		if (State.Is(GameState.INACTIVE)) builder.EndGame();
 		_pgnBuilder = builder;
 	}
 
@@ -453,6 +454,7 @@ public sealed class Game : MonoSingleton<Game> {
 		//switch to the next player's turn
 		if (State.Is(GameState.ACTIVE)) NextTurn();
 		else {
+			_pgnBuilder?.EndGame();
 			Debug.Log("State: " + State);
 			Debug.Log(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount));
 			Debug.Log(_pgnBuilder?.GetPGN());

@@ -10,52 +10,43 @@ public class PGNBuilder {
 	public List<string> Moves {get; private set;}
 
 	public PGNBuilder(string evnt, string site, string round, string whitePlayer, string blackPlayer, string annotator, string timeControl, string setup, bool isOverTheBoard = false) {
-		if (evnt == null) throw new ArgumentNullException(nameof(evnt), "Event cannot be null.");
-		if (site == null) throw new ArgumentNullException(nameof(site), "Site cannot be null.");
-		if (round == null) throw new ArgumentNullException(nameof(round), "Round cannot be null.");
-		if (whitePlayer == null) throw new ArgumentNullException(nameof(whitePlayer), "White Player cannot be null.");
-		if (blackPlayer == null) throw new ArgumentNullException(nameof(blackPlayer), "Black Player cannot be null.");
-		if (annotator == null) throw new ArgumentNullException(nameof(annotator), "Annotator cannot be null.");
-		if (timeControl == null) throw new ArgumentNullException(nameof(timeControl), "Time Control cannot be null.");
-		_event = evnt;
-		_site = site;
-		_round = round;
-		_whitePlayer = whitePlayer;
-		_blackPlayer = blackPlayer;
-		_annotator = annotator;
-		_timeControl = timeControl;
+        _event = evnt ?? throw new ArgumentNullException(nameof(evnt), "Event cannot be null.");
+		_site = site ?? throw new ArgumentNullException(nameof(site), "Site cannot be null.");
+		_round = round ?? throw new ArgumentNullException(nameof(round), "Round cannot be null.");
+		_whitePlayer = whitePlayer ?? throw new ArgumentNullException(nameof(whitePlayer), "White Player cannot be null.");
+		_blackPlayer = blackPlayer ?? throw new ArgumentNullException(nameof(blackPlayer), "Black Player cannot be null.");
+		_annotator = annotator ?? throw new ArgumentNullException(nameof(annotator), "Annotator cannot be null.");
+		_timeControl = timeControl ?? throw new ArgumentNullException(nameof(timeControl), "Time Control cannot be null.");
 		Setup = setup;
 		_mode = isOverTheBoard ? "OTB" : "ICS";
 		Moves = new();
 		SetDateTime();
+		_result = "*";
 	}
 
 	public PGNBuilder(string whitePlayer, string blackPlayer, string timeControl, string setup) {
-		if (whitePlayer == null) throw new ArgumentNullException(nameof(whitePlayer), "White Player cannot be null.");
-		if (blackPlayer == null) throw new ArgumentNullException(nameof(blackPlayer), "Black Player cannot be null.");
-		if (timeControl == null) throw new ArgumentNullException(nameof(timeControl), "Time Control cannot be null.");
-		_whitePlayer = whitePlayer;
-		_blackPlayer = blackPlayer;
-		_timeControl = timeControl;
+        _whitePlayer = whitePlayer ?? throw new ArgumentNullException(nameof(whitePlayer), "White Player cannot be null.");
+		_blackPlayer = blackPlayer ?? throw new ArgumentNullException(nameof(blackPlayer), "Black Player cannot be null.");
+		_timeControl = timeControl ?? throw new ArgumentNullException(nameof(timeControl), "Time Control cannot be null.");
 		Setup = setup;
 		_event = "Freeplay";
 		_site = "The Internet";
 		_mode = "ICS";
 		Moves = new();
 		SetDateTime();
+		_result = "*";
 	}
 
 	public PGNBuilder(string whitePlayer, string blackPlayer, string setup) {
-		if (whitePlayer == null) throw new ArgumentNullException(nameof(whitePlayer), "White Player cannot be null.");
-		if (blackPlayer == null) throw new ArgumentNullException(nameof(blackPlayer), "Black Player cannot be null.");
-		_whitePlayer = whitePlayer;
-		_blackPlayer = blackPlayer;
+        _whitePlayer = whitePlayer ?? throw new ArgumentNullException(nameof(whitePlayer), "White Player cannot be null.");
+		_blackPlayer = blackPlayer ?? throw new ArgumentNullException(nameof(blackPlayer), "Black Player cannot be null.");
 		Setup = setup;
 		_event = "Freeplay";
 		_site = "The Internet";
 		_mode = "ICS";
 		Moves = new();
 		SetDateTime();
+		_result = "*";
 	}
 
 	private PGNBuilder() {}
@@ -146,13 +137,30 @@ public class PGNBuilder {
 	}
 
 	///<summary>
-	///Sets the result of the game
+	///Sets the result and termination of the game
 	///</summary>
-	///<param name="result">The result of the game</param>
-	///<param name="termination">How the game terminated</param>
-	public void SetResult(string result, string termination) {
-		_result = result;
-		_termination = termination;
+	public void EndGame() {
+		if (string.IsNullOrEmpty(_result)) {
+			if (Game.Instance.State.Is(GameState.WHITE_WIN)) _result = "1-0";
+			else if (Game.Instance.State.Is(GameState.BLACK_WIN)) _result = "0-1";
+			else _result = "1/2-1/2";
+		}
+
+		if (!string.IsNullOrEmpty(_termination)) return;
+
+		_termination = Game.Instance.State switch {
+			GameState.WHITE_WIN_NORMAL => "Normal",
+			GameState.BLACK_WIN_NORMAL => "Normal",
+			GameState.WHITE_RESIGNATION => "Resignation",
+			GameState.BLACK_RESIGNATION => "Resignation",
+			GameState.DRAW_MUTUAL_AGREEMENT => "Mutual Agreement",
+			GameState.DRAW_STALEMATE => "Stalemate",
+			GameState.DRAW_THREEFOLD_REPETITION => "Threefold Repetition",
+			GameState.DRAW_FIFTY_MOVE_RULE => "Fifty Move Rule",
+			GameState.DRAW_DEAD_POSITION => "Dead Position",
+			GameState.DRAW_TIMEOUT_VS_INSUFFICIENT_MATERIAL => "Timeout",
+			_ => "Unknown"
+		};
 	}
 
 	///<summary>
