@@ -82,9 +82,9 @@ public class PGNBuilder {
 				continue;
 				case "Round": builder._round = data;
 				continue;
-				case "WhitePlayer": builder._whitePlayer = data;
+				case "White": builder._whitePlayer = data;
 				continue;
-				case "BlackPlayer": builder._blackPlayer = data;
+				case "Black": builder._blackPlayer = data;
 				continue;
 				case "Annotator": builder._annotator = data;
 				continue;
@@ -92,7 +92,7 @@ public class PGNBuilder {
 				continue;
 				case "TimeControl": builder._timeControl = data;
 				continue;
-				case "StartTime": builder._startTime = data;
+				case "Time": builder._startTime = data;
 				continue;
 				case "Termination": builder._termination = data;
 				continue;
@@ -106,7 +106,7 @@ public class PGNBuilder {
 
 		string moves = sections[^1];
 		while (moves.Length > 0) {
-			moves = moves.Remove(0, moves.IndexOf(' ') + 1);
+			if (char.IsDigit(moves[0])) moves = moves.Remove(0, moves.IndexOf(' ') + 1);
 			int index = moves.IndexOf(' ');
 			if (index == -1) {
 				builder.Moves.Add(moves[..]);
@@ -192,10 +192,9 @@ public class PGNBuilder {
 	///</summary>
 	///<param name="filePath">The file path to export the PGN to</param>
 	public void Export(string filePath) {
-		if (String.IsNullOrEmpty(filePath)) throw new ArgumentException(nameof(filePath), "Invalid file path.");
+		if (string.IsNullOrEmpty(filePath)) throw new ArgumentException(nameof(filePath), "Invalid file path.");
 
-		using (var outFile = new StreamWriter(Path.Combine(filePath, "test.pgn"))) {
-			outFile.Write(GetPGN());
-		}
-	}
+        using var outFile = new StreamWriter(Path.Combine(filePath, "test.pgn"));
+        outFile.Write(GetPGN());
+    }
 }

@@ -263,9 +263,9 @@ public sealed class PieceMove : Move {
 		//the move was not castling
 		var move = new StringBuilder(PieceMoved.GetCharacter(UseFigurineNotation));  //piece character
 		move.Append(StartSqr.GetAnnotation());  //starting position
-		if (MoveEvents.Contains(MoveEvent.CAPTURE)) move.Append("x"); //A piece was captured
+		if (MoveEvents.Contains(MoveEvent.CAPTURE)) move.Append('x'); //A piece was captured
 		move.Append(EndSqr.GetAnnotation());  //ending position
-		if (MoveEvents.Contains(MoveEvent.PROMOTION)) move.Append("=" + PieceMoved.GetCharacter(UseFigurineNotation));  //had a pawn promotion
+		if (MoveEvents.Contains(MoveEvent.PROMOTION)) move.Append('=').Append(PieceMoved.GetCharacter(UseFigurineNotation));  //had a pawn promotion
 		else if (MoveEvents.Contains(MoveEvent.EN_PASSANT)) move.Append(" e.p.");  //En Passant
 
 		//set the move annotation

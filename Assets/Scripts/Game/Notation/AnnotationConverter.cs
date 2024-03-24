@@ -55,11 +55,10 @@ public static class AnnotationConverter {
 	///<returns>Vector of a square</returns>
 	public static Vector3Int AnnotationToVector(this string annotation) {
 		if (annotation == null) throw new ArgumentNullException(nameof(annotation), "Annotation cannot be null");
+
 		return new Vector3Int(
 			Array.IndexOf(_FILES, annotation[0]),
-			annotation.Length == 3 ?
-				Array.IndexOf(_MAIN_BOARDS, annotation[2..3]) :
-				((int) char.GetNumericValue(annotation[4]) - 1) / 2,
+			BoardToIndex(annotation[annotation.Length == 3 ? 2.. : 2..5]),
 			(int) char.GetNumericValue(annotation[1])
 		);
 	}
@@ -127,9 +126,11 @@ public static class AnnotationConverter {
 	///<returns>The index of the board</returns>
 	public static int BoardToIndex(this string board) {
 		if (board == null) throw new ArgumentNullException(nameof(board), "Board annotation cannot be null");
+
 		int x = Array.IndexOf(_MAIN_BOARDS, board);
 		if (x != -1) return x * 2;
-		x = Convert.ToInt32(board[^1]);
+
+		x = (int) char.GetNumericValue(board[^1]);
 		return (x % 2 == 0) ? (x - 1) : x;
 	}
 
@@ -140,12 +141,14 @@ public static class AnnotationConverter {
 	///<returns>The vector of the square the board is pinned to</returns>
 	public static Vector3Int BoardToVector(this string board) {
 		if (board == null) throw new ArgumentNullException(nameof(board), "Board annotation cannot be null");
+
+		int depth = (int) char.GetNumericValue(board[^1]);
+		if (depth % 2 == 0) depth += 2;
+
 		return new Vector3Int(
 			board[0] == 'Q' ? 1 : 4,
-			BoardToIndex(board),
-			board[^1] % 2 == 0 ?
-				board[^1] :
-				board[^1] + 2 * (board[^1] / 2 - 1)
+			BoardToIndex(board) - 1,
+			depth
 		);
 	}
 

@@ -48,15 +48,7 @@ public abstract class Move : ICommand {
 		Move move;
 		int seperationIndex;
 
-		if (annotatedMove.Contains('-') && !annotatedMove.Contains("O-O")) {
-			seperationIndex = annotatedMove.IndexOf('-');
-
-			move = new AttackBoardMove(
-				Game.Instance.GetPlayer(isWhite),
-				ChessBoard.Instance.GetSquareAt(annotatedMove.Substring(0, seperationIndex).BoardToVector()),
-				ChessBoard.Instance.GetSquareAt(annotatedMove.Substring(seperationIndex).BoardToVector())
-			);
-		} else if (annotatedMove.Contains("O-O")) {
+		if (annotatedMove.Contains("O-O")) {
 			Square rookSqr;
 
 			if (annotatedMove.Contains("O-O-O")) {
@@ -76,28 +68,36 @@ public abstract class Move : ICommand {
 					ChessBoard.Instance.GetSquareAt(ChessBoard.BlackKingCoords),
 				rookSqr
 			);
+		} else if (annotatedMove.Contains('-')) {
+			seperationIndex = annotatedMove.IndexOf('-');
+
+			move = new AttackBoardMove(
+				Game.Instance.GetPlayer(isWhite),
+				ChessBoard.Instance.GetSquareAt(annotatedMove[..seperationIndex].BoardToVector() + Vector3Int.up),
+				ChessBoard.Instance.GetSquareAt(annotatedMove[(seperationIndex + 1)..].BoardToVector())
+			);
 		} else {
 			seperationIndex = annotatedMove.IndexOf('x');
-
 			if (seperationIndex == -1)
 				for (int i = 2; i < annotatedMove.Length; i++)
 					if (char.IsLower(annotatedMove[i])) seperationIndex = i;
 
 			move = new PieceMove(
 				Game.Instance.GetPlayer(isWhite),
-				ChessBoard.Instance.GetSquareAt(annotatedMove.Substring(
-					char.IsUpper(annotatedMove[0]) ? 1 : 0,
-					seperationIndex
-				).AnnotationToVector()),
-				ChessBoard.Instance.GetSquareAt(annotatedMove[seperationIndex..].AnnotationToVector())
+				ChessBoard.Instance.GetSquareAt(
+					annotatedMove[(char.IsUpper(annotatedMove[0]) ? 1 : 0)..seperationIndex].AnnotationToVector()
+				),
+				ChessBoard.Instance.GetSquareAt(
+					annotatedMove[(seperationIndex + (annotatedMove.Contains('x') ? 1 : 0))..].AnnotationToVector()
+				)
 			);
 		}
 
 		if (annotatedMove.Contains('x')) move.MoveEvents.Add(MoveEvent.CAPTURE);
 		if (annotatedMove.Contains("e.p.")) move.MoveEvents.Add(MoveEvent.EN_PASSANT);
-		else if (annotatedMove.Contains('=')) {
+		else if (annotatedMove.Contains('=') || (annotatedMove.Contains('-') && !annotatedMove.Contains("O-O") && char.IsUpper(annotatedMove[^1]))) {
 			move.MoveEvents.Add(MoveEvent.PROMOTION);
-			move.Promotion = annotatedMove[annotatedMove.IndexOf('=') + 1].CharToPiece();
+			move.Promotion = annotatedMove[^1].CharToPiece();
 		}
 		if (annotatedMove.Contains('#')) move.MoveEvents.Add(MoveEvent.CHECK, MoveEvent.CHECKMATE);
 		else if (annotatedMove.Contains('+')) {

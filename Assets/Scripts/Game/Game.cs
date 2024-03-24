@@ -252,14 +252,14 @@ public sealed class Game : MonoSingleton<Game> {
 	///<param name="pgn">The PGN to load</param>
 	public void LoadPGN(string pgn) {
 		PGNBuilder builder = PGNBuilder.BuildPGN(pgn);
-		bool moveIsWhite = true;
 		Setup = builder.Setup;
 		LoadFEN(Setup);
 		foreach (string annotatedMove in builder.Moves) {
-			MovesPlayed.Add(Move.BuildMove(annotatedMove, moveIsWhite));
-			moveIsWhite = !moveIsWhite;
+			Move move = Move.BuildMove(annotatedMove, CurPlayer.IsWhite);
+			move.Execute();
+			if (!move.MoveEvents.Contains(MoveEvent.PROMOTION)) FinishTurn(move);
 		}
-		MoveCount = MovesPlayed.Count / 2 + 1;
+		_pgnBuilder = builder;
 	}
 
 	///<summary>
@@ -448,14 +448,14 @@ public sealed class Game : MonoSingleton<Game> {
 		UpdateGameState();
 
 		//add the move to the pgn
-		_pgnBuilder.AddMove(move.GetAnnotation());
+		_pgnBuilder?.AddMove(move.GetAnnotation());
 
 		//switch to the next player's turn
 		if (State.Is(GameState.ACTIVE)) NextTurn();
 		else {
 			Debug.Log("State: " + State);
 			Debug.Log(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount));
-			Debug.Log(_pgnBuilder.GetPGN());
+			Debug.Log(_pgnBuilder?.GetPGN());
 		}
 	}
 
@@ -561,7 +561,7 @@ public sealed class Game : MonoSingleton<Game> {
 		SwitchCurrentPlayer();
 
 		Debug.Log(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount));
-		Debug.Log(_pgnBuilder.GetPGN());
+		Debug.Log(_pgnBuilder?.GetPGN());
 	}
 
 	///<summary>
