@@ -190,9 +190,8 @@ public static class FENBuilder {
 	///<param name="moveRuleCount">The number of moves on the move rule counter</param>
 	///<param name="moveNum">The move number</param>
 	public static void ExportFEN(string filePath, ChessBoard board, bool currentIsWhite, int moveRuleCount, int moveNum) {
-		if (String.IsNullOrEmpty(filePath)) throw new ArgumentException(nameof(filePath), "Invalid file path.");
-		using (var outFile = new StreamWriter(Path.Combine(filePath, "test.fen"))) {
-			outFile.WriteLine(FENBuilder.GetFEN(board, currentIsWhite, moveRuleCount, moveNum));
-		}
-	}
+		if (string.IsNullOrEmpty(filePath)) throw new ArgumentException(nameof(filePath), "Invalid file path.");
+        using var outFile = new StreamWriter(Path.Combine(filePath, "test.fen"));
+        outFile.WriteLine(GetFEN(board, currentIsWhite, moveRuleCount, moveNum));
+    }
 }

@@ -74,6 +74,23 @@ public sealed class GameCreationController : MonoSingleton<GameCreationControlle
 	public void SetChangeAutomatic(bool auto) => _changeAutomatic = auto;
 
 	///<summary>
+	///Lets the user select a FEN or PGN file and if one is selected loads the content into the creation page
+	///</summary>
+	public void ImportFENPGN() {
+		string contents = FileManager.Instance.GetFENPGNFromFile();
+
+		if (string.IsNullOrEmpty(contents)) return;
+
+		bool isFEN = contents[0] != '[';
+
+		_fenPGNInput.text = contents;
+		SelectButton(_originalButton, false);
+		SelectButton(_nextGenButton, false);
+		SelectButton(_useFENButton, isFEN);
+		SelectButton(_usePGNButton, !isFEN);
+	}
+
+	///<summary>
 	///Creates the game based off the user selected settings
 	///</summary>
 	public void CreateGame() {
