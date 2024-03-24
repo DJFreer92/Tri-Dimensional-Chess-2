@@ -327,8 +327,11 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	///<param name="square">The square to be selected</param>
 	public void SelectSquare(Square square) {
-		//if moves are currently not allowed to be made
+		//if moves are currently not allowed to be made, exit
 		if (!AllowMoves) return;
+
+		//if the game is not at the current position, exit
+		if (MoveCommandHandler.AreCommandsWaiting()) return;
 
 		//if it is not this player's turn, exit
 		if (_myPlayer != CurPlayer) return;
@@ -723,7 +726,6 @@ public sealed class Game : MonoSingleton<Game> {
 	public void OnUndoAllMovesButton() {
 		if (!AllowButtons) return;
 		MoveCommandHandler.UndoAllCommands();
-		AllowMoves = false;
 	}
 
 	///<summary>
@@ -732,7 +734,6 @@ public sealed class Game : MonoSingleton<Game> {
 	public void OnRedoNextMoveButton() {
 		if (!AllowButtons) return;
 		MoveCommandHandler.RedoCommand();
-		if (!MoveCommandHandler.AreCommandsWaiting()) AllowMoves = true;
 	}
 
 	///<summary>
@@ -741,7 +742,6 @@ public sealed class Game : MonoSingleton<Game> {
 	public void OnRedoAllMovesButton() {
 		if (!AllowButtons) return;
 		MoveCommandHandler.RedoAllCommands();
-		AllowMoves = true;
 	}
 
 	///<summary>
@@ -757,7 +757,6 @@ public sealed class Game : MonoSingleton<Game> {
 		if (CurPlayer.IsWhite) MoveCount--;
 		MovesPlayed.RemoveAt(MovesPlayed.Count - 1);
 		_pgnBuilder.Moves.RemoveAt(_pgnBuilder.Moves.Count - 1);
-		AllowMoves = true;
 	}
 
 	//Server

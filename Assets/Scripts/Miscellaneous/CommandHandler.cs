@@ -45,7 +45,7 @@ public class CommandHandler {
 	///Undoes all the commands
 	///</summary>
 	public void UndoAllCommands() {
-		while (AreCommandsWaiting()) UndoCommand();
+		while (_index > 0) UndoCommand();
 	}
 
 	///<summary>
