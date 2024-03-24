@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEditor;
+using System.IO;
 using TMPro;
 
 [DisallowMultipleComponent]
@@ -77,10 +79,7 @@ public sealed class GameCreationController : MonoSingleton<GameCreationControlle
 	///Lets the user select a FEN or PGN file and if one is selected loads the content into the creation page
 	///</summary>
 	public void ImportFENPGN() {
-		string contents = FileManager.Instance.GetFENPGNFromFile();
-
-		if (string.IsNullOrEmpty(contents)) return;
-
+		string contents = Game.Instance.ImportFENPGN();
 		bool isFEN = contents[0] != '[';
 
 		_fenPGNInput.text = contents;
@@ -114,9 +113,10 @@ public sealed class GameCreationController : MonoSingleton<GameCreationControlle
 			MenuController.Instance.PushPage(_connectingPage);
 			return;
 		}
-		//TO DO: Handle analysis
-		SettingsManager.Instance.ShowAnalysisSettings(true);
 
+		SettingsManager.Instance.ShowAnalysisSettings(true);
+		Game.Instance.StartLocalGame();
+		MenuController.Instance.PopAllPages();
 	}
 
 	///<summary>

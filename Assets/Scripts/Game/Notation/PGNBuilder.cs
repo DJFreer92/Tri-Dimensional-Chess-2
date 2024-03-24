@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 using System;
 using System.IO;
 using System.Text;
@@ -199,10 +200,17 @@ public class PGNBuilder {
 	///Exports the PGN
 	///</summary>
 	///<param name="filePath">The file path to export the PGN to</param>
-	public void Export(string filePath) {
-		if (string.IsNullOrEmpty(filePath)) throw new ArgumentException(nameof(filePath), "Invalid file path.");
+	public void Export() {
+		string path = EditorUtility.OpenFolderPanel("Select Save Location", "", "");
 
-        using var outFile = new StreamWriter(Path.Combine(filePath, "test.pgn"));
+		if (string.IsNullOrEmpty(path)) {
+			MessageManager.Instance.CreateMessage("Export Aborted");
+			return;
+		}
+
+        using var outFile = new StreamWriter(Path.Combine(path, $"Tri-D {DateTime.Now.ToString("yyyy-MM-dd_hhmmss")}.pgn"));
         outFile.Write(GetPGN());
+
+		MessageManager.Instance.CreateMessage("Exported PGN");
     }
 }

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 using UnityEngine;
+using UnityEditor;
 using Unity.Networking.Transport;
 using TMPro;
 
@@ -273,6 +275,33 @@ public sealed class Game : MonoSingleton<Game> {
 		if (sections[2] == "w" != CurPlayer.IsWhite) SwitchCurrentPlayer();
 		_moveRuleCount = int.Parse(sections[5]);
 		MoveCount = int.Parse(sections[6]);
+	}
+
+	///<summary>
+	///Allows the user to select an FEN or PGN file, if a file is selected the contents will be returned
+	///</summary>
+	///<returns>The contents of the FEN or PGN file, or null if no file was selected</returns>
+	public string ImportFENPGN() {
+		string path = EditorUtility.OpenFilePanel("Select FEN/PGN file (.fen/.pgn)", "", "fen,pgn");
+
+        if (string.IsNullOrEmpty(path)) return null;
+
+        using var file = new StreamReader(path);
+        return file.ReadToEnd();
+	}
+
+	///<summary>
+	///Exports the current position as an FEN
+	///</summary>
+	public void ExportFEN() {
+		FENBuilder.ExportFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount);
+	}
+
+	///<summary>
+	///Exports the game as a PGN
+	///</summary>
+	public void ExportPGN() {
+		_pgnBuilder.Export();
 	}
 
 	///<summary>
