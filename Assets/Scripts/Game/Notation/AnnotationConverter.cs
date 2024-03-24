@@ -58,9 +58,9 @@ public static class AnnotationConverter {
 		return new Vector3Int(
 			Array.IndexOf(_FILES, annotation[0]),
 			annotation.Length == 3 ?
-				Array.IndexOf(_MAIN_BOARDS, annotation[2]) :
-				(annotation[4] - 1) / 2,
-			annotation[1]
+				Array.IndexOf(_MAIN_BOARDS, annotation[2..3]) :
+				((int) char.GetNumericValue(annotation[4]) - 1) / 2,
+			(int) char.GetNumericValue(annotation[1])
 		);
 	}
 
