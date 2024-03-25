@@ -258,7 +258,7 @@ public sealed class Game : MonoSingleton<Game> {
 		LoadFEN(Setup);
 		foreach (string annotatedMove in builder.Moves) {
 			Move move = Move.BuildMove(annotatedMove, CurPlayer.IsWhite);
-			move.Execute();
+			MoveCommandHandler.AddCommand(move);
 			if (!move.MoveEvents.Contains(MoveEvent.PROMOTION)) FinishTurn(move);
 		}
 		if (State.Is(GameState.INACTIVE)) builder.EndGame();
