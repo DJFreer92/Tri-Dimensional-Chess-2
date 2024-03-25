@@ -45,8 +45,12 @@ public abstract class Move : ICommand {
 	///Build the move from the given annotation
 	///</summary>
 	public static Move BuildMove(string annotatedMove, bool isWhite) {
+		Debug.Log($"Building {annotatedMove}");
 		Move move;
-		int seperationIndex;
+
+		int seperationIndex, endIndex = annotatedMove.Length;
+		if (annotatedMove.Contains('=')) endIndex = annotatedMove.IndexOf('=');
+		else if (annotatedMove.Contains('+') || annotatedMove.Contains('#')) endIndex--;
 
 		if (annotatedMove.Contains("O-O")) {
 			Square rookSqr;
@@ -70,17 +74,19 @@ public abstract class Move : ICommand {
 			);
 		} else if (annotatedMove.Contains('-')) {
 			seperationIndex = annotatedMove.IndexOf('-');
+			if (char.IsUpper(annotatedMove[endIndex - 1])) endIndex--;
 
 			move = new AttackBoardMove(
 				Game.Instance.GetPlayer(isWhite),
 				ChessBoard.Instance.GetSquareAt(annotatedMove[..seperationIndex].BoardToVector() + Vector3Int.up),
-				ChessBoard.Instance.GetSquareAt(annotatedMove[(seperationIndex + 1)..].BoardToVector())
+				ChessBoard.Instance.GetSquareAt(annotatedMove[(seperationIndex + 1)..endIndex].BoardToVector())
 			);
 		} else {
 			seperationIndex = annotatedMove.IndexOf('x');
 			if (seperationIndex == -1)
 				for (int i = 2; i < annotatedMove.Length; i++)
 					if (char.IsLower(annotatedMove[i])) seperationIndex = i;
+			if (annotatedMove.Contains("e.p.")) endIndex = annotatedMove.IndexOf(' ');
 
 			move = new PieceMove(
 				Game.Instance.GetPlayer(isWhite),
@@ -88,7 +94,7 @@ public abstract class Move : ICommand {
 					annotatedMove[(char.IsUpper(annotatedMove[0]) ? 1 : 0)..seperationIndex].AnnotationToVector()
 				),
 				ChessBoard.Instance.GetSquareAt(
-					annotatedMove[(seperationIndex + (annotatedMove.Contains('x') ? 1 : 0))..].AnnotationToVector()
+					annotatedMove[(seperationIndex + (annotatedMove.Contains('x') ? 1 : 0))..endIndex].AnnotationToVector()
 				)
 			);
 		}

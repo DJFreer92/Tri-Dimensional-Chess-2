@@ -101,10 +101,12 @@ public class PGNBuilder {
 			if (char.IsDigit(moves[0])) moves = moves.Remove(0, moves.IndexOf(' ') + 1);
 			int index = moves.IndexOf(' ');
 			if (index == -1) {
-				builder.Moves.Add(moves[..]);
+				if (moves.Contains("e.p.")) builder.Moves[^1] += moves;
+				else builder.Moves.Add(moves);
 				break;
 			}
-			builder.Moves.Add(moves[..index]);
+			if (moves[..index].Contains("e.p.")) builder.Moves[^1] += " " + moves[..index];
+			else builder.Moves.Add(moves[..index]);
 			moves = moves.Remove(0, index + 1);
 		}
 
