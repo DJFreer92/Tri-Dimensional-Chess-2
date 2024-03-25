@@ -104,6 +104,8 @@ public sealed class GameCreationController : MonoSingleton<GameCreationControlle
 
 		Game.Instance.Setup = fen;
 
+		SettingsManager.Instance.ShowExportSettings(true);
+
 		if (IsSelected(_localButton)) {
 			Game.Instance.StartLocalGame();
 			MenuController.Instance.PopAllPages();

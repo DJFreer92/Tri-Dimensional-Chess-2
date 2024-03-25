@@ -4395,6 +4395,7 @@ MonoBehaviour:
   <AutoQueen>k__BackingField: 0
   <FigurineNotation>k__BackingField: 0
   <TestMode>k__BackingField: 0
+  _exportSettings: {fileID: 1115971252}
   _analysisSettings: {fileID: 1200807950}
   _fenPGNInput: {fileID: 870363225}
   _setFENButton: {fileID: 1166085568}
@@ -26140,7 +26141,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1115971253
 RectTransform:
   m_ObjectHideFlags: 0

@@ -14,6 +14,7 @@ public class SettingsManager : MonoSingleton<SettingsManager> {
 	[field: SerializeField] public bool FigurineNotation {get; private set;}
 	[field: SerializeField] public bool TestMode {get; private set;}
 	[Header("References")]
+	[SerializeField] private GameObject _exportSettings;
 	[SerializeField] private GameObject _analysisSettings;
 	[SerializeField] private TMP_InputField _fenPGNInput;
 	[SerializeField] private Button _setFENButton;
@@ -63,6 +64,14 @@ public class SettingsManager : MonoSingleton<SettingsManager> {
 	///<param name="show">Whether to show or hide the analysis settings</param>
 	public void ShowAnalysisSettings(bool show) {
 		_analysisSettings.SetActive(show);
+	}
+
+	///<summary>
+	///Shows or hides the export settings
+	///</summary>
+	///<param name="show">Whether to show or hide the export settings</param>
+	public void ShowExportSettings(bool show) {
+		_exportSettings.SetActive(show);
 	}
 
 	///<summary>
