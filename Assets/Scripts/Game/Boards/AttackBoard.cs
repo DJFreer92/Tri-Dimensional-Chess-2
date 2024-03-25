@@ -79,9 +79,18 @@ public sealed class AttackBoard : Board, IMovable {
 			//get the square the pawn will be on when the board moves
 			Square newSquare = pawn.GetSquare().Clone() as Square;
 			newSquare.Coords = new Vector3Int(newSquare.Coords.x + xDiff, move.EndSqr.Coords.y + 1, newSquare.Coords.z + zDiff);
+			//move all the Squares on the attackboard to their new positions
+			foreach (Square sqr in Squares)
+				sqr.Coords = new Vector3Int(sqr.Coords.x + xDiff, move.EndSqr.Coords.y + 1, sqr.Coords.z + zDiff);
+
+			bool canBePromoted = pawn.CanBePromoted(newSquare);
+
+			//move all the Squares on the attackboard back to their current positions
+			foreach (Square sqr in Squares)
+				sqr.Coords = new Vector3Int(sqr.Coords.x - xDiff, move.StartPinSqr.Coords.y + 1, sqr.Coords.z - zDiff);
 
 			//if the move is a pawn promotion, ask the user what piece to promote to, then wait
-			if (pawn.CanBePromoted(newSquare)) {
+			if (canBePromoted) {
 				Game.Instance.StartCoroutine(move.GetPromotionChoice());
 				throw new Exception("Must wait for promotion choice");
 			}

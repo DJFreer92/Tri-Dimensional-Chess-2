@@ -138,7 +138,7 @@ public sealed class Pawn : ChessPiece {
 		if (sqr.Coords.x == 2 || sqr.Coords.x == 3) return true;
 
 		//return whether there isn't an attack board square directly infront of the pawn
-		return ChessBoard.Instance.GetSquareAt(new Vector3Int(sqr.Coords.x, IsWhite ? 5 : 1, IsWhite ? 9 : 0)) != null;
+		return ChessBoard.Instance.GetSquareAt(new Vector3Int(sqr.Coords.x, IsWhite ? 5 : 1, IsWhite ? 9 : 0)) == null;
 	}
 
 	///<summary>
