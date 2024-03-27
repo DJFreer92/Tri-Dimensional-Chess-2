@@ -80,6 +80,9 @@ public sealed class GameCreationController : MonoSingleton<GameCreationControlle
 	///</summary>
 	public void ImportFENPGN() {
 		string contents = Game.Instance.ImportFENPGN();
+
+		if (string.IsNullOrEmpty(contents)) return;
+
 		bool isFEN = contents[0] != '[';
 
 		_fenPGNInput.text = contents;
