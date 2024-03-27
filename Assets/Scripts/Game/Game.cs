@@ -29,9 +29,9 @@ public sealed class Game : MonoSingleton<Game> {
 		set {
 			if (_state == value) return;
 			_state = value;
-			Client.Instance.SendToServer(new NetGameState() {
+			/*Client.Instance.SendToServer(new NetGameState() {
 				State = _state
-			});
+			});*/
 			OnGameStateChange?.Invoke();
 		}
 	}
@@ -71,6 +71,7 @@ public sealed class Game : MonoSingleton<Game> {
 
 	[SerializeField] private Page _gameUIPage;
 	[SerializeField] private TMP_InputField _ipAddressInput;
+
 	[HideInInspector] public string Setup;
 	[HideInInspector] public string StartPGN;
 	[HideInInspector] public bool AllowMoves;

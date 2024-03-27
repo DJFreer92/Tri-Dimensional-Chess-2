@@ -116,7 +116,7 @@ public sealed class Pawn : ChessPiece {
 	///<param name="wantFigurine">Whether the figurine character is desired</param>
 	///<returns>The notation character of the king</returns>
 	public override string GetCharacter(bool wantFigurine) {
-		return wantFigurine ? Pawn._FIGURINE_CHARACTER : Pawn._STANDARD_CHARACTER;
+		return wantFigurine ? _FIGURINE_CHARACTER : _STANDARD_CHARACTER;
 	}
 
 	///<summary>
@@ -166,7 +166,7 @@ public sealed class Pawn : ChessPiece {
 	///<param name="endSqr">The square to move the pawn to</param>
 	public void MovePiece(Square startSqr, Square endSqr) {
 		if (Math.Abs(startSqr.Coords.z - endSqr.Coords.z) == 2) JustMadeDSMove = true;
-		base.MoveTo(endSqr);
+		MoveTo(endSqr);
 	}
 
 	///<summary>

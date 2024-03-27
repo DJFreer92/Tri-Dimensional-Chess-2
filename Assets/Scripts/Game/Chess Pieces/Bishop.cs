@@ -58,6 +58,6 @@ public sealed class Bishop : ChessPiece {
 	///<param name="wantFigurine">Whether the figurine character is desired</param>
 	///<returns>The notation character of the bishop</returns>
 	public override string GetCharacter(bool wantFigurine) {
-		return wantFigurine ? Bishop._FIGURINE_CHARACTER : Bishop._STANDARD_CHARACTER;
+		return wantFigurine ? _FIGURINE_CHARACTER : _STANDARD_CHARACTER;
 	}
 }

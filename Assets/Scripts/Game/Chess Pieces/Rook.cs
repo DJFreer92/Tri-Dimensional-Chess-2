@@ -79,6 +79,6 @@ public sealed class Rook : ChessPiece {
 	///<param name="wantFigurine">Whether the figurine character is desired</param>
 	///<returns>The notation character of the rook</returns>
 	public override string GetCharacter(bool wantFigurine) {
-		return wantFigurine ? Rook._FIGURINE_CHARACTER : Rook._STANDARD_CHARACTER;
+		return wantFigurine ? _FIGURINE_CHARACTER : _STANDARD_CHARACTER;
 	}
 }

@@ -57,6 +57,6 @@ public sealed class Queen : ChessPiece {
 	///<param name="wantFigurine">Whether the figurine character is desired</param>
 	///<returns></returns>
 	public override string GetCharacter(bool wantFigurine) {
-		return wantFigurine ? Queen._FIGURINE_CHARACTER : Queen._STANDARD_CHARACTER;
+		return wantFigurine ? _FIGURINE_CHARACTER : _STANDARD_CHARACTER;
 	}
 }

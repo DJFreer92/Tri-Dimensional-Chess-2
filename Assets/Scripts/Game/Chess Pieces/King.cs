@@ -227,7 +227,7 @@ public sealed class King : ChessPiece {
 	///<param name="wantFigurine">Wether the figurine character is desired</param>
 	///<returns>The notation character of the king</returns>
 	public override string GetCharacter(bool wantFigurine) {
-		return wantFigurine ? King._FIGURINE_CHARACTER : King._STANDARD_CHARACTER;
+		return wantFigurine ? _FIGURINE_CHARACTER : _STANDARD_CHARACTER;
 	}
 
 	///<summary>
