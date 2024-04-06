@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using UnityEngine;
-using UnityEditor;
 using Unity.Networking.Transport;
 using TMPro;
+using SFB;
 
 [RequireComponent(typeof(SettingsManager))]
 [RequireComponent(typeof(CapturedPiecesController))]
@@ -140,6 +140,17 @@ public sealed class Game : MonoSingleton<Game> {
 		State = GameState.DRAW_TIMEOUT_VS_INSUFFICIENT_MATERIAL;
 	}
 
+	private void OnApplicationQuit() {
+		if (_pgnBuilder == null) return;
+
+		_pgnBuilder.EndGame();
+		string pgn = _pgnBuilder.GetPGN();
+
+		if (string.IsNullOrEmpty(pgn)) return;
+
+		SaveSystem.Instance.SaveGame(pgn);
+	}
+
 	private void OnEnable() {
 		//register to events
 		RegisterToEvents();
@@ -244,7 +255,18 @@ public sealed class Game : MonoSingleton<Game> {
 	///Starts a local game
 	///</summary>
 	public void StartLocalGame() {
+		Debug.Log("Starting local game...");
 		_isLocalGame = true;
+		Server.Instance.Init(_CONNECTION_PORT);
+		Client.Instance.Init("127.0.0.1", _CONNECTION_PORT);
+	}
+
+	///<summary>
+	///Initializes the server and the client
+	///</summary>
+	public void InitializeHost() {
+		Debug.Log("Initializing Client and Server as Host...");
+		_isLocalGame = false;
 		Server.Instance.Init(_CONNECTION_PORT);
 		Client.Instance.Init("127.0.0.1", _CONNECTION_PORT);
 	}
@@ -283,11 +305,11 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	///<returns>The contents of the FEN or PGN file, or null if no file was selected</returns>
 	public string ImportFENPGN() {
-		string path = EditorUtility.OpenFilePanel("Select FEN/PGN file (.fen/.pgn)", "", "fen,pgn");
+		string[] path = StandaloneFileBrowser.OpenFilePanel("Select FEN/PGN", "", "fen,pgn", false);
 
-        if (string.IsNullOrEmpty(path)) return null;
+        if (path.Length == 0) return null;
 
-        using var file = new StreamReader(path);
+        using var file = new StreamReader(path[0]);
         return file.ReadToEnd();
 	}
 
@@ -488,9 +510,12 @@ public sealed class Game : MonoSingleton<Game> {
 		if (State.Is(GameState.ACTIVE)) NextTurn();
 		else {
 			_pgnBuilder?.EndGame();
+			string pgn = _pgnBuilder?.GetPGN();
+			if (!string.IsNullOrEmpty(pgn)) SaveSystem.Instance.SaveGame(pgn);
+			_pgnBuilder = null;
 			Debug.Log("State: " + State);
 			Debug.Log(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount));
-			Debug.Log(_pgnBuilder?.GetPGN());
+			Debug.Log(pgn);
 		}
 	}
 
@@ -670,35 +695,19 @@ public sealed class Game : MonoSingleton<Game> {
 
 	//Buttons
 	///<summary>
-	///Initializes the server and both clients
-	///</summary>
-	public void OnLocalGameButton() {
-		_isLocalGame = true;
-		Server.Instance.Init(_CONNECTION_PORT);
-		Client.Instance.Init("127.0.0.1", _CONNECTION_PORT);
-	}
-
-	///<summary>
-	///Initializes the server and the client
-	///</summary>
-	public void OnOnlineHostButton() {
-		_isLocalGame = false;
-		Server.Instance.Init(_CONNECTION_PORT);
-		Client.Instance.Init("127.0.0.1", _CONNECTION_PORT);
-	}
-
-	///<summary>
 	///Connects the client to the entered ip address
 	///</summary>
 	public void OnOnlineConnectButton() {
 		_isLocalGame = false;
 		Client.Instance.Init(_ipAddressInput.text, _CONNECTION_PORT);
+		Debug.Log("Attempting to connect to host...");
 	}
 
 	///<summary>
 	///Shutdown both the server and the client
 	///</summary>
 	public void OnHostCancelButton() {
+		Debug.Log("Shutting down the Client and Server as Host...");
 		Server.Instance.ShutDown();
 		Client.Instance.ShutDown();
 	}
@@ -767,10 +776,15 @@ public sealed class Game : MonoSingleton<Game> {
 	///<param name="msg">Incoming message</param>
 	///<param name="cnn">Receving connection</param>
 	private void OnWelcomeServer(NetMessage msg, NetworkConnection cnn) {
+		Debug.Log("SERVER: Recieved Welcome Msg");
 		NetWelcome welcomeMsg = msg as NetWelcome;
-		welcomeMsg.IsAssignedWhitePieces = (++_playerCount == 1);
+		welcomeMsg.IsAssignedWhitePieces = ++_playerCount == 1;
+		Debug.Log("SERVER: Sending Welcome Msg to single client...");
 		Server.Instance.SendToClient(cnn, welcomeMsg);
-		if (_playerCount == 2) Server.Instance.Broadcast(new NetStartGame());
+		if (_playerCount == 2) {
+			Debug.Log("SERVER: Broadcasting StartGame Msg to all clients...");
+			Server.Instance.Broadcast(new NetStartGame());
+		}
 	}
 
 	///<summary>
@@ -779,6 +793,8 @@ public sealed class Game : MonoSingleton<Game> {
 	///<param name="msg">Incoming message</param>
 	///<param name="cnn">Receving connection</param>
 	private void OnGameStateServer(NetMessage msg, NetworkConnection cnn) {
+		Debug.Log("SERVER: Recieved GameState Msg");
+		Debug.Log("SERVER: Reboardcasting GameState Msg to all clients...");
 		//relay the game state to the clients, excluding the connection the message was recieved from
 		Server.Instance.Broadcast(msg, cnn);
 	}
@@ -789,6 +805,8 @@ public sealed class Game : MonoSingleton<Game> {
 	///<param name="msg">Incoming message</param>
 	///<param name="cnn">Recieving connection</param>
 	private void OnMakeMoveServer(NetMessage msg, NetworkConnection cnn) {
+		Debug.Log("SERVER: Recieved MakeMove Msg");
+		Debug.Log("SERVER: Rebroadcasting MakeMove Msg to all clients...");
 		//relay the make move message to the clients, excluding the connection the message was recieved from
 		Server.Instance.Broadcast(msg, cnn);
 	}
@@ -799,10 +817,16 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	///<param name="msg">Incoming message</param>
 	private void OnWelcomeClient(NetMessage msg) {
+		Debug.Log("CLIENT: Recieved Welcome Msg");
 		NetWelcome welcomeMsg = msg as NetWelcome;
 		_players = new Player[2] {new(true), new(false)};
 		_myPlayer = GetPlayer(welcomeMsg.IsAssignedWhitePieces);
-		if (_isLocalGame) Server.Instance.Broadcast(new NetStartGame());
+		Debug.Log($"CLIENT: I play the {_myPlayer.ColorPieces} pieces");
+		if (_isLocalGame) {  //should be not local game???
+			Debug.Log("CLIENT: Sending StartGame Msg to all clients...");
+			var startMsg = new NetStartGame();
+			Server.Instance.Broadcast(startMsg);
+		}
 	}
 
 	///<summary>
@@ -810,12 +834,24 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	///<param name="msg">Incoming message</param>
 	private void OnStartGameClient(NetMessage msg) {
+		Debug.Log("CLIENT: Recieved StartGame Msg");
+		Debug.Log("CLIENT: Starting the game...");
+		//read the message and set the FEN/PGN
+		NetStartGame startMsg = msg as NetStartGame;
+		if (!_isLocalGame) {
+			if (startMsg.StartingWithFEN) Setup = startMsg.FENOrPGN;
+			else StartPGN = startMsg.FENOrPGN;
+		}
+
 		//disable the timers
 		TimerManager.Instance.ToggleTimers(false);
+
 		//initialize the game
 		Init();
+
 		//close all the menus
 		MenuController.Instance.PopAllPages();
+
 		//enable the game UI
 		MenuController.Instance.PushPage(_gameUIPage);
 
@@ -828,8 +864,10 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	///<param name="msg">Incoming message</param>
 	private void OnGameStateClient(NetMessage msg) {
+		Debug.Log("CLIENT: Recieved GameState Msg");
 		NetGameState stateMsg = msg as NetGameState;
 		if (State == stateMsg.State) return;
+		Debug.Log("CLIENT: Updating the game state...");
 		_state = stateMsg.State;
 		OnGameStateChange?.Invoke();
 	}
@@ -839,8 +877,10 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	///<param name="msg">Incoming message</param>
 	private void OnMakeMoveClient(NetMessage msg) {
+		Debug.Log("CLIENT: Recieved MakeMove Msg");
 		NetMakeMove moveMsg = msg as NetMakeMove;
 		if (moveMsg.IsWhiteMove == CurPlayer.IsWhite) return;
+		Debug.Log("CLIENT: Executing the move...");
 		MakeMove(
 			ChessBoard.Instance.GetSquareAt(moveMsg.StartCoordinates),
 			ChessBoard.Instance.GetSquareAt(moveMsg.EndCoordinates),
