@@ -1,9 +1,9 @@
 using UnityEngine;
-using UnityEditor;
 using System;
 using System.IO;
 using System.Text;
 using System.Linq;
+using SFB;
 
 /* Uses standard FEN notation with noteable exceptions to account for the special board setup of Tri-Dimensional Chess.
  * - Attackboard position are donoted a 'W' or 'w' for white owned, 'B' or 'b' for black owned, and 'N' or 'n' for neutral boards
@@ -191,14 +191,14 @@ public static class FENBuilder {
 	///<param name="moveRuleCount">The number of moves on the move rule counter</param>
 	///<param name="moveNum">The move number</param>
 	public static void ExportFEN(ChessBoard board, bool currentIsWhite, int moveRuleCount, int moveNum) {
-		string path = EditorUtility.OpenFolderPanel("Select Save Location", "", "");
+		string path = StandaloneFileBrowser.SaveFilePanel("Select Save Location", "", $"Tri-D_{DateTime.Now:yyyy-MM-dd_hhmmss}", "fen");
 
 		if (string.IsNullOrEmpty(path)) {
 			MessageManager.Instance.CreateMessage("Export Aborted");
 			return;
 		}
 
-        using var outFile = new StreamWriter(Path.Combine(path, $"Tri-D {DateTime.Now.ToString("yyyy-MM-dd_hhmmss")}.fen"));
+        using var outFile = new StreamWriter(path);
         outFile.WriteLine(GetFEN(board, currentIsWhite, moveRuleCount, moveNum));
 
 		MessageManager.Instance.CreateMessage("Exported FEN");

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 using System;
 using System.IO;
 using System.Text;
+using SFB;
 
 public class PGNBuilder {
 	private string _event, _site, _date, _round, _whitePlayer, _blackPlayer, _annotator, _result, _timeControl, _startTime, _termination, _mode;
@@ -203,14 +203,14 @@ public class PGNBuilder {
 	///</summary>
 	///<param name="filePath">The file path to export the PGN to</param>
 	public void Export() {
-		string path = EditorUtility.OpenFolderPanel("Select Save Location", "", "");
+		string path = StandaloneFileBrowser.SaveFilePanel("Select Save Location", "", $"Tri-D_{DateTime.Now:yyyy-MM-dd_hhmmss}", "pgn");
 
 		if (string.IsNullOrEmpty(path)) {
 			MessageManager.Instance.CreateMessage("Export Aborted");
 			return;
 		}
 
-        using var outFile = new StreamWriter(Path.Combine(path, $"Tri-D {DateTime.Now.ToString("yyyy-MM-dd_hhmmss")}.pgn"));
+        using var outFile = new StreamWriter(path);
         outFile.Write(GetPGN());
 
 		MessageManager.Instance.CreateMessage("Exported PGN");
