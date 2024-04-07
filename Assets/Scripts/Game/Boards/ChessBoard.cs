@@ -116,7 +116,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 						continue;
 					}
 					Square sqr = brd.GetSquareAt(new Vector3Int(x, 4 - i * 2, 8 - i * 2 - z));
-					sqr.GamePiece = CreatePiece(sqr, rankPieces[piecesIndex]);
+					PieceCreator.Instance.CreatePiece(rankPieces[piecesIndex].CharToPieceColor(), sqr);
 				}
 			}
 		}
@@ -134,7 +134,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 						continue;
 					}
 					Square sqr = ab.Squares[z * 2 + x];
-					sqr.GamePiece = CreatePiece(sqr, rankPieces[piecesIndex]);
+					PieceCreator.Instance.CreatePiece(rankPieces[piecesIndex].CharToPieceColor(), sqr);
 				}
 			}
 			ab.SetBoardAnnotation();
@@ -174,44 +174,6 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 
 		//update check states
 		UpdateKingCheckState(currentPlayer == "w");
-	}
-
-	///<summary>
-	///Creates a piece associated with the given character on the given square
-	///</summary>
-	///<param name="sqr">The square to place the piece on</param>
-	///<param name="pieceChar">The character associated with the piece being created</param>
-	///<returns>The piece created</returns>
-	public ChessPiece CreatePiece(Square sqr, char pieceChar) {
-		return CreatePiece(
-			pieceChar.GetTypeFromChar(),
-			char.IsUpper(pieceChar),
-			sqr,
-			char.ToUpper(pieceChar) == 'D'
-		);
-	}
-
-	///<summary>
-	///Creates a piece of the given type and color, and places it on the given square
-	///</summary>
-	///<param name="type">The type of piece to create</param>
-	///<param name="isWhite">Whether the piece to be created should be white</param>
-	///<param name="sqr">The square to place the piece on</param>
-	///<param name="atStartingPosition">Whether the piece is being created at its starting position</param>
-	///<returns>The created piece</returns>
-	public ChessPiece CreatePiece(PieceType type, bool isWhite, Square sqr, bool atStartingPosition = false) {
-		ChessPiece piece = Instantiate(
-			ChessPiece.GetPrefab(type.GetPieceTypeColor(isWhite)),
-			sqr.gameObject.transform.position,
-			Quaternion.identity,
-			isWhite ? WhitePiecesParent : BlackPiecesParent
-		).GetComponent<ChessPiece>();
-		if (type == PieceType.PAWN && !atStartingPosition) (piece as Pawn).HasDSMoveRights = false;
-		if (!isWhite) piece.gameObject.transform.Rotate(Vector3.up * 180);
-		piece.gameObject.GetComponent<MeshCollider>().enabled = true;
-		piece.SetWhite(isWhite);
-		if (type == PieceType.BISHOP) (piece as Bishop).SquareColorIsWhite = sqr.IsWhite;
-		return piece;
 	}
 
 	///<summary>
@@ -453,7 +415,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 					else blackBishop = piece as Bishop;
 				}
 				//return whether there is sufficent material to continue the game based on whether the bishops are on opposite colors or not
-				return whiteBishop.SquareColorIsWhite == blackBishop.SquareColorIsWhite;
+				return whiteBishop.GetSquare().IsWhite == blackBishop.GetSquare().IsWhite;
 		}
 
 		//there is sufficent material to continue the game

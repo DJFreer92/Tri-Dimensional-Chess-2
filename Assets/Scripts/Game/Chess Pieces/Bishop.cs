@@ -8,8 +8,6 @@ public sealed class Bishop : ChessPiece {
 	public static GameObject WhitePrefab {get; private set;}
 	//black bishop prefab gameobject
 	public static GameObject BlackPrefab {get; private set;}
-	//whether the color of squares the bishop travels on is white
-	public bool SquareColorIsWhite;
 
 	///<summary>
 	///Returns a list of all the bishop's available moves

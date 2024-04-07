@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Text;
+using NUnit.Framework;
 
 [RequireComponent(typeof(Highlight))]
 public abstract class ChessPiece : MonoBehaviour, IMovable {
@@ -101,6 +102,21 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 	}
 
 	///<summary>
+	///Sets the state of the piece so that it is consistent with whether it is at its starting position
+	///<paramref name="atStart"/>Whether the piece is at its starting position</param>
+	///</summary>
+	public void SetAtStart(bool atStart) {
+		switch (Type) {
+			case PieceType.KING: (this as King).HasCastlingRights = atStart;
+			return;
+			case PieceType.ROOK: (this as Rook).HasCastlingRights = atStart;
+			return;
+			case PieceType.PAWN: (this as Pawn).HasDSMoveRights = atStart;
+			return;
+		}
+	}
+
+	///<summary>
 	///Sets the piece as captured
 	///</summary>
 	public void SetCaptured() {
@@ -164,54 +180,10 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 	///</summary>
 	///<returns>The pawn the piece was converted to</returns>
 	public Pawn Unpromote() {
-		Pawn pawn = ConvertTo(PieceType.PAWN) as Pawn;
-
 		CapturedPiecesController.Instance.RemovePieceOfType(PieceType.PAWN, IsWhite);
 		CapturedPiecesController.Instance.AddPieceOfType(Type, !IsWhite);
 
-		return pawn;
-	}
-
-	///<summary>
-	///Converts the piece to a different piece
-	///</summary>
-	///<param name="type">The type of piece to convert to</param>
-	public ChessPiece ConvertTo(PieceType type) {
-		//if the desired type is the same as this piece's type, return this piece
-		if (Type == type) return this;
-
-		Square sqr = GetSquare();
-		GameObject newGameObj = CreateGameObject(GetPrefab(type.GetPieceTypeColor(IsWhite)));
-		ChessPiece newPiece = newGameObj.GetComponent<ChessPiece>();
-		switch (type) {
-			case PieceType.ROOK: (newPiece as Rook).HasCastlingRights = false;
-			break;
-			case PieceType.BISHOP: (newPiece as Bishop).SquareColorIsWhite = GetSquare().IsWhite;
-			break;
-			case PieceType.PAWN: (newPiece as Pawn).HasDSMoveRights = false;
-			break;
-		}
-		sqr.GamePiece = newPiece;
-
-		return newPiece;
-
-		//inner functions
-		//create a new gameobject
-		GameObject CreateGameObject(GameObject prefab) {
-			//instaniate the gameobject of the new piece
-			GameObject newGameObj = GameObject.Instantiate(
-				prefab,  //gameobject prefab
-				sqr.transform.position,  //vector3 position
-				transform.rotation,  //quarternion rotation
-				IsWhite ? ChessBoard.Instance.WhitePiecesParent : ChessBoard.Instance.BlackPiecesParent  //parent transform
-			);
-
-			//enable the mesh collider
-			newGameObj.GetComponent<MeshCollider>().enabled = true;
-
-			//return the new gameobject
-			return newGameObj;
-		}
+		return PieceCreator.Instance.ConvertPiece(this, PieceType.PAWN) as Pawn;
 	}
 
 	///<summary>

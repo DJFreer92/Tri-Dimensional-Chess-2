@@ -4350,11 +4350,13 @@ GameObject:
   - component: {fileID: 151076129}
   - component: {fileID: 151076134}
   - component: {fileID: 151076130}
+  - component: {fileID: 151076139}
   - component: {fileID: 151076132}
   - component: {fileID: 151076133}
   - component: {fileID: 151076137}
   - component: {fileID: 151076136}
   - component: {fileID: 151076135}
+  - component: {fileID: 151076138}
   m_Layer: 0
   m_Name: Game
   m_TagString: GameController
@@ -4514,6 +4516,45 @@ MonoBehaviour:
   _blackTimer: {fileID: 1796834538}
   _customTimeInput: {fileID: 725167596}
   _customIncrementInput: {fileID: 324400210}
+--- !u!114 &151076138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 151076128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93e1307693359468e80a88bce7dbabee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &151076139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 151076128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd6e31f4ee2ed4bcd8e6c0ec5476cc66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _piecesPrefabs:
+  - {fileID: 3988784075330891566, guid: c5646de822a014db895da3d878471f5d, type: 3}
+  - {fileID: 846810512612764883, guid: 90fcfb6b5bdaf4ffa98a06dd409fdb1c, type: 3}
+  - {fileID: 6511696581339917899, guid: 44728b85917924b649036f11ac4155b1, type: 3}
+  - {fileID: 5181750910630828422, guid: 2cfba82065520441a986dadd04e64481, type: 3}
+  - {fileID: 1995292005199901167, guid: ccee41f18e74140b284d10c6a57ff9c3, type: 3}
+  - {fileID: 8846843982692966758, guid: f8afe5f38cec54d319918179d646e501, type: 3}
+  - {fileID: 7141734081562719615, guid: 4e22581ec65774ae7b44c326d737934c, type: 3}
+  - {fileID: 1035329288759915509, guid: beea51377bba4484c8e9ec3aad9533de, type: 3}
+  - {fileID: 8887797130103697989, guid: bd5b97e4385894c9581dfebaafe9400d, type: 3}
+  - {fileID: 3824971759081254792, guid: 8fb4bdaccc72346eab18d3265a6f841e, type: 3}
+  - {fileID: 8517028979668407356, guid: 2731af4fd52cf484bbc4a3ce94f41d9a, type: 3}
+  - {fileID: 4515338860452636789, guid: 4a9bfd8d4bd48469b8d3bfa2d003b99e, type: 3}
+  _whiteParent: {fileID: 1663892940}
+  _blackParent: {fileID: 1643350935}
 --- !u!1 &154237190
 GameObject:
   m_ObjectHideFlags: 0
@@ -13843,10 +13884,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 2090959525}
+    m_SelectOnDown: {fileID: 837404246}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
@@ -13871,9 +13912,9 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 0}
-  m_TextViewport: {fileID: 0}
-  m_TextComponent: {fileID: 0}
-  m_Placeholder: {fileID: 0}
+  m_TextViewport: {fileID: 1627771957}
+  m_TextComponent: {fileID: 996616980}
+  m_Placeholder: {fileID: 627872140}
   m_VerticalScrollbar: {fileID: 0}
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
@@ -49314,7 +49355,7 @@ MonoBehaviour:
   m_Navigation:
     m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
+    m_SelectOnUp: {fileID: 2024726020}
     m_SelectOnDown: {fileID: 546091099}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}

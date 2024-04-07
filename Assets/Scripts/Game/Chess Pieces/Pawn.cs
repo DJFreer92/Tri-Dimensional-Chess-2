@@ -147,7 +147,7 @@ public sealed class Pawn : ChessPiece {
 	///<param name="promotion">The type of piece to promote to (Queen, Rook, Bishop, or Knight)</param>
 	///<returns>The new promoted piece</returns>
 	public ChessPiece Promote(PieceType promotion) {
-		ChessPiece newPiece = ConvertTo(promotion);
+		ChessPiece newPiece = PieceCreator.Instance.ConvertPiece(this, promotion);
 
 		//remove the new piece from the captured pieces
 		CapturedPiecesController.Instance.RemovePieceOfType(promotion, !IsWhite);
