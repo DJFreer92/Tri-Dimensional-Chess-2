@@ -3,11 +3,15 @@ using Unity.Networking.Transport;
 
 public class NetWelcome : NetMessage {
 	public bool IsAssignedWhitePieces;
-	
+	public bool StartingWithFEN;
+	public string FENOrPGN = "";
+
 	public NetWelcome() : base(OpCode.WELCOME) {}  //creating
 
-	public NetWelcome(bool assignWhitePieces) : base(OpCode.WELCOME) {  //creating
+	public NetWelcome(bool assignWhitePieces, bool startingWithFEN, string fenOrPGN) : base(OpCode.WELCOME) {  //creating
 		IsAssignedWhitePieces = assignWhitePieces;
+		StartingWithFEN = startingWithFEN;
+		FENOrPGN = fenOrPGN;
 	}
 
 	public NetWelcome(DataStreamReader reader) : base(OpCode.WELCOME) {  //recieving
@@ -20,7 +24,10 @@ public class NetWelcome : NetMessage {
 	///<param name="writer">The stream to write the message to</param>
 	public override void Serialize(ref DataStreamWriter writer) {
 		base.Serialize(ref writer);
+
 		writer.WriteByte(Convert.ToByte(IsAssignedWhitePieces));
+		writer.WriteByte(Convert.ToByte(StartingWithFEN));
+		writer.WriteFixedString4096(FENOrPGN);
 	}
 
 	///<summary>
@@ -29,6 +36,8 @@ public class NetWelcome : NetMessage {
 	///<param name="reader">The steam to read the message from</param>
 	public override void Deserialize(DataStreamReader reader) {
 		IsAssignedWhitePieces = Convert.ToBoolean(reader.ReadByte());
+		StartingWithFEN = Convert.ToBoolean(reader.ReadByte());
+		FENOrPGN = reader.ReadFixedString4096().ToString();
 	}
 
 	///<summary>

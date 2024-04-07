@@ -1,7 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEditor;
-using System.IO;
 using TMPro;
 
 [DisallowMultipleComponent]
@@ -116,6 +114,7 @@ public sealed class GameCreationController : MonoSingleton<GameCreationControlle
 		}
 		if (IsSelected(_hostButton)) {
 			MenuController.Instance.PushPage(_connectingPage);
+			Game.Instance.InitializeHost();
 			return;
 		}
 

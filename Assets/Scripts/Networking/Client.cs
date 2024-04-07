@@ -49,7 +49,7 @@ public sealed class Client : MonoSingleton<Client> {
 			UnregisterToEvents();
 			_driver.Dispose();
 			_isActive = false;
-			_connection = default(NetworkConnection);
+			_connection = default;
 		}
 	}
 
@@ -67,23 +67,22 @@ public sealed class Client : MonoSingleton<Client> {
 	///Decode all incoming messages
 	///</summary>
 	private void UpdateMessagePump() {
-		DataStreamReader stream;
-		NetworkEvent.Type cmd;
-		while ((cmd = _connection.PopEvent(_driver, out stream)) != NetworkEvent.Type.Empty) {
+        NetworkEvent.Type cmd;
+        while ((cmd = _connection.PopEvent(_driver, out DataStreamReader stream)) != NetworkEvent.Type.Empty) {
 			switch (cmd) {
 				case NetworkEvent.Type.Connect:
 					Debug.Log("Connected to server");
 					SendToServer(new NetWelcome());
-					break;
+					continue;
 				case NetworkEvent.Type.Data:
-					NetUtility.OnData(stream, default(NetworkConnection));
-					break;
+					NetUtility.OnData(stream, default);
+					continue;
 				case NetworkEvent.Type.Disconnect:
 					Debug.Log("Client got disconnected from server");
-					_connection = default(NetworkConnection);
+					_connection = default;
 					ConnectionDropped?.Invoke();
 					ShutDown();
-					break;
+					continue;
 			}
 		}
 	}
@@ -93,9 +92,8 @@ public sealed class Client : MonoSingleton<Client> {
 	///</summary>
 	///<param name="msg">The message to send to the server</param>
 	public void SendToServer(NetMessage msg) {
-		DataStreamWriter writer;
-		_driver.BeginSend(_connection, out writer);
-		msg.Serialize(ref writer);
+        _driver.BeginSend(_connection, out DataStreamWriter writer);
+        msg.Serialize(ref writer);
 		_driver.EndSend(writer);
 	}
 

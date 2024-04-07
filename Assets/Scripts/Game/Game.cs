@@ -248,7 +248,7 @@ public sealed class Game : MonoSingleton<Game> {
 		AllowButtons = true;
 
 		Debug.Log(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount));
-		Debug.Log(_pgnBuilder.GetPGN());
+		Debug.Log(_pgnBuilder.GetPGN() ?? "PGN is empty");
 	}
 
 	///<summary>
@@ -708,6 +708,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	public void OnHostCancelButton() {
 		Debug.Log("Shutting down the Client and Server as Host...");
+		_playerCount--;
 		Server.Instance.ShutDown();
 		Client.Instance.ShutDown();
 	}
@@ -777,10 +778,15 @@ public sealed class Game : MonoSingleton<Game> {
 	///<param name="cnn">Receving connection</param>
 	private void OnWelcomeServer(NetMessage msg, NetworkConnection cnn) {
 		Debug.Log("SERVER: Recieved Welcome Msg");
+
 		NetWelcome welcomeMsg = msg as NetWelcome;
 		welcomeMsg.IsAssignedWhitePieces = ++_playerCount == 1;
+		welcomeMsg.StartingWithFEN = !string.IsNullOrEmpty(Setup);
+		welcomeMsg.FENOrPGN = welcomeMsg.StartingWithFEN ? Setup : StartPGN;
+
 		Debug.Log("SERVER: Sending Welcome Msg to single client...");
 		Server.Instance.SendToClient(cnn, welcomeMsg);
+
 		if (_playerCount == 2) {
 			Debug.Log("SERVER: Broadcasting StartGame Msg to all clients...");
 			Server.Instance.Broadcast(new NetStartGame());
@@ -817,16 +823,23 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	///<param name="msg">Incoming message</param>
 	private void OnWelcomeClient(NetMessage msg) {
-		Debug.Log("CLIENT: Recieved Welcome Msg");
 		NetWelcome welcomeMsg = msg as NetWelcome;
+		Debug.Log($"CLIENT: Recieved Welcome Msg with {welcomeMsg.IsAssignedWhitePieces}, {welcomeMsg.StartingWithFEN}, {welcomeMsg.FENOrPGN}");
+
 		_players = new Player[2] {new(true), new(false)};
 		_myPlayer = GetPlayer(welcomeMsg.IsAssignedWhitePieces);
 		Debug.Log($"CLIENT: I play the {_myPlayer.ColorPieces} pieces");
-		if (_isLocalGame) {  //should be not local game???
-			Debug.Log("CLIENT: Sending StartGame Msg to all clients...");
-			var startMsg = new NetStartGame();
-			Server.Instance.Broadcast(startMsg);
+
+		if (!_isLocalGame) {
+			if (welcomeMsg.StartingWithFEN) Setup = welcomeMsg.FENOrPGN;
+			else StartPGN = welcomeMsg.FENOrPGN;
+			return;
 		}
+
+		//if local game
+		Debug.Log("CLIENT: Sending StartGame Msg to all clients...");
+		var startMsg = new NetStartGame();
+		Server.Instance.Broadcast(startMsg);
 	}
 
 	///<summary>
@@ -836,12 +849,6 @@ public sealed class Game : MonoSingleton<Game> {
 	private void OnStartGameClient(NetMessage msg) {
 		Debug.Log("CLIENT: Recieved StartGame Msg");
 		Debug.Log("CLIENT: Starting the game...");
-		//read the message and set the FEN/PGN
-		NetStartGame startMsg = msg as NetStartGame;
-		if (!_isLocalGame) {
-			if (startMsg.StartingWithFEN) Setup = startMsg.FENOrPGN;
-			else StartPGN = startMsg.FENOrPGN;
-		}
 
 		//disable the timers
 		TimerManager.Instance.ToggleTimers(false);
@@ -877,10 +884,12 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	///<param name="msg">Incoming message</param>
 	private void OnMakeMoveClient(NetMessage msg) {
-		Debug.Log("CLIENT: Recieved MakeMove Msg");
 		NetMakeMove moveMsg = msg as NetMakeMove;
-		if (moveMsg.IsWhiteMove == CurPlayer.IsWhite) return;
+		Debug.Log($"CLIENT: Recieved MakeMove Msg for a {(moveMsg.IsWhiteMove ? "white" : "black")} move");
+
+		if (moveMsg.IsWhiteMove != CurPlayer.IsWhite) return;
 		Debug.Log("CLIENT: Executing the move...");
+
 		MakeMove(
 			ChessBoard.Instance.GetSquareAt(moveMsg.StartCoordinates),
 			ChessBoard.Instance.GetSquareAt(moveMsg.EndCoordinates),
