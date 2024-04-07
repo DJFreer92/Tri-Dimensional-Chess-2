@@ -43,9 +43,6 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		{"KL5", new Vector3Int(4, 4, 5)},
 		{"KL6", new Vector3Int(4, 4, 8)}
 	};
-	//piece's gameobject parents
-	[field: SerializeField] public Transform WhitePiecesParent {get; private set;}
-	[field: SerializeField] public Transform BlackPiecesParent {get; private set;}
 	//attackboard prefab gameobject
 	[SerializeField] private GameObject _attackboardPrefab;
 	//holds the boards of the chessboard

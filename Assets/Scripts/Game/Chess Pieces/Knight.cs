@@ -15,10 +15,6 @@ public sealed class Knight : ChessPiece {
 		new int[] {2, -1},
 		new int[] {2, 1}
 	};
-	//white knight prefab gameobject
-	public static GameObject WhitePrefab {get; private set;}
-	//black knight prefab gameobject
-	public static GameObject BlackPrefab {get; private set;}
 
 	///<summary>
 	///Returns a list of all the knight's available moves
@@ -40,16 +36,6 @@ public sealed class Knight : ChessPiece {
 			}
 		}
 		return moves;
-	}
-
-	///<summary>
-	///Set the white and black knight prefabs
-	///</summary>
-	///<param name="whitePrefab">The white knight prefab</param>
-	///<param name="blackPrefab">The black knight prefab</param>
-	public static void SetPrefabs(GameObject whitePrefab, GameObject blackPrefab) {
-		WhitePrefab = whitePrefab;
-		BlackPrefab = blackPrefab;
 	}
 
 	///<summary>

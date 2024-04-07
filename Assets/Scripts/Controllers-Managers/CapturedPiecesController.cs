@@ -5,8 +5,6 @@ using UnityEngine;
 [RequireComponent(typeof(Game))]
 [DisallowMultipleComponent]
 public sealed class CapturedPiecesController : MonoSingleton<CapturedPiecesController> {
-	[SerializeField] private Transform _whitePiecesParent;
-	[SerializeField] private Transform _blackPiecesParent;
 	public Action<PieceType, bool> OnPieceCaptured, OnCapturedPieceRemoved;
 	public Action OnCapturedPiecesCleared;
 	[SerializeField] [Range(0.1f, 1f)] private float _pieceScale;
@@ -20,6 +18,7 @@ public sealed class CapturedPiecesController : MonoSingleton<CapturedPiecesContr
 	///<param name="isWhite">Whether the piece being added is white</param>
 	///<param name="isPlaceholderPiece">Whether the piece being added is a placeholder for a piece of the opposite color that couldn't be removed</param>
 	public void AddPieceOfType(PieceType type, bool isWhite, bool isPlaceholderPiece = false) {
+		Debug.Log("AddPieceOfType Called");
 		if (type == PieceType.KING) return;
 		ChessPiece placeholder = FindInPlaceholders(type, !isWhite);
 		List<ChessPiece> capturedPieces;
@@ -29,10 +28,7 @@ public sealed class CapturedPiecesController : MonoSingleton<CapturedPiecesContr
 			_placeholderPieces.Remove(placeholder);
 			Destroy(placeholder.gameObject);
 		} else {
-			ChessPiece newPiece = Instantiate(
-				ChessPiece.GetPrefab(type.GetPieceTypeColor(isWhite)),
-				!isWhite ? _whitePiecesParent : _blackPiecesParent
-			).GetComponent<ChessPiece>();
+			ChessPiece newPiece = PieceCreator.Instance.CreatePiece(type.GetPieceTypeColor(isWhite));
 			newPiece.enabled = false;
 			capturedPieces = isWhite ? _capturedWhitePieces : _capturedBlackPieces;
 			capturedPieces.Add(newPiece);

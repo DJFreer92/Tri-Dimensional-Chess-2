@@ -6,10 +6,6 @@ using System.Text;
 public sealed class Pawn : ChessPiece {
 	//the notation and figurine characters of the pawn
 	private const string _STANDARD_CHARACTER = "", _FIGURINE_CHARACTER = "";
-	//white pawn prefab gameobject
-	public static GameObject WhitePrefab {get; private set;}
-	//black pawn prefab gameobject
-	public static GameObject BlackPrefab {get; private set;}
 	//whether the pawn can make a double square move
 	public bool HasDSMoveRights = true;  //Can make Double Square move
 	//holds whether the pawn made a double square move on its last turn
@@ -90,16 +86,6 @@ public sealed class Pawn : ChessPiece {
 			}
 		}
 		return moves;
-	}
-
-	///<summary>
-	///Set the white and black pawn prefabs
-	///</summary>
-	///<param name="whitePrefab">The white pawn prefab</param>
-	///<param name="blackPrefab">The black pawn prefab</param>
-	public static void SetPrefabs(GameObject whitePrefab, GameObject blackPrefab) {
-		WhitePrefab = whitePrefab;
-		BlackPrefab = blackPrefab;
 	}
 
 	///<summary>

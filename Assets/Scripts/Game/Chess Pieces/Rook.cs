@@ -4,10 +4,6 @@ using UnityEngine;
 public sealed class Rook : ChessPiece {
 	//the notation and figurine characters of the rook
 	private const string _STANDARD_CHARACTER = "R", _FIGURINE_CHARACTER = "♖";
-	//white rook prefab gameobject
-	public static GameObject WhitePrefab {get; private set;}
-	//black rook prefab gameobject
-	public static GameObject BlackPrefab {get; private set;}
 	//has castling rights
 	public bool HasCastlingRights = true;
 	//whether the rook starts on the king side
@@ -61,16 +57,6 @@ public sealed class Rook : ChessPiece {
 			}
 		}
 		return moves;
-	}
-
-	///<summary>
-	///Set the white and black rook prefabs
-	///</summary>
-	///<param name="whitePrefab">The white rook prefab</param>
-	///<param name="blackPrefab">The black rook prefab</param>
-	public static void SetPrefabs(GameObject whitePrefab, GameObject blackPrefab) {
-		WhitePrefab = whitePrefab;
-		BlackPrefab = blackPrefab;
 	}
 
 	///<summary>

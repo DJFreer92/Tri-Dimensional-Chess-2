@@ -4,10 +4,6 @@ using UnityEngine;
 public sealed class Queen : ChessPiece {
 	//the notation and figurine characters of the queen
 	private const string _STANDARD_CHARACTER = "Q", _FIGURINE_CHARACTER = "♕";
-	//white queen prefab gameobject
-	public static GameObject WhitePrefab {get; private set;}
-	//black queen prefab gameobject
-	public static GameObject BlackPrefab {get; private set;}
 
 	///<summary>
 	///Returns a list of all the queen's available moves
@@ -39,16 +35,6 @@ public sealed class Queen : ChessPiece {
 			}
 		}
 		return moves;
-	}
-
-	///<summary>
-	///Set the white and black queen prefabs
-	///</summary>
-	///<param name="whitePrefab">The white queen prefab</param>
-	///<param name="blackPrefab">The black queen prefab</param>
-	public static void SetPrefabs(GameObject whitePrefab, GameObject blackPrefab) {
-		WhitePrefab = whitePrefab;
-		BlackPrefab = blackPrefab;
 	}
 
 	///<summary>

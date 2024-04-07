@@ -6,10 +6,6 @@ using System.Text;
 public sealed class King : ChessPiece {
 	//the notation and figurine characters of the king
 	private const string _STANDARD_CHARACTER = "K", _FIGURINE_CHARACTER = "♔";
-	//white king prefab gameobject
-	public static GameObject WhitePrefab {get; private set;}
-	//black king prefab gameobject
-	public static GameObject BlackPrefab {get; private set;}
 	//whether the king is in check
 	public bool IsInCheck;
 	//has castling rights
@@ -181,16 +177,6 @@ public sealed class King : ChessPiece {
 			if (!WillBeInCheck(new PieceMove(Game.Instance.GetPlayer(IsWhite), square, sqr))) moves.Add(sqr);
 		}
 		return moves;
-	}
-
-	///<summary>
-	///Set the white and black king prefabs
-	///</summary>
-	///<param name="whitePrefab">The white king prefab</param>
-	///<param name="blackPrefab">The black king prefab</param>
-	public static void SetPrefabs(GameObject whitePrefab, GameObject blackPrefab) {
-		WhitePrefab = whitePrefab;
-		BlackPrefab = blackPrefab;
 	}
 
 	///<summary>

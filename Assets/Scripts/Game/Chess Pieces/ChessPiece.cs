@@ -145,29 +145,6 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 	}
 
 	///<summary>
-	///Returns the prefab of the given piece and color
-	///</summary>
-	///<param name="ptc">The desired piece and color of the prefab</param>
-	///<returns>Prefab of the given piece and color</returns>
-	public static GameObject GetPrefab(PieceTypeColor ptc) {
-		return ptc switch {
-			PieceTypeColor.WHITE_KING => King.WhitePrefab,
-			PieceTypeColor.BLACK_KING => King.BlackPrefab,
-			PieceTypeColor.WHITE_QUEEN => Queen.WhitePrefab,
-			PieceTypeColor.BLACK_QUEEN => Queen.BlackPrefab,
-			PieceTypeColor.WHITE_ROOK => Rook.WhitePrefab,
-			PieceTypeColor.BLACK_ROOK => Rook.BlackPrefab,
-			PieceTypeColor.WHITE_BISHOP => Bishop.WhitePrefab,
-			PieceTypeColor.BLACK_BISHOP => Bishop.BlackPrefab,
-			PieceTypeColor.WHITE_KNIGHT => Knight.WhitePrefab,
-			PieceTypeColor.BLACK_KNIGHT => Knight.BlackPrefab,
-			PieceTypeColor.WHITE_PAWN => Pawn.WhitePrefab,
-			PieceTypeColor.BLACK_PAWN => Pawn.BlackPrefab,
-			_ => null
-		};
-	}
-
-	///<summary>
 	///Move the position of the piece to the given square
 	///</summary>
 	///<param name="sqr">The square to move the piece to</param>

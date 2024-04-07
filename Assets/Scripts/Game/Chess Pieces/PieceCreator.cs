@@ -12,24 +12,25 @@ public sealed class PieceCreator : MonoSingleton<PieceCreator> {
     protected override void Awake() {
         base.Awake();
 
-		foreach (var piece in _piecesPrefabs) {
-			ChessPiece component = piece.GetComponent<ChessPiece>();
-			_typeToPieceDict.Add(component.Type.GetPieceTypeColor(component.IsWhite), piece);
+		ChessPiece piece;
+		foreach (var prefab in _piecesPrefabs) {
+			piece = prefab.GetComponent<ChessPiece>();
+			_typeToPieceDict.Add(piece.Type.GetPieceTypeColor(piece.IsWhite), prefab);
 		}
     }
 
 	///<summary>
 	///Creates a piece of the given type and color and places it on the given square
 	///</summary>
-	///<param name="tc">The type and color of the piece to be created</param>
+	///<param name="ptc">The type and color of the piece to be created</param>
 	///<param name="sqr">The square to place the piece on</param>
-	///<returns>The piece created</returns>
-	public ChessPiece CreatePiece(PieceTypeColor tc, Square sqr) {
+	///<returns>The created piece</returns>
+	public ChessPiece CreatePiece(PieceTypeColor ptc, Square sqr) {
 		//get the prefab and color of the piece
-		GameObject prefab = _typeToPieceDict[tc];
-		bool isWhite = tc.GetColor();
+		GameObject prefab = _typeToPieceDict[ptc];
+		bool isWhite = ptc.GetColor();
 
-		//if the prefab was not found
+		//if the prefab was not found, return null
 		if (prefab == null) return null;
 
 		//create the piece
@@ -47,6 +48,25 @@ public sealed class PieceCreator : MonoSingleton<PieceCreator> {
 
 		//return the piece
 		return sqr.GamePiece;
+	}
+
+	///<summary>
+	///Creates a piece of the given type and color but does not place it on the board
+	///</summary>
+	///<param name="ptc">The type and color of the piece to be created</param>
+	///<returns>The created piece</returns>
+	public ChessPiece CreatePiece(PieceTypeColor ptc) {
+		//get the prefab of the piece
+		GameObject prefab = _typeToPieceDict[ptc];
+
+		//if the prefab was not found, return null
+		if (prefab == null) return null;
+
+		//create and return the piece
+		return Instantiate(
+			prefab,
+			ptc.GetColor() ? _whiteParent :_blackParent
+		).GetComponent<ChessPiece>();
 	}
 
 	///<summary>

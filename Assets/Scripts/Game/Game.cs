@@ -46,22 +46,6 @@ public sealed class Game : MonoSingleton<Game> {
 	}
 	public List<Move> MovesPlayed {get; private set;}
 
-	#region Prefab Variables
-	[Header("Prefabs")]
-	[SerializeField] private GameObject _whiteKingPrefab;
-	[SerializeField] private GameObject _whiteQueenPrefab;
-	[SerializeField] private GameObject _whiteRookPrefab;
-	[SerializeField] private GameObject _whiteBishopPrefab;
-	[SerializeField] private GameObject _whiteKnightPrefab;
-	[SerializeField] private GameObject _whitePawnPrefab;
-	[SerializeField] private GameObject _blackKingPrefab;
-	[SerializeField] private GameObject _blackQueenPrefab;
-	[SerializeField] private GameObject _blackRookPrefab;
-	[SerializeField] private GameObject _blackBishopPrefab;
-	[SerializeField] private GameObject _blackKnightPrefab;
-	[SerializeField] private GameObject _blackPawnPrefab;
-	#endregion
-
 	#region Reference Variables
 	[Header("References")]
 	[SerializeField] private PlayerControls _whiteCtrls;
@@ -98,14 +82,6 @@ public sealed class Game : MonoSingleton<Game> {
 
 		//set the game state
 		_state = GameState.PRE_GAME;
-
-		//assign prefabs
-		King.SetPrefabs(_whiteKingPrefab, _blackKingPrefab);
-		Queen.SetPrefabs(_whiteQueenPrefab, _blackQueenPrefab);
-		Rook.SetPrefabs(_whiteRookPrefab, _blackRookPrefab);
-		Bishop.SetPrefabs(_whiteBishopPrefab, _blackBishopPrefab);
-		Knight.SetPrefabs(_whiteKnightPrefab, _blackKnightPrefab);
-		Pawn.SetPrefabs(_whitePawnPrefab, _blackPawnPrefab);
 	}
 
 	private void Update() {

@@ -4,10 +4,6 @@ using UnityEngine;
 public sealed class Bishop : ChessPiece {
 	//the notation and figurine characters of the bishop
 	private const string _STANDARD_CHARACTER = "B", _FIGURINE_CHARACTER = "♗";
-	//white bishop prefab gameobject
-	public static GameObject WhitePrefab {get; private set;}
-	//black bishop prefab gameobject
-	public static GameObject BlackPrefab {get; private set;}
 
 	///<summary>
 	///Returns a list of all the bishop's available moves
@@ -38,16 +34,6 @@ public sealed class Bishop : ChessPiece {
 			}
 		}
 		return moves;
-	}
-
-	///<summary>
-	///Set the white and black bishop prefabs
-	///</summary>
-	///<param name="whitePrefab">The white bishop prefab</param>
-	///<param name="blackPrefab">The black bishop prefab</param>
-	public static void SetPrefabs(GameObject whitePrefab, GameObject blackPrefab) {
-		WhitePrefab = whitePrefab;
-		BlackPrefab = blackPrefab;
 	}
 
 	///<summary>
