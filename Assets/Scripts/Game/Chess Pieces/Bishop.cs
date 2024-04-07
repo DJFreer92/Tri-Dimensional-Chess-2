@@ -7,9 +7,9 @@ public sealed class Bishop : ChessPiece {
 	//the directions the bishop can move in
 	private static readonly Vector2Int[] _DIRECTIONS = {
 		Vector2Int.up + Vector2Int.right,
+		Vector2Int.up + Vector2Int.left,
 		Vector2Int.down + Vector2Int.right,
-		Vector2Int.down + Vector2Int.left,
-		Vector2Int.up + Vector2Int.left
+		Vector2Int.down + Vector2Int.left
 	};
 
 	///<summary>
