@@ -4,16 +4,16 @@ using UnityEngine;
 public sealed class Knight : ChessPiece {
 	//the notation and figurine characters of the knight
 	private const string _STANDARD_CHARACTER = "N", _FIGURINE_CHARACTER = "♘";
-	//knight offsets
-	public static readonly int[][] Offsets = {
-		new int[] {-2, -1},
-		new int[] {-2, 1},
-		new int[] {-1, -2},
-		new int[] {-1, 2},
-		new int[] {1, -2},
-		new int[] {1, 2},
-		new int[] {2, -1},
-		new int[] {2, 1}
+	//offsets from the knight where it can move to
+	public static readonly Vector2Int[] OFFSETS = {
+		Vector2Int.up * 2 + Vector2Int.right,
+		Vector2Int.up * 2 + Vector2Int.left,
+		Vector2Int.up + Vector2Int.right * 2,
+		Vector2Int.up + Vector2Int.left * 2,
+		Vector2Int.down * 2 + Vector2Int.right,
+		Vector2Int.down * 2 + Vector2Int.left,
+		Vector2Int.down + Vector2Int.right * 2,
+		Vector2Int.down + Vector2Int.left * 2
 	};
 
 	///<summary>
@@ -25,9 +25,9 @@ public sealed class Knight : ChessPiece {
 		var moves = new List<Square>();
 		if (IsWhite != asWhite) return moves;
 		Square square = GetSquare();
-		foreach (int[] offset in Offsets) {
-			int x = square.Coords.x + offset[0];
-			int z = square.Coords.z + offset[1];
+		foreach (var offset in OFFSETS) {
+			int x = square.Coords.x + offset.x;
+			int z = square.Coords.z + offset.y;
 			if (x < 0 || x > 5 || z < 0 || z > 9) continue;
 			foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
 				if (sqr.Coords.x != x || sqr.Coords.z != z) continue;

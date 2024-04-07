@@ -18,15 +18,15 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	public static readonly Vector3Int BlackQueenSideKingLandingCoords = new(1, 5, 9);
 	#endregion
 	//x and z directions
-	private static readonly int[][] _XZDirections = new int[][] {
-		new int[] {-1, -1},
-		new int[] {-1, 0},
-		new int[] {-1, 1},
-		new int[] {0, -1},
-		new int[] {0, 1},
-		new int[] {1, -1},
-		new int[] {1, 0},
-		new int[] {1, 1}
+	private static readonly Vector2Int[] _XZDirections = {
+		Vector2Int.up,
+		Vector2Int.up + Vector2Int.right,
+		Vector2Int.right,
+		Vector2Int.down + Vector2Int.right,
+		Vector2Int.down,
+		Vector2Int.down + Vector2Int.left,
+		Vector2Int.left,
+		Vector2Int.up + Vector2Int.left
 	};
 	//the square positions of each possible attackboard position
 	private static readonly Dictionary<string, Vector3Int> _ABPins = new() {
@@ -268,15 +268,15 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	///<returns>Whether the are any pieces attacking the given square</returns>
 	public bool ArePiecesAttacking(Square square, bool attackingPiecesAreWhite) {
 		//check for attacking pieces
-		foreach (int[] direction in _XZDirections) {
+		foreach (var direction in _XZDirections) {
 			//get the x and z coordinates of the square
 			int x = square.Coords.x, z = square.Coords.z;
 
 			bool end = false;
 			while (!end) {
 				//modify the x and z coordinate to search for attackers
-				x += direction[0];
-				z += direction[1];
+				x += direction.x;
+				z += direction.y;
 
 				//if the x or z coordinate is out of the boards bounds break out of the loop
 				if (x < 0 || x > 5 || z < 0 || z > 9) break;
@@ -323,10 +323,10 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		}
 
 		//loop through all the possible knight offsets
-		foreach (int[] offset in Knight.Offsets) {
+		foreach (var offset in Knight.OFFSETS) {
 			//get the x and z coordinates of the square and modify by the knight offset
-			int x = square.Coords.x + offset[0];
-			int z = square.Coords.z + offset[1];
+			int x = square.Coords.x + offset.x;
+			int z = square.Coords.z + offset.y;
 
 			//loop for squares at the desired coordinates
 			foreach (Square sqr in GetEnumerableSquares()) {

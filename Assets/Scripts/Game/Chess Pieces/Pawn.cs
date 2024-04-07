@@ -6,15 +6,22 @@ using System.Text;
 public sealed class Pawn : ChessPiece {
 	//the notation and figurine characters of the pawn
 	private const string _STANDARD_CHARACTER = "", _FIGURINE_CHARACTER = "";
+	//offsets from the pawn where it can move to
+	private static readonly Vector2Int[] _OFFSETS = {
+		Vector2Int.up,
+		Vector2Int.up * 2,
+		Vector2Int.up + Vector2Int.right,
+		Vector2Int.up + Vector2Int.left
+	};
 	//whether the pawn can make a double square move
 	public bool HasDSMoveRights = true;  //Can make Double Square move
 	//holds whether the pawn made a double square move on its last turn
 	public bool JustMadeDSMove;  //Just Made Double Square Move
 
-	///<summary>
-	///Adds local methods to listeners
-	///</summary>
-	protected override void RegisterToEvents() {
+    ///<summary>
+    ///Adds local methods to listeners
+    ///</summary>
+    protected override void RegisterToEvents() {
 		base.RegisterToEvents();
 
 		Game.Instance.OnCurrentPlayerChangeWParam += UpdateJustMadeDSMove;
@@ -58,32 +65,29 @@ public sealed class Pawn : ChessPiece {
 		if (IsWhite != asWhite) return moves;
 		Square square = GetSquare();
 		int direction = IsWhite ? 1 : -1;
-		for (var xd = -1; xd <= 1; xd++) {
-			for (var zd = 0; zd <= 2; zd++) {
-				if (zd == 0 || (xd != 0 && zd == 2)) continue;
-				if (zd == 2 && !HasDSMoveRights) break;
-				int x = xd + square.Coords.x;
-				int z = zd * direction + square.Coords.z;
-				if (x < 0 || x > 5 || z < 0 || z > 9) break;
-				bool blocked = false;
-				foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
-					if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
-					bool isEnPassant = false;
-					if (xd == 0 && sqr.HasPiece()) {  //straight 1 or 2
-						blocked = true;
-						continue;
-					} else if (xd != 0) {  //diagonal capture or en pasant
-						if (!sqr.HasPiece()) {
-							if (GetJMDSMPawnBehind(sqr, IsWhite) == null) continue;
-							isEnPassant = true;
-						} else if (IsSameColor(sqr.GamePiece)) continue;
-					}
-					var move = new PieceMove(GetOwner(), square, sqr);
-					if (isEnPassant) move.MoveEvents.Add(MoveEvent.EN_PASSANT);
-					if (!King.WillBeInCheck(move)) moves.Add(sqr);
+		foreach (var offset in _OFFSETS) {
+			if (offset.y == 2 && !HasDSMoveRights) continue;
+			int x = offset.x + square.Coords.x;
+			int z = offset.y * direction + square.Coords.z;
+			if (x < 0 || x > 5 || z < 0 || z > 9) break;
+			bool blocked = false;
+			foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
+				if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
+				bool isEnPassant = false;
+				if (offset.x == 0 && sqr.HasPiece()) {  //straight 1 or 2
+					blocked = true;
+					continue;
+				} else if (offset.x != 0) {  //diagonal capture or en pasant
+					if (!sqr.HasPiece()) {
+						if (GetJMDSMPawnBehind(sqr, IsWhite) == null) continue;
+						isEnPassant = true;
+					} else if (IsSameColor(sqr.GamePiece)) continue;
 				}
-				if (blocked) break;
+				var move = new PieceMove(GetOwner(), square, sqr);
+				if (isEnPassant) move.MoveEvents.Add(MoveEvent.EN_PASSANT);
+				if (!King.WillBeInCheck(move)) moves.Add(sqr);
 			}
+			if (blocked) break;
 		}
 		return moves;
 	}

@@ -4,6 +4,13 @@ using UnityEngine;
 public sealed class Rook : ChessPiece {
 	//the notation and figurine characters of the rook
 	private const string _STANDARD_CHARACTER = "R", _FIGURINE_CHARACTER = "♖";
+	//the directions the rook can move in
+	private static readonly Vector2Int[] _DIRECTIONS = {
+		Vector2Int.up,
+		Vector2Int.down,
+		Vector2Int.left,
+		Vector2Int.right
+	};
 	//has castling rights
 	public bool HasCastlingRights = true;
 	//whether the rook starts on the king side
@@ -26,34 +33,31 @@ public sealed class Rook : ChessPiece {
 		var moves = new List<Square>();
 		if (IsWhite != asWhite) return moves;
 		Square square = GetSquare();
-		for (var xd = -1; xd <= 1; xd++) {
-			for (var zd = -1; zd <= 1; zd++) {
-				if ((xd != 0 && zd != 0) || xd == zd) continue;
-				bool blocked = false;
-				for (var dist = 1; dist <= 9; dist++) {
-					int x = xd * dist + square.Coords.x;
-					int z = zd * dist + square.Coords.z;
-					if (x < 0 || x > 5 || z < 0 || z > 9) break;
-					foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
-						if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
-						ChessPiece PieceOnSqr = sqr.GamePiece;
-						if (sqr.HasPiece()) {
-							blocked = true;
-							if (IsSameColor(PieceOnSqr)) {
-								if (!HasCastlingRights || Game.Instance.IsFirstMove()) continue;
-								King king = PieceOnSqr as King;
-								if (PieceOnSqr is not King || !king.HasCastlingRights || king.IsInCheck) continue;
-								if (!IsKingSide && ChessBoard.Instance.GetSquareAt(square.Coords + Vector3Int.right).HasPiece()) continue;
-								var move = new PieceMove(GetOwner(), square, sqr);
-								move.MoveEvents.Add(IsKingSide ? MoveEvent.CASTLING_KING_SIDE : MoveEvent.CASTLING_QUEEN_SIDE);
-								if (!King.WillBeInCheck(move)) moves.Add(sqr);
-								continue;
-							}
+		foreach (var direction in _DIRECTIONS) {
+			bool blocked = false;
+			for (var dist = 1; dist <= 9; dist++) {
+				int x = direction.x * dist + square.Coords.x;
+				int z = direction.y * dist + square.Coords.z;
+				if (x < 0 || x > 5 || z < 0 || z > 9) break;
+				foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
+					if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
+					ChessPiece PieceOnSqr = sqr.GamePiece;
+					if (sqr.HasPiece()) {
+						blocked = true;
+						if (IsSameColor(PieceOnSqr)) {
+							if (!HasCastlingRights || Game.Instance.IsFirstMove()) continue;
+							King king = PieceOnSqr as King;
+							if (PieceOnSqr is not King || !king.HasCastlingRights || king.IsInCheck) continue;
+							if (!IsKingSide && ChessBoard.Instance.GetSquareAt(square.Coords + Vector3Int.right).HasPiece()) continue;
+							var move = new PieceMove(GetOwner(), square, sqr);
+							move.MoveEvents.Add(IsKingSide ? MoveEvent.CASTLING_KING_SIDE : MoveEvent.CASTLING_QUEEN_SIDE);
+							if (!King.WillBeInCheck(move)) moves.Add(sqr);
+							continue;
 						}
-						if (!King.WillBeInCheck(new PieceMove(GetOwner(), square, sqr))) moves.Add(sqr);
 					}
-					if (blocked) break;
+					if (!King.WillBeInCheck(new PieceMove(GetOwner(), square, sqr))) moves.Add(sqr);
 				}
+				if (blocked) break;
 			}
 		}
 		return moves;

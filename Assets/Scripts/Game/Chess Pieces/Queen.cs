@@ -4,6 +4,17 @@ using UnityEngine;
 public sealed class Queen : ChessPiece {
 	//the notation and figurine characters of the queen
 	private const string _STANDARD_CHARACTER = "Q", _FIGURINE_CHARACTER = "♕";
+	//the directions the queen can move in
+	private static readonly Vector2Int[] _DIRECTIONS = {
+		Vector2Int.up,
+		Vector2Int.up + Vector2Int.right,
+		Vector2Int.right,
+		Vector2Int.down + Vector2Int.right,
+		Vector2Int.down,
+		Vector2Int.down + Vector2Int.left,
+		Vector2Int.left,
+		Vector2Int.up + Vector2Int.left
+	};
 
 	///<summary>
 	///Returns a list of all the queen's available moves
@@ -14,24 +25,21 @@ public sealed class Queen : ChessPiece {
 		var moves = new List<Square>();
 		if (IsWhite != asWhite) return moves;
 		Square square = GetSquare();
-		for (var xd = -1; xd <= 1; xd++) {
-			for (var zd = -1; zd <= 1; zd++) {
-				if (xd == 0 && zd == 0) continue;
-				bool blocked = false;
-				for (var dist = 1; dist <= 9; dist++) {
-					int x = xd * dist + square.Coords.x;
-					int z = zd * dist + square.Coords.z;
-					if (x < 0 || x > 5 || z < 0 || z > 9) break;
-					foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
-						if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
-						if (sqr.HasPiece()) {
-							blocked = true;
-							if (IsSameColor(sqr.GamePiece)) continue;
-						}
-						if (!King.WillBeInCheck(new PieceMove(GetOwner(), square, sqr))) moves.Add(sqr);
+		foreach (var direction in _DIRECTIONS) {
+			bool blocked = false;
+			for (var dist = 1; dist <= 9; dist++) {
+				int x = direction.x * dist + square.Coords.x;
+				int z = direction.y * dist + square.Coords.z;
+				if (x < 0 || x > 5 || z < 0 || z > 9) break;
+				foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
+					if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
+					if (sqr.HasPiece()) {
+						blocked = true;
+						if (IsSameColor(sqr.GamePiece)) continue;
 					}
-					if (blocked) break;
+					if (!King.WillBeInCheck(new PieceMove(GetOwner(), square, sqr))) moves.Add(sqr);
 				}
+				if (blocked) break;
 			}
 		}
 		return moves;
