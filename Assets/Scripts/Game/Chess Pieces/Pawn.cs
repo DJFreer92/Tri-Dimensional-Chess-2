@@ -69,7 +69,7 @@ public sealed class Pawn : ChessPiece {
 			if (offset.y == 2 && !HasDSMoveRights) continue;
 			int x = offset.x + square.Coords.x;
 			int z = offset.y * direction + square.Coords.z;
-			if (x < 0 || x > 5 || z < 0 || z > 9) break;
+			if (!BoardExtensions.WithinBounds(x, z)) continue;
 			bool blocked = false;
 			foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
 				if (sqr.Coords.x != x || sqr.Coords.z != z) continue;

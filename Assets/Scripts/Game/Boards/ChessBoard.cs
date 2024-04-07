@@ -278,8 +278,8 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 				x += direction.x;
 				z += direction.y;
 
-				//if the x or z coordinate is out of the boards bounds break out of the loop
-				if (x < 0 || x > 5 || z < 0 || z > 9) break;
+				//if the x or z coordinates are out of the boards bounds break out of the loop
+				if (!BoardExtensions.WithinBounds(x, z)) break;
 
 				//loop for squares at the desired coordinates
 				foreach (Square sqr in GetEnumerableSquares()) {
@@ -327,6 +327,9 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 			//get the x and z coordinates of the square and modify by the knight offset
 			int x = square.Coords.x + offset.x;
 			int z = square.Coords.z + offset.y;
+
+			//if the x and z coordinates are out of bounds of the board, check the next offset
+			if (!BoardExtensions.WithinBounds(x, z)) continue;
 
 			//loop for squares at the desired coordinates
 			foreach (Square sqr in GetEnumerableSquares()) {
@@ -484,4 +487,38 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		}
 		return str.ToString();
 	}
+}
+
+public static class BoardExtensions {
+	///<summary>
+	///Returns whether the given x and z coordinates are within the bounds of the board
+	///</summary>
+	///<param name="xz">The x and z coordinates</param>
+	///<returns>Whether the given x and z coordinates are within the bounds of the board</returns>
+	public static bool WithinBounds(this Vector2Int xz) => WithinBounds(xz.x, xz.y);
+
+	///<summary>
+	///Returns whether the given x and z coordinates are within the bounds of the board
+	///</summary>
+	///<param name="x">The x coordinate</param>
+	///<param name="z">The z coordinate</param>
+	///<returns>Whether the given x and z coordinates are within the bounds of the board</returns>
+	public static bool WithinBounds(this int x, int z) => x >= 0 && x <= 5 && z >= 0 && z <= 9;
+
+	///<summary>
+	///Returns whether the given coordinates are within the bounds of the board
+	///</summary>
+	///<param name="coords">The coordinates</param>
+	///<returns>Whether the given coordinates are within the bounds of the board</returns>
+	public static bool WithinBounds(this Vector3Int coords) => WithinBounds(coords.x, coords.y, coords.z);
+
+	///<summary>
+	///Returns whether the given coordinates are within the bounds of the board
+	///</summary>
+	///<param name="x">The x coordinate</param>
+	///<param name="y">The y coordinate</param>
+	///<param name="z">The z coordinate</param>
+	///<returns>Whether the given coordinates are within the bounds of the board</returns>
+	public static bool WithinBounds(this int x, int y, int z) =>
+		x >= 0 && x <= 5 && y >= 0 && y <= 5 && z >= 0 && z <= 9;
 }

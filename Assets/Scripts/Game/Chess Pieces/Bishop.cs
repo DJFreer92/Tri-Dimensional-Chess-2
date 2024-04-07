@@ -26,7 +26,7 @@ public sealed class Bishop : ChessPiece {
 			for (var dist = 1; dist <= 5; dist++) {
 				int x = direction.x * dist + square.Coords.x;
 				int z = direction.y * dist + square.Coords.z;
-				if (x < 0 || x > 5 || z < 0 || z > 9) break;
+				if (!BoardExtensions.WithinBounds(x, z)) break;
 				foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
 					if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
 					if (sqr.HasPiece()) {

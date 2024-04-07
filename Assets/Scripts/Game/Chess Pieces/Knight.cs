@@ -28,7 +28,7 @@ public sealed class Knight : ChessPiece {
 		foreach (var offset in OFFSETS) {
 			int x = square.Coords.x + offset.x;
 			int z = square.Coords.z + offset.y;
-			if (x < 0 || x > 5 || z < 0 || z > 9) continue;
+			if (!BoardExtensions.WithinBounds(x, z)) continue;
 			foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
 				if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
 				if (sqr.HasPiece() && IsSameColor(sqr.GamePiece)) continue;
