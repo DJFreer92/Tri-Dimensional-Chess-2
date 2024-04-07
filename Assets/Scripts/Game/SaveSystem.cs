@@ -20,6 +20,8 @@ public sealed class SaveSystem : MonoSingleton<SaveSystem> {
 		base.Awake();
 
 		_gameSavePath = Application.persistentDataPath + _EXTENSION;
+
+		Debug.Log($"Game History:\n\n{string.Join("\n\n", GameHistory)}");
 	}
 
 	///<summary>
