@@ -412,7 +412,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 					else blackBishop = piece as Bishop;
 				}
 				//return whether there is sufficent material to continue the game based on whether the bishops are on opposite colors or not
-				return whiteBishop.GetSquare().IsWhite == blackBishop.GetSquare().IsWhite;
+				return whiteBishop.GetSquare().IsWhite() == blackBishop.GetSquare().IsWhite();
 		}
 
 		//there is sufficent material to continue the game
