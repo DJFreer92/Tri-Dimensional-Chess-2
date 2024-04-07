@@ -76,9 +76,9 @@ public sealed class Pawn : ChessPiece {
 						if (!sqr.HasPiece()) {
 							if (GetJMDSMPawnBehind(sqr, IsWhite) == null) continue;
 							isEnPassant = true;
-						} else if (sqr.GamePiece.IsWhite == IsWhite) continue;
+						} else if (IsSameColor(sqr.GamePiece)) continue;
 					}
-					var move = new PieceMove(Game.Instance.GetPlayer(IsWhite), square, sqr);
+					var move = new PieceMove(GetOwner(), square, sqr);
 					if (isEnPassant) move.MoveEvents.Add(MoveEvent.EN_PASSANT);
 					if (!King.WillBeInCheck(move)) moves.Add(sqr);
 				}
@@ -93,7 +93,7 @@ public sealed class Pawn : ChessPiece {
 	///</summary>
 	///<param name="player">The current player</param>
 	private void UpdateJustMadeDSMove(Player player) {
-		if (player.IsWhite == IsWhite) JustMadeDSMove = false;
+		if (BelongsTo(player)) JustMadeDSMove = false;
 	}
 
 	///<summary>

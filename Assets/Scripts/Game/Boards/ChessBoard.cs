@@ -429,9 +429,8 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		List<ChessPiece> pieces = GetPieces();
 
 		//remove all the pieces of the opposite color
-		for (var i = 0; i < pieces.Count; i++) {
-			if (pieces[i].IsWhite != player.IsWhite) pieces.RemoveAt(i--);
-		}
+		for (var i = 0; i < pieces.Count; i++)
+			if (!pieces[i].BelongsTo(player)) pieces.RemoveAt(i--);
 
 		switch (pieces.Count) {
 			case 1: return false;

@@ -342,7 +342,7 @@ public sealed class Game : MonoSingleton<Game> {
 		if (_selectedSquare == null) {
 			if (square.HasPiece()) {  //if the square has a piece
 				//if the piece on the square does not belong to the current player do not select it
-				if (square.GamePiece.IsWhite != CurPlayer.IsWhite) return;
+				if (!square.GamePiece.BelongsTo(CurPlayer)) return;
 
 				//Find all the available moves for the piece and highlight them
 				FindAndHighlightAvailablePieceMoves(square.GamePiece);
@@ -407,7 +407,7 @@ public sealed class Game : MonoSingleton<Game> {
 			return;
 		}
 
-		if (square.GamePiece?.IsWhite == CurPlayer.IsWhite) {
+		if (square.GamePiece != null && square.GamePiece.BelongsTo(CurPlayer)) {
 			//Find all the available piece moves and highlight them
 			FindAndHighlightAvailablePieceMoves(square.GamePiece);
 

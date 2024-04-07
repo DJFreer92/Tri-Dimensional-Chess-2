@@ -39,18 +39,18 @@ public sealed class Rook : ChessPiece {
 						ChessPiece PieceOnSqr = sqr.GamePiece;
 						if (sqr.HasPiece()) {
 							blocked = true;
-							if (PieceOnSqr.IsWhite == IsWhite) {
+							if (IsSameColor(PieceOnSqr)) {
 								if (!HasCastlingRights || Game.Instance.IsFirstMove()) continue;
 								King king = PieceOnSqr as King;
 								if (PieceOnSqr is not King || !king.HasCastlingRights || king.IsInCheck) continue;
 								if (!IsKingSide && ChessBoard.Instance.GetSquareAt(square.Coords + Vector3Int.right).HasPiece()) continue;
-								var move = new PieceMove(Game.Instance.GetPlayer(IsWhite), square, sqr);
+								var move = new PieceMove(GetOwner(), square, sqr);
 								move.MoveEvents.Add(IsKingSide ? MoveEvent.CASTLING_KING_SIDE : MoveEvent.CASTLING_QUEEN_SIDE);
 								if (!King.WillBeInCheck(move)) moves.Add(sqr);
 								continue;
 							}
 						}
-						if (!King.WillBeInCheck(new PieceMove(Game.Instance.GetPlayer(IsWhite), square, sqr))) moves.Add(sqr);
+						if (!King.WillBeInCheck(new PieceMove(GetOwner(), square, sqr))) moves.Add(sqr);
 					}
 					if (blocked) break;
 				}

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Text;
-using NUnit.Framework;
 
 [RequireComponent(typeof(Highlight))]
 public abstract class ChessPiece : MonoBehaviour, IMovable {
@@ -97,9 +96,7 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 	///<summary>
 	///Set the piece as white
 	///</summary>
-	public void SetWhite(bool isWhite) {
-		IsWhite = isWhite;
-	}
+	public void SetWhite(bool isWhite) => IsWhite = isWhite;
 
 	///<summary>
 	///Sets the state of the piece so that it is consistent with whether it is at its starting position
@@ -140,9 +137,27 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 	///Returns the square the piece is on
 	///</summary>
 	///<returns>The square the piece is on</returns>
-	public Square GetSquare() {
-		return ChessBoard.Instance.GetSquareWithPiece(this);
-	}
+	public Square GetSquare() => ChessBoard.Instance.GetSquareWithPiece(this);
+
+	///<summary>
+	///Returns the player that owns the piece
+	///</summary>
+	///<returns>The player that owns the piece</returns>
+	public Player GetOwner() => Game.Instance.GetPlayer(IsWhite);
+
+	///<summary>
+	///Returns whether the given piece is of the same color
+	///</summary>
+	///<param name="piece">Piece to compare colors with</param>
+	///<returns>Whether the pieces are of the same color</returns>
+	public bool IsSameColor(ChessPiece piece) => IsWhite == piece.IsWhite;
+
+	///<summary>
+	///Returns whether the piece belongs to the given player
+	///</summary>
+	///<param name="player">The player to check if the piece belongs to</param>
+	///<returns>Whether the piece belongs to the given player</returns>
+	public bool BelongsTo(Player player) => IsWhite == player.IsWhite;
 
 	///<summary>
 	///Move the position of the piece to the given square
@@ -167,9 +182,7 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 	///Toggle whether the square is highlighted
 	///</summary>
 	///<param name="toggle">Whether to toggle the highlight on or off</param>
-	public void ToggleHighlight(bool toggle) {
-		_highlight.ToggleHighlight(toggle);
-	}
+	public void ToggleHighlight(bool toggle) => _highlight.ToggleHighlight(toggle);
 
 	///<summary>
 	///Returns a string of data about the object

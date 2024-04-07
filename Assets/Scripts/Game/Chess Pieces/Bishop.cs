@@ -27,7 +27,7 @@ public sealed class Bishop : ChessPiece {
 							blocked = true;
 							if (sqr.GamePiece.IsWhite == IsWhite) continue;
 						}
-						if (!King.WillBeInCheck(new PieceMove(Game.Instance.GetPlayer(IsWhite), square, sqr))) moves.Add(sqr);
+						if (!King.WillBeInCheck(new PieceMove(GetOwner(), square, sqr))) moves.Add(sqr);
 					}
 					if (blocked) break;
 				}

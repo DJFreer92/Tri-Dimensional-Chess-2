@@ -24,7 +24,7 @@ public sealed class PieceMove : Move {
 		}
 
 		//move the piece
-		if (((PieceMoved is King && EndSqr.GamePiece is Rook) || (PieceMoved is Rook && EndSqr.GamePiece is King)) && PieceMoved.IsWhite == EndSqr.GamePiece.IsWhite) {  //castling move
+		if (((PieceMoved is King && EndSqr.GamePiece is Rook) || (PieceMoved is Rook && EndSqr.GamePiece is King)) && PieceMoved.IsSameColor(EndSqr.GamePiece)) {  //castling move
 			//perform castling
 			Castle();
 			return;

@@ -31,8 +31,8 @@ public sealed class Knight : ChessPiece {
 			if (x < 0 || x > 5 || z < 0 || z > 9) continue;
 			foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
 				if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
-				if (sqr.HasPiece() && sqr.GamePiece.IsWhite == IsWhite) continue;
-				if (!King.WillBeInCheck(new PieceMove(Game.Instance.GetPlayer(IsWhite), square, sqr))) moves.Add(sqr);
+				if (sqr.HasPiece() && IsSameColor(sqr.GamePiece)) continue;
+				if (!King.WillBeInCheck(new PieceMove(GetOwner(), square, sqr))) moves.Add(sqr);
 			}
 		}
 		return moves;

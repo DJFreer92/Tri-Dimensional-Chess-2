@@ -111,7 +111,7 @@ public sealed class King : ChessPiece {
 		/*if the king was not put into check by the attack board move and the move causes an opponent promotion,
 		 *determine whether the promotion could put the king into check
 		 */
-		if (!willBeInCheck && move.CausesSecondaryPromotion() && move.StartPinSqr.GamePiece.IsWhite != move.Player.IsWhite) {
+		if (!willBeInCheck && move.CausesSecondaryPromotion() && !move.StartPinSqr.GamePiece.BelongsTo(move.Player)) {
 			//get the pawn that would be promoted and the square it is on
 			Square sqr = move.BoardMoved.PinnedSquare;
 			var pawn = sqr.GamePiece as Pawn;
@@ -159,12 +159,12 @@ public sealed class King : ChessPiece {
 		Square square = GetSquare();
 		foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
 			ChessPiece PieceOnSqr = sqr.GamePiece;
-			if (PieceOnSqr is Rook && HasCastlingRights && IsWhite == PieceOnSqr.IsWhite) {
+			if (PieceOnSqr is Rook && HasCastlingRights && IsSameColor(PieceOnSqr)) {
 				if (!(PieceOnSqr as Rook).HasCastlingRights || Game.Instance.IsFirstMove() || IsInCheck) continue;
 				Rook rook = PieceOnSqr as Rook;
 				Square blockingSqr = ChessBoard.Instance.GetSquareAt(sqr.Coords + Vector3Int.right);
 				if (rook.IsKingSide || (blockingSqr != null && !blockingSqr.HasPiece())) {
-					var move = new PieceMove(Game.Instance.GetPlayer(IsWhite), square, sqr);
+					var move = new PieceMove(GetOwner(), square, sqr);
 					move.MoveEvents.Add(rook.IsKingSide ? MoveEvent.CASTLING_KING_SIDE : MoveEvent.CASTLING_QUEEN_SIDE);
 					if (!WillBeInCheck(move)) moves.Add(sqr);
 				}
@@ -173,8 +173,8 @@ public sealed class King : ChessPiece {
 			int xDiff = Math.Abs(square.Coords.x - sqr.Coords.x);
 			int zDiff = Math.Abs(square.Coords.z - sqr.Coords.z);
 			if (xDiff > 1 || zDiff > 1 || xDiff + zDiff == 0) continue;
-			if (sqr.HasPiece() && PieceOnSqr.IsWhite == IsWhite) continue;
-			if (!WillBeInCheck(new PieceMove(Game.Instance.GetPlayer(IsWhite), square, sqr))) moves.Add(sqr);
+			if (sqr.HasPiece() && IsSameColor(PieceOnSqr)) continue;
+			if (!WillBeInCheck(new PieceMove(GetOwner(), square, sqr))) moves.Add(sqr);
 		}
 		return moves;
 	}
@@ -186,7 +186,7 @@ public sealed class King : ChessPiece {
 	public bool HasKSCastleRights() {
 		if (!HasCastlingRights) return false;
 		foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
-			if (sqr.GamePiece is not Rook || sqr.GamePiece.IsWhite != IsWhite) continue;
+			if (sqr.GamePiece is not Rook || !IsSameColor(sqr.GamePiece)) continue;
 			Rook rook = sqr.GamePiece as Rook;
 			if (rook.IsKingSide) return rook.HasCastlingRights;
 		}
@@ -200,7 +200,7 @@ public sealed class King : ChessPiece {
 	public bool HasQSCastleRights() {
 		if (!HasCastlingRights) return false;
 		foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
-			if (sqr.GamePiece is not Rook || sqr.GamePiece.IsWhite != IsWhite) continue;
+			if (sqr.GamePiece is not Rook || !IsSameColor(sqr.GamePiece)) continue;
 			Rook rook = sqr.GamePiece as Rook;
 			if (!rook.IsKingSide && rook.HasCastlingRights) return true;
 		}
