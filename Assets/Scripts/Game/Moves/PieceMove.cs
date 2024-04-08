@@ -83,6 +83,9 @@ public sealed class PieceMove : Move {
 		EndSqr.GamePiece = PieceMoved;
 		StartSqr.GamePiece = null;
 
+		//if the piece moved between boards, make it a child of the board it landed on
+		if (StartSqr.Coords.y != EndSqr.Coords.y) PieceMoved.transform.SetParent(EndSqr.GetBoard().transform);
+
 		//if the piece is not a pawn or it cannot be promoted, finish the move execution
 		if (Promotion == PieceType.NONE) return;
 
@@ -141,6 +144,12 @@ public sealed class PieceMove : Move {
 			rookLandSqr.GamePiece = king;
 			if (rookStartSqr != null) kingLandSqr.GamePiece = null;
 
+			//if it was queen side castling, assign the pieces as children of the boards they landed on
+			if (MoveEvents.Contains(MoveEvent.CASTLING_QUEEN_SIDE)) {
+				king.transform.SetParent(rookLandSqr.GetBoard().transform);
+				rook.transform.SetParent(rookStartSqr.GetBoard().transform);
+			}
+
 			//give the king and rook their castling rights back
 			king.HasCastlingRights = true;
 			rook.HasCastlingRights = true;
@@ -151,6 +160,9 @@ public sealed class PieceMove : Move {
 		PieceMoved.MoveTo(StartSqr);
 		StartSqr.GamePiece = PieceMoved;
 		EndSqr.GamePiece = null;
+
+		//if the piece moved between boards, make it a child of the board it landed on
+		if (StartSqr.Coords.y != EndSqr.Coords.y) PieceMoved.transform.SetParent(StartSqr.GetBoard().transform);
 
 		//if move was en passant
 		if (MoveEvents.Contains(MoveEvent.EN_PASSANT)) {
@@ -188,7 +200,7 @@ public sealed class PieceMove : Move {
 		//if move was a promotion
 		if (MoveEvents.Contains(MoveEvent.PROMOTION)) {
 			Pawn pawn = PieceMoved.Unpromote();
-			Game.Destroy(PieceMoved.gameObject);
+			UnityEngine.Object.Destroy(PieceMoved.gameObject);
 			PieceMoved = pawn;
 		}
 
@@ -247,6 +259,10 @@ public sealed class PieceMove : Move {
 		kingLandingSqr.GamePiece = king;
 		kingSqr.GamePiece = rook;
 		rookSqr.GamePiece = null;
+
+		//assign the pieces as children of the boards they landed on
+		king.transform.SetParent(kingLandingSqr.GetBoard().transform);
+		rook.transform.SetParent(kingSqr.GetBoard().transform);
 
 		MoveEvents.Add(MoveEvent.CASTLING_QUEEN_SIDE);
 	}
