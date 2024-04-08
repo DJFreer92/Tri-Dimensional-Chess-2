@@ -6,6 +6,7 @@ using UnityEngine;
 using Unity.Networking.Transport;
 using TMPro;
 using SFB;
+using System.Windows.Forms.VisualStyles;
 
 [RequireComponent(typeof(SettingsManager))]
 [RequireComponent(typeof(CapturedPiecesController))]
@@ -90,6 +91,8 @@ public sealed class Game : MonoSingleton<Game> {
 
 		//if it is neither white nor black's turn
 		if (State.Is(GameState.INACTIVE)) {
+			//don't allow moves
+			AllowMoves = false;
 			//stop the timers
 			if (!TimerManager.Instance.TimersEnabled) TimerManager.Instance.StopTimers(true);
 			return;
@@ -179,9 +182,6 @@ public sealed class Game : MonoSingleton<Game> {
 	///Initializes the game
 	///</summary>
 	public void Init() {
-		//set the status of the game to active
-		_state = GameState.WHITE_TURN;
-
 		//create a command handler for moves
 		MoveCommandHandler = new();
 
@@ -218,6 +218,9 @@ public sealed class Game : MonoSingleton<Game> {
 
 		//clear the captured pieces
 		CapturedPiecesController.Instance.ClearCapturedPieces();
+
+		//set the status of the game to active
+		_state = GameState.WHITE_TURN;
 
 		//allow moves to be made
 		AllowMoves = true;
@@ -459,7 +462,7 @@ public sealed class Game : MonoSingleton<Game> {
 			MoveCommandHandler.RedoAllCommands();
 			MoveCommandHandler.AddCommand(move);
 		} catch (Exception ex) {
-			Debug.Log(ex.Message);
+			Debug.Log($"{ex.Message}\n\n{ex.StackTrace}\n\n");
 			return;
 		}
 		FinishTurn(move);
@@ -703,8 +706,8 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	public void OnUndoLastMoveButton() {
 		if (!AllowButtons) return;
-		MoveCommandHandler.UndoCommand();
 		AllowMoves = false;
+		MoveCommandHandler.UndoCommand();
 	}
 
 	///<summary>
@@ -712,6 +715,7 @@ public sealed class Game : MonoSingleton<Game> {
 	///</summary>
 	public void OnUndoAllMovesButton() {
 		if (!AllowButtons) return;
+		AllowMoves = false;
 		MoveCommandHandler.UndoAllCommands();
 	}
 
@@ -721,6 +725,7 @@ public sealed class Game : MonoSingleton<Game> {
 	public void OnRedoNextMoveButton() {
 		if (!AllowButtons) return;
 		MoveCommandHandler.RedoCommand();
+		if (!MoveCommandHandler.AreCommandsWaiting()) AllowMoves = true;
 	}
 
 	///<summary>
@@ -729,6 +734,7 @@ public sealed class Game : MonoSingleton<Game> {
 	public void OnRedoAllMovesButton() {
 		if (!AllowButtons) return;
 		MoveCommandHandler.RedoAllCommands();
+		AllowMoves = true;
 	}
 
 	///<summary>

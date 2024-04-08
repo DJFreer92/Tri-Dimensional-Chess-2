@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -45,5 +46,34 @@ public sealed class Knight : ChessPiece {
 	///<returns>The notation character of the knight</returns>
 	public override string GetCharacter(bool wantFigurine) {
 		return wantFigurine ? _FIGURINE_CHARACTER : _STANDARD_CHARACTER;
+	}
+
+	///<summary>
+	///Returns whether the path of the knight is clear of pieces
+	///</summary>
+	///<param name="destination">The square the knight is moving to</param>
+	///<param name="straightFirst">Whether the knight should move staight first</param>
+	///<returns>Whether the path of the knight is clear of pieces</returns>
+	public bool IsPathClear(Square destination, bool straightFirst) {
+		Square curSqr = GetSquare();
+		Vector3Int direction;
+		int xDist = destination.Coords.x - curSqr.Coords.x;
+		int zDist = destination.Coords.z - curSqr.Coords.z;
+
+		direction = straightFirst ? Vector3Int.forward : Vector3Int.right;
+		int dist = straightFirst ? zDist : xDist;
+		direction *= Math.Sign(dist);
+
+		while (true) {
+			if (ChessBoard.Instance.GetSquareAt(curSqr.Coords + direction).HasPiece()) return false;
+			if (dist == (straightFirst ? direction.z : direction.x)) break;
+			direction *= 2;
+		}
+
+		direction = straightFirst ? Vector3Int.right : Vector3Int.forward;
+		direction *= -Math.Sign(straightFirst ? xDist : zDist);
+		Square sqr = ChessBoard.Instance.GetSquareAt(destination.Coords + direction);
+
+		return sqr == destination || !sqr.HasPiece();
 	}
 }

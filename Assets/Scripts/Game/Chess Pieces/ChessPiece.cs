@@ -2,9 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Text;
+using DG.Tweening;
 
 [RequireComponent(typeof(Highlight))]
 public abstract class ChessPiece : MonoBehaviour, IMovable {
+	private const float _LINE_SPEED = 5f;
+	private const float _ARC_SPEED = 5f;
+	private const float _UP_ARC_HEIGHT = 1.5f;
+	private const float _DOWN_ARC_HEIGHT = 4f;
 	[field: SerializeField] public bool IsWhite {get; private set;}
 	public PieceType Type;
 	public bool HasBeenCaptured {get; private set;}
@@ -164,7 +169,53 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 	///</summary>
 	///<param name="sqr">The square to move the piece to</param>
 	public void MoveTo(Square sqr) {
-		transform.position = sqr.transform.position;
+		if (!Game.Instance.AllowMoves) {
+			MoveInstant(sqr);
+			return;
+		}
+
+		if (sqr.Coords.y != GetSquare().Coords.y) {
+			MoveInArc(sqr);
+			return;
+		}
+
+		if (this is Knight) {
+			if ((this as Knight).IsPathClear(sqr, true)) MoveInPath(sqr, true);
+			else if ((this as Knight).IsPathClear(sqr, false)) MoveInPath(sqr, false);
+			else MoveInArc(sqr);
+			return;
+		}
+
+		MoveInLine(sqr);
+	}
+
+	private void MoveInstant(Square sqr) => transform.position = sqr.transform.position;
+
+	private void MoveInLine(Square sqr) {
+		transform.DOMove(
+			sqr.transform.position,
+			Vector3.Distance(sqr.transform.position, transform.position) / _LINE_SPEED
+		);
+	}
+
+	private void MoveInArc(Square sqr) {
+		float height = sqr.Coords.y >= GetSquare().Coords.y ? _UP_ARC_HEIGHT : _DOWN_ARC_HEIGHT;
+		transform.DOJump(
+			sqr.transform.position,
+			height,
+			1,
+			Vector3.Distance(sqr.transform.position, transform.position) / _ARC_SPEED
+		);
+	}
+
+	private void MoveInPath(Square sqr, bool straightFirst) {
+		Vector3 waypoint = transform.position;
+		if (straightFirst) waypoint.z = sqr.transform.position.z;
+		else waypoint.x = sqr.transform.position.x;
+		transform.DOPath(
+			new Vector3[] {waypoint, sqr.transform.position},
+			(Vector3.Distance(waypoint, transform.position) + Vector3.Distance(waypoint, sqr.transform.position)) / _LINE_SPEED
+		);
 	}
 
 	///<summary>

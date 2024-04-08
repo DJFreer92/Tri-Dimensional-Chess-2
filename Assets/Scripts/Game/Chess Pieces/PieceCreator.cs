@@ -4,8 +4,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public sealed class PieceCreator : MonoSingleton<PieceCreator> {
 	[SerializeField] private GameObject[] _piecesPrefabs;
-	[SerializeField] private Transform _whiteParent;
-	[SerializeField] private Transform _blackParent;
+	[SerializeField] private Transform _piecesParent;
 
 	private readonly Dictionary<PieceTypeColor, GameObject> _typeToPieceDict = new();
 
@@ -38,7 +37,7 @@ public sealed class PieceCreator : MonoSingleton<PieceCreator> {
 			prefab,
 			sqr.gameObject.transform.position,
 			Quaternion.identity,
-			isWhite ? _whiteParent : _blackParent
+			sqr.GetBoard().gameObject.transform
 		);
 
 		//orient the piece, enable the collider, and place it on its square
@@ -63,10 +62,7 @@ public sealed class PieceCreator : MonoSingleton<PieceCreator> {
 		if (prefab == null) return null;
 
 		//create and return the piece
-		return Instantiate(
-			prefab,
-			ptc.GetColor() ? _whiteParent :_blackParent
-		).GetComponent<ChessPiece>();
+		return Instantiate(prefab, _piecesParent).GetComponent<ChessPiece>();
 	}
 
 	///<summary>

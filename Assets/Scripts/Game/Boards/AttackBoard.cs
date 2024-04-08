@@ -2,9 +2,14 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Text;
+using DG.Tweening;
 
 [DisallowMultipleComponent]
 public sealed class AttackBoard : Board, IMovable {
+	private const float _LINE_SPEED = 5f;
+	private const float _ARC_SPEED = 5f;
+	private const float _UP_ARC_HEIGHT = 1.5f;
+	private const float _DOWN_ARC_HEIGHT = 4f;
 	//the square the attackboard is pinned to
 	[field: SerializeField] public Square PinnedSquare {get; private set;}
 
@@ -109,10 +114,10 @@ public sealed class AttackBoard : Board, IMovable {
 		if (move.EndSqr.Coords.z % 2 == 1) zDisplace *= -1;
 
 		//change the position of the attackboard
-		transform.position = move.EndSqr.transform.position + new Vector3(xDisplace, 1.5f, zDisplace);
+		MoveTo(move.EndSqr.transform.position + new Vector3(xDisplace, 1.5f, zDisplace));
 
 		//move the pieces to the new location of their Squares
-		UpdatePiecePositions(move);
+		UpdatePieceRights(move);
 
 		//set the current pinned square as unoccupied
 		PinnedSquare.IsOccupiedByAB = false;
@@ -178,10 +183,10 @@ public sealed class AttackBoard : Board, IMovable {
 		if (move.StartPinSqr.Coords.z % 2 == 1) zDisplace *= -1;
 
 		//change the position of the attackboard
-		transform.position = move.StartPinSqr.transform.position + new Vector3(xDisplace, 1.5f, zDisplace);
+		MoveTo(move.StartPinSqr.transform.position + new Vector3(xDisplace, 1.5f, zDisplace));
 
 		//if there is a piece on the attackboard move it to the new location of their square
-		UpdatePiecePositions(move, true);
+		UpdatePieceRights(move, true);
 
 		//set the current pinned square as unoccupied
 		PinnedSquare.IsOccupiedByAB = false;
@@ -197,19 +202,52 @@ public sealed class AttackBoard : Board, IMovable {
 		ChessBoard.Instance.UpdateKingCheckState(move.Player.IsWhite);
 	}
 
+	private void MoveTo(Vector3 pos) {
+		if (!Game.Instance.AllowMoves) {
+			MoveInstant(pos);
+			return;
+		}
+
+		Debug.Log(pos.y);
+		Debug.Log(transform.position.y);
+		if (pos.y != transform.position.y) {
+			MoveInArc(pos);
+			return;
+		}
+
+		MoveInLine(pos);
+	}
+
+	private void MoveInstant(Vector3 pos) => transform.position = pos;
+
+	private void MoveInLine(Vector3 pos) {
+		transform.DOMove(
+			pos,
+			Vector3.Distance(pos, transform.position) / _LINE_SPEED
+		);
+	}
+
+	private void MoveInArc(Vector3 pos) {
+		float height = pos.y > transform.position.y ? _UP_ARC_HEIGHT : _DOWN_ARC_HEIGHT;
+		transform.DOJump(
+			pos,
+			height,
+			1,
+			Vector3.Distance(pos, transform.position) / _ARC_SPEED
+		);
+	}
+
 	///<summary>
 	///Update the positions of all the pieces on the attackboard
 	///</summary>
 	///<param name="move">The move where the piece positions are changing</param>
 	///<param name="isUndo">Whether the move is an undo</param>
-	private void UpdatePiecePositions(AttackBoardMove move, bool isUndo = false) {
+	private void UpdatePieceRights(AttackBoardMove move, bool isUndo = false) {
 		ChessPiece piece = null;
 		foreach (Square sqr in Squares)
 			if (sqr.HasPiece()) piece = sqr.GamePiece;
 
 		if (piece == null) return;
-
-		piece.MoveTo(piece.GetSquare());
 
 		if (isUndo) {
 			if (move.MoveEvents.Contains(MoveEvent.LOST_CASTLING_RIGHTS)) {

@@ -467,7 +467,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 1, y: 0, z: 3}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -605,7 +604,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 2, y: 4, z: 8}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -1587,7 +1585,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 4, y: 0, z: 3}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -2391,7 +2388,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 1, y: 4, z: 7}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -3009,7 +3005,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 1
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 1, y: 0, z: 1}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 1
@@ -3654,8 +3649,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 218a7e60c45784cb6905c7fc3932011e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <WhitePiecesParent>k__BackingField: {fileID: 1663892940}
-  <BlackPiecesParent>k__BackingField: {fileID: 1643350935}
   _attackboardPrefab: {fileID: 5481848988546711333, guid: a27ef0c24a40c40c0b5db9f3fa9e1c8a, type: 3}
   <Boards>k__BackingField:
   - {fileID: 1849302324}
@@ -4414,8 +4407,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1088b6eadcc4245f28bd457611ec04ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _whitePiecesParent: {fileID: 1663892940}
-  _blackPiecesParent: {fileID: 1643350935}
   _pieceScale: 0.75
   _xSpacing: 0.75
   _zSpacing: 0.75
@@ -4454,18 +4445,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bda9057622a634922b207e623def87fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _whiteKingPrefab: {fileID: 3988784075330891566, guid: c5646de822a014db895da3d878471f5d, type: 3}
-  _whiteQueenPrefab: {fileID: 846810512612764883, guid: 90fcfb6b5bdaf4ffa98a06dd409fdb1c, type: 3}
-  _whiteRookPrefab: {fileID: 6511696581339917899, guid: 44728b85917924b649036f11ac4155b1, type: 3}
-  _whiteBishopPrefab: {fileID: 5181750910630828422, guid: 2cfba82065520441a986dadd04e64481, type: 3}
-  _whiteKnightPrefab: {fileID: 1995292005199901167, guid: ccee41f18e74140b284d10c6a57ff9c3, type: 3}
-  _whitePawnPrefab: {fileID: 8846843982692966758, guid: f8afe5f38cec54d319918179d646e501, type: 3}
-  _blackKingPrefab: {fileID: 7141734081562719615, guid: 4e22581ec65774ae7b44c326d737934c, type: 3}
-  _blackQueenPrefab: {fileID: 1035329288759915509, guid: beea51377bba4484c8e9ec3aad9533de, type: 3}
-  _blackRookPrefab: {fileID: 8887797130103697989, guid: bd5b97e4385894c9581dfebaafe9400d, type: 3}
-  _blackBishopPrefab: {fileID: 3824971759081254792, guid: 8fb4bdaccc72346eab18d3265a6f841e, type: 3}
-  _blackKnightPrefab: {fileID: 8517028979668407356, guid: 2731af4fd52cf484bbc4a3ce94f41d9a, type: 3}
-  _blackPawnPrefab: {fileID: 4515338860452636789, guid: 4a9bfd8d4bd48469b8d3bfa2d003b99e, type: 3}
   _whiteCtrls: {fileID: 169267421}
   _blackCtrls: {fileID: 730420391}
   _gameStateTxt: {fileID: 1406408376}
@@ -4553,8 +4532,7 @@ MonoBehaviour:
   - {fileID: 3824971759081254792, guid: 8fb4bdaccc72346eab18d3265a6f841e, type: 3}
   - {fileID: 8517028979668407356, guid: 2731af4fd52cf484bbc4a3ce94f41d9a, type: 3}
   - {fileID: 4515338860452636789, guid: 4a9bfd8d4bd48469b8d3bfa2d003b99e, type: 3}
-  _whiteParent: {fileID: 1663892940}
-  _blackParent: {fileID: 1643350935}
+  _piecesParent: {fileID: 1665531933}
 --- !u!1 &154237190
 GameObject:
   m_ObjectHideFlags: 0
@@ -5109,7 +5087,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 1
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 4, y: 4, z: 5}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -5867,7 +5844,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 2, y: 4, z: 5}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -7123,7 +7099,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 4, y: 2, z: 4}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -9304,7 +9279,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 2, y: 4, z: 6}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -11869,7 +11843,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 3, y: 0, z: 3}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -12675,7 +12648,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 1, y: 2, z: 4}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -13255,7 +13227,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 1
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 1, y: 4, z: 8}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 1
@@ -15805,7 +15776,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 1, y: 2, z: 5}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -16611,7 +16581,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 4, y: 4, z: 6}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -18080,7 +18049,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 3, y: 2, z: 4}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -18218,7 +18186,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 3, y: 4, z: 6}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -19124,7 +19091,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 1
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 4, y: 0, z: 1}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 1
@@ -21274,7 +21240,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 1
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 1, y: 0, z: 4}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -22401,7 +22366,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 3, y: 0, z: 2}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -23870,7 +23834,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 2, y: 2, z: 5}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -26669,7 +26632,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 1
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 1, y: 2, z: 6}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -27606,7 +27568,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 3, y: 2, z: 6}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -29735,7 +29696,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 1
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 4, y: 2, z: 6}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -30143,7 +30103,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 4, y: 2, z: 5}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -30281,7 +30240,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 3, y: 0, z: 1}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -30751,7 +30709,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 1
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 4, y: 2, z: 3}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -31256,7 +31213,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 3, y: 0, z: 4}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -32129,7 +32085,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 3, y: 4, z: 7}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -32267,7 +32222,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 1
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 1, y: 4, z: 5}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -32405,7 +32359,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 1
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 1, y: 2, z: 3}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -33213,7 +33166,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 4, y: 0, z: 2}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -35267,7 +35219,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 2, y: 0, z: 2}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -35834,7 +35785,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 4, y: 4, z: 7}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -35972,7 +35922,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 1
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 4, y: 4, z: 8}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 1
@@ -36110,7 +36059,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 1, y: 0, z: 2}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -37409,37 +37357,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1642598594}
   m_CullTransparentMesh: 1
---- !u!1 &1643350934
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1643350935}
-  m_Layer: 0
-  m_Name: Black's Pieces
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1643350935
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1643350934}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1665531933}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1645914978
 GameObject:
   m_ObjectHideFlags: 0
@@ -37842,41 +37759,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 2, y: 0, z: 3}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
---- !u!1 &1663892939
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1663892940}
-  m_Layer: 0
-  m_Name: White's Pieces
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1663892940
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1663892939}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1665531933}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1665531932
 GameObject:
   m_ObjectHideFlags: 0
@@ -37905,9 +37790,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1663892940}
-  - {fileID: 1643350935}
+  m_Children: []
   m_Father: {fileID: 151076129}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1672490471
@@ -38178,7 +38061,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 2, y: 2, z: 3}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -38534,7 +38416,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 3, y: 4, z: 8}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -40068,7 +39949,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 3, y: 4, z: 5}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -40474,7 +40354,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 1
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 4, y: 0, z: 4}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -41037,7 +40916,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 2, y: 0, z: 4}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -41741,7 +41619,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 3, y: 2, z: 3}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -43677,7 +43554,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 2, y: 4, z: 7}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -44679,7 +44555,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 3, y: 2, z: 5}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -47694,7 +47569,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 1, y: 4, z: 6}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -48620,7 +48494,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 2, y: 0, z: 1}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -48840,7 +48713,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 2, y: 2, z: 4}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
@@ -50126,7 +49998,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 2, y: 2, z: 6}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
