@@ -65,19 +65,20 @@ public sealed class Pawn : ChessPiece {
 		if (IsWhite != asWhite) return moves;
 		Square square = GetSquare();
 		int direction = IsWhite ? 1 : -1;
+		bool blockDouble = false;
 		foreach (var offset in _OFFSETS) {
-			if (offset.y == 2 && !HasDSMoveRights) continue;
+			if (offset.y == 2 && (!HasDSMoveRights || blockDouble)) continue;
 			int x = offset.x + square.Coords.x;
 			int z = offset.y * direction + square.Coords.z;
 			if (!BoardExtensions.WithinBounds(x, z)) continue;
-			bool blocked = false;
 			foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
 				if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
 				bool isEnPassant = false;
 				if (offset.x == 0 && sqr.HasPiece()) {  //straight 1 or 2
-					blocked = true;
+					blockDouble = true;
 					continue;
-				} else if (offset.x != 0) {  //diagonal capture or en pasant
+				}
+				if (offset.x != 0) {  //diagonal capture or en pasant
 					if (!sqr.HasPiece()) {
 						if (GetJMDSMPawnBehind(sqr, IsWhite) == null) continue;
 						isEnPassant = true;
@@ -87,7 +88,6 @@ public sealed class Pawn : ChessPiece {
 				if (isEnPassant) move.MoveEvents.Add(MoveEvent.EN_PASSANT);
 				if (!King.WillBeInCheck(move)) moves.Add(sqr);
 			}
-			if (blocked) break;
 		}
 		return moves;
 	}
