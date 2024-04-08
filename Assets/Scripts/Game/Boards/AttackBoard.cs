@@ -6,8 +6,7 @@ using DG.Tweening;
 
 [DisallowMultipleComponent]
 public sealed class AttackBoard : Board, IMovable {
-	private const float _LINE_SPEED = 5f;
-	private const float _ARC_SPEED = 5f;
+	private const float _TWEEN_SPEED = 0.4f;
 	private const float _UP_ARC_HEIGHT = 1.5f;
 	private const float _DOWN_ARC_HEIGHT = 4f;
 	//the square the attackboard is pinned to
@@ -202,14 +201,16 @@ public sealed class AttackBoard : Board, IMovable {
 		ChessBoard.Instance.UpdateKingCheckState(move.Player.IsWhite);
 	}
 
+	///<summary>
+	///Moves the attack board to the given position
+	///</summary>
+	///<param name="pos">The position to move the attackboard to</param>
 	private void MoveTo(Vector3 pos) {
 		if (!Game.Instance.AllowMoves) {
 			MoveInstant(pos);
 			return;
 		}
 
-		Debug.Log(pos.y);
-		Debug.Log(transform.position.y);
 		if (pos.y != transform.position.y) {
 			MoveInArc(pos);
 			return;
@@ -218,23 +219,25 @@ public sealed class AttackBoard : Board, IMovable {
 		MoveInLine(pos);
 	}
 
+	///<summary>
+	///Moves the attack board instantly to the given position
+	///</summary>
+	///<param name="pos">The position to move the piece to</param>
 	private void MoveInstant(Vector3 pos) => transform.position = pos;
 
-	private void MoveInLine(Vector3 pos) {
-		transform.DOMove(
-			pos,
-			Vector3.Distance(pos, transform.position) / _LINE_SPEED
-		);
-	}
+	///<summary>
+	///Moves the attack board in a straight line to the given position
+	///</summary>
+	///<param name="pos">The position to move the piece to</param>
+	private void MoveInLine(Vector3 pos) => transform.DOMove(pos, _TWEEN_SPEED);
 
+	///<summary>
+	///Moves the attack board in an arc to the given position
+	///</summary>
+	///<param name="pos">The position to move the piece to</param>
 	private void MoveInArc(Vector3 pos) {
 		float height = pos.y > transform.position.y ? _UP_ARC_HEIGHT : _DOWN_ARC_HEIGHT;
-		transform.DOJump(
-			pos,
-			height,
-			1,
-			Vector3.Distance(pos, transform.position) / _ARC_SPEED
-		);
+		transform.DOJump(pos, height, 1, _TWEEN_SPEED);
 	}
 
 	///<summary>

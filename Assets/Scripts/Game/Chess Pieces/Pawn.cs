@@ -9,7 +9,7 @@ public sealed class Pawn : ChessPiece {
 	//offsets from the pawn where it can move to
 	private static readonly Vector2Int[] _OFFSETS = {
 		Vector2Int.up,
-		Vector2Int.up * 2,
+		Vector2Int.up * 2,  //double square move must be after single square move in list
 		Vector2Int.up + Vector2Int.right,
 		Vector2Int.up + Vector2Int.left
 	};
