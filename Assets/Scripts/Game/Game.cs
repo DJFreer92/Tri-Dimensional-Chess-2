@@ -6,7 +6,6 @@ using UnityEngine;
 using Unity.Networking.Transport;
 using TMPro;
 using SFB;
-using System.Windows.Forms.VisualStyles;
 
 [RequireComponent(typeof(SettingsManager))]
 [RequireComponent(typeof(CapturedPiecesController))]
@@ -19,8 +18,10 @@ public sealed class Game : MonoSingleton<Game> {
 	//port that the server and client can connect to
 	private const int _CONNECTION_PORT = 8005;
 	//starting positions
-	public const string ORIGINAL_FEN = "b6B6w1W1 nbbn/dddd/4/4|4/4/4/4|4/4/DDDD/NBBN|rq/dd|kr/dd|DD/RQ|DD/KR w KQkq - 0 1";
-	public const string NEXT_GEN_FEN = "b6B6n4N3w1W1 nbbn/dddd/4/4|4/4/4/4|4/4/DDDD/NBBN|rq/dd|kr/dd|2/2|2/2|DD/RQ|DD/KR w KQkq - 0 1";
+	public static readonly FEN ORIGINAL_FEN =
+		new("b6B6w1W1 nbbn/dddd/4/4|4/4/4/4|4/4/DDDD/NBBN|rq/dd|kr/dd|DD/RQ|DD/KR w KQkq - 0 1");
+	public static readonly FEN NEXT_GEN_FEN =
+		new("b6B6n4N3w1W1 nbbn/dddd/4/4|4/4/4/4|4/4/DDDD/NBBN|rq/dd|kr/dd|2/2|2/2|DD/RQ|DD/KR w KQkq - 0 1");
 	//listeners
 	public Action OnGameStateChange, OnCurrentPlayerChange;
 	public Action<Player> OnCurrentPlayerChangeWParam;
@@ -56,22 +57,21 @@ public sealed class Game : MonoSingleton<Game> {
 
 	[SerializeField] private Page _gameUIPage;
 	[SerializeField] private TMP_InputField _ipAddressInput;
-
-	[HideInInspector] public string Setup;
-	[HideInInspector] public string StartPGN;
+	[HideInInspector] public FEN Setup;
+	[HideInInspector] public PGN StartPGN;
 	[HideInInspector] public bool AllowMoves;
 	[HideInInspector] public bool AllowButtons;
 	public CommandHandler MoveCommandHandler {get; private set;}
 	public int MoveCount {get; private set;}
+	public int MoveRuleCount {get; private set;}
 	private GameState _state;
 	private Player _curPlayer;
-	private Player[] _players = new Player[2];
-	private PGNBuilder _pgnBuilder;
+	private Player[] _players;
+	private PGN _pgn;
 	private Square _selectedSquare;
 	private List<Square> _availableMoves, _availableABMoves;
-	private List<string> _prevPositions;
+	private List<FEN> _prevPositions;
 	private List<int> _prevAvailableMovesCount;
-	private int _moveRuleCount;
 
 	//used for multiplayer
 	private int _playerCount = 0;  //server only
@@ -81,8 +81,9 @@ public sealed class Game : MonoSingleton<Game> {
 	protected override void Awake() {
 		base.Awake();
 
-		//set the game state
+		//initialize variables
 		_state = GameState.PRE_GAME;
+		_players = new Player[2];
 	}
 
 	private void Update() {
@@ -120,14 +121,7 @@ public sealed class Game : MonoSingleton<Game> {
 	}
 
 	private void OnApplicationQuit() {
-		if (_pgnBuilder == null) return;
-
-		_pgnBuilder.EndGame();
-		string pgn = _pgnBuilder.GetPGN();
-
-		if (string.IsNullOrEmpty(pgn)) return;
-
-		SaveSystem.Instance.SaveGame(pgn);
+		if (_pgn is not null && _pgn.IsValid()) SaveSystem.Instance.SaveGame(_pgn);
 	}
 
 	private void OnEnable() {
@@ -182,38 +176,27 @@ public sealed class Game : MonoSingleton<Game> {
 	///Initializes the game
 	///</summary>
 	public void Init() {
-		//create a command handler for moves
+		//initialize variables
 		MoveCommandHandler = new();
+		MovesPlayed = new();
+		_availableMoves = new();
+		_availableABMoves = new();
+		_prevPositions = new();
+		_prevAvailableMovesCount = new();
+		_pgn = new();
+		_selectedSquare = null;
+		MoveCount = 0;
+		MoveRuleCount = 0;
 
 		//set the player of the white pieces to the current turn
 		CurPlayer = GetPlayer(true);
 
-		//clear the moves that have been played
-		MovesPlayed = new();
-
-		//create lists of the available moves
-		_availableMoves = new();
-		_availableABMoves = new();
-
-		//clear the selected square
-		_selectedSquare = null;
-
-		//create lists for the previous positions and previous avilable moves count
-		_prevPositions = new();
-		_prevAvailableMovesCount = new();
-
-		//initialize move count
-		MoveCount = 0;
-
-		//initialize move rule count
-		_moveRuleCount = 0;
-
 		//initialize the PGN builder
-		if (!string.IsNullOrEmpty(StartPGN)) LoadPGN(StartPGN);
+		if (StartPGN is not null && StartPGN.IsValid()) LoadPGN(StartPGN);
 		else {
 			//load the position from the fen
 			LoadFEN(Setup);
-			_pgnBuilder = new PGNBuilder("Player 1", "Player 2", Setup);
+			_pgn = new PGN(this);
 		}
 
 		//clear the captured pieces
@@ -226,8 +209,7 @@ public sealed class Game : MonoSingleton<Game> {
 		AllowMoves = true;
 		AllowButtons = true;
 
-		Debug.Log(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount));
-		Debug.Log(_pgnBuilder.GetPGN() ?? "PGN is empty");
+		PrintPosition();
 	}
 
 	///<summary>
@@ -254,29 +236,27 @@ public sealed class Game : MonoSingleton<Game> {
 	///Loads the given PGN
 	///</summary>
 	///<param name="pgn">The PGN to load</param>
-	public void LoadPGN(string pgn) {
-		PGNBuilder builder = PGNBuilder.BuildPGN(pgn);
-		Setup = builder.Setup;
+	public void LoadPGN(PGN pgn) {
+		Setup = pgn.SetUp;
 		LoadFEN(Setup);
-		foreach (string annotatedMove in builder.Moves) {
-			Move move = Move.BuildMove(annotatedMove, CurPlayer.IsWhite);
+		foreach (string annotatedMove in pgn.GetMoves()) {
+			Move move = Move.BuildMoveDynamic(annotatedMove, CurPlayer.IsWhite);
 			MoveCommandHandler.AddCommand(move);
 			if (!move.MoveEvents.Contains(MoveEvent.PROMOTION)) FinishTurn(move);
 		}
-		if (State.Is(GameState.INACTIVE)) builder.EndGame();
-		_pgnBuilder = builder;
+		_pgn = new PGN(pgn);
+		if (State.Is(GameState.INACTIVE)) _pgn.ClosePGN(State);
 	}
 
 	///<summary>
 	///Load the given FEN
 	///</summary>
 	///<param name="fen">The FEN to load</param>
-	public void LoadFEN(string fen) {
-		string[] sections = fen.Split(' ');
+	public void LoadFEN(FEN fen) {
 		ChessBoard.Instance.ConstructPosition(fen);
-		if (sections[2] == "w" != CurPlayer.IsWhite) SwitchCurrentPlayer();
-		_moveRuleCount = int.Parse(sections[5]);
-		MoveCount = int.Parse(sections[6]);
+		if (fen.GetCurPlayer() != CurPlayer.IsWhite) SwitchCurrentPlayer();
+		MoveRuleCount = fen.GetMoveRuleCount();
+		MoveCount = fen.GetMoveCount();
 	}
 
 	///<summary>
@@ -286,7 +266,7 @@ public sealed class Game : MonoSingleton<Game> {
 	public string ImportFENPGN() {
 		string[] path = StandaloneFileBrowser.OpenFilePanel("Select FEN/PGN", "", "fen,pgn", false);
 
-        if (path.Length == 0) return null;
+        if (path.Length == 0 || string.IsNullOrEmpty(path[0])) return null;
 
         using var file = new StreamReader(path[0]);
         return file.ReadToEnd();
@@ -295,34 +275,25 @@ public sealed class Game : MonoSingleton<Game> {
 	///<summary>
 	///Exports the current position as an FEN
 	///</summary>
-	public void ExportFEN() {
-		FENBuilder.ExportFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount);
-	}
+	public void ExportFEN() => new FEN(this, ChessBoard.Instance).Export();
 
 	///<summary>
 	///Exports the game as a PGN
 	///</summary>
-	public void ExportPGN() {
-		_pgnBuilder.Export();
-	}
+	public void ExportPGN() => _pgn.Export();
 
 	///<summary>
 	///Gets the player of the given pieces
 	///</summary>
 	///<param name="isWhite">Whether the desired player is or isn't the white player</param>
 	///<returns>The player of the given pieces</returns>
-	public Player GetPlayer(bool isWhite) {
-		return (isWhite == _players[0].IsWhite) ? _players[0] : _players[1];
-	}
+	public Player GetPlayer(bool isWhite) => (isWhite == _players[0].IsWhite) ? _players[0] : _players[1];
 
 	///<summary>
 	///Selects the given piece
 	///</summary>
 	///<param name="piece">The piece to be selected</param>
-	public void SelectPiece(ChessPiece piece) {
-		//select the square with the given piece on it
-		SelectSquare(piece.GetSquare());
-	}
+	public void SelectPiece(ChessPiece piece) => SelectSquare(piece.GetSquare());
 
 	///<summary>
 	///Selects the given square
@@ -361,11 +332,11 @@ public sealed class Game : MonoSingleton<Game> {
 
 			//select the square
 			_selectedSquare = square;
-			Debug.Log($"{square.GetAnnotation()} selected");
+			Debug.Log($"{square.Notation} selected");
 			return;
 		}
 
-		Debug.Log($"{square.GetAnnotation()} selected");
+		Debug.Log($"{square.Notation} selected");
 
 		bool validMove = false, isABMove = false;
 		//find if the square is part of an available standard move
@@ -483,18 +454,15 @@ public sealed class Game : MonoSingleton<Game> {
 		UpdateGameState();
 
 		//add the move to the pgn
-		_pgnBuilder?.AddMove(move.GetAnnotation());
+		_pgn.AddMove(move);
 
 		//switch to the next player's turn
 		if (State.Is(GameState.ACTIVE)) NextTurn();
 		else {
-			_pgnBuilder?.EndGame();
-			string pgn = _pgnBuilder?.GetPGN();
-			if (!string.IsNullOrEmpty(pgn)) SaveSystem.Instance.SaveGame(pgn);
-			_pgnBuilder = null;
+			_pgn.ClosePGN(State);
+			if (_pgn.IsValid()) SaveSystem.Instance.SaveGame(_pgn);
 			Debug.Log("State: " + State);
-			Debug.Log(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount));
-			Debug.Log(pgn);
+			PrintPosition();
 		}
 	}
 
@@ -531,7 +499,7 @@ public sealed class Game : MonoSingleton<Game> {
 
 		//check draw conditions
 		//50 move rule
-		if (_moveRuleCount >= 100) {
+		if (MoveRuleCount >= 100) {
 			State = GameState.DRAW_FIFTY_MOVE_RULE;
 			return;
 		}
@@ -543,7 +511,7 @@ public sealed class Game : MonoSingleton<Game> {
 		}
 
 		//add the last position to the previous positions
-		_prevPositions.Add(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount));
+		_prevPositions.Add(new FEN(this, ChessBoard.Instance));
 
 		//threefold repetition
 		//if a piece was captured on the last move
@@ -568,12 +536,12 @@ public sealed class Game : MonoSingleton<Game> {
 			(move is PieceMove && (move as PieceMove).PieceMoved is Pawn))
 		{
 			//clear the move rule count
-			_moveRuleCount = 0;
+			MoveRuleCount = 0;
 			return;
 		}
 
 		//increment the move rule count
-		_moveRuleCount++;
+		MoveRuleCount++;
 	}
 
 	///<summary>
@@ -582,13 +550,15 @@ public sealed class Game : MonoSingleton<Game> {
 	///<returns>Whether the current position has been repeated three times</returns>
 	private bool IsThreeFoldRepitition() {
 		if (_prevPositions.Count < 5) return false;
-		string lastPosition = _prevPositions[^1].Split(' ')[0] + _prevPositions[^1].Split(' ')[1];
-		int lastAvailMoveCount = _prevAvailableMovesCount[^1];
+
 		int count = 1;
 		for (var i = _prevPositions.Count - 3; i >= 0 && count < 3; i -= 2) {
-			string position = _prevPositions[i].Split(' ')[0] + _prevPositions[i].Split(' ')[1];
-			if (_prevAvailableMovesCount[i] == lastAvailMoveCount && position.Equals(lastPosition)) count++;
+			if (_prevAvailableMovesCount[i] != _prevAvailableMovesCount[^1] &&
+				_prevPositions[^1].GetABPositions() == _prevPositions[i].GetABPositions() &&
+				_prevPositions[^1].GetPiecePositions() == _prevPositions[i].GetPiecePositions()
+			) count++;
 		}
+
 		return count == 3;
 	}
 
@@ -599,8 +569,7 @@ public sealed class Game : MonoSingleton<Game> {
 		//switch the current turn
 		SwitchCurrentPlayer();
 
-		Debug.Log(FENBuilder.GetFEN(ChessBoard.Instance, CurPlayer.IsWhite, _moveRuleCount, MoveCount));
-		Debug.Log(_pgnBuilder?.GetPGN());
+		PrintPosition();
 	}
 
 	///<summary>
@@ -657,19 +626,33 @@ public sealed class Game : MonoSingleton<Game> {
 	}
 
 	///<summary>
+	///Updates the notation of the last move in all relevant locations
+	///</summary>
+	public void UpdateLastMoveNotation() {
+		string notation = (MoveCommandHandler.GetLastCommand() as Move).GetShortNotation();
+		_pgn.RemoveLastMove();
+		_pgn.AddMove(notation);
+		PrintPosition();
+	}
+
+	///<summary>
 	///Returns whether it is currently the first move of either player
 	///</summary>
 	///<returns>Whether it is currently the first move of either player</returns>
-	public bool IsFirstMove() {
-		return MoveCount == 1;
-	}
+	public bool IsFirstMove() => MoveCount == 1;
 
 	///<summary>
 	///Extends a draw offer to the given player
 	///</summary>
 	///<param name="isWhite">Whether the player is white</param>
-	public void OfferDraw(bool toWhite) {
-		(toWhite ? _whiteCtrls : _blackCtrls).HasDrawOffer = true;
+	public void OfferDraw(bool toWhite) => (toWhite ? _whiteCtrls : _blackCtrls).HasDrawOffer = true;
+
+	///<summary>
+	///Print the FEN and PGN of the current position
+	///</summary>
+	public void PrintPosition() {
+		Debug.Log(new FEN(this, ChessBoard.Instance));
+		Debug.Log(_pgn.GetPGN() ?? "PGN is empty");
 	}
 
 	//Buttons
@@ -746,10 +729,10 @@ public sealed class Game : MonoSingleton<Game> {
 		if (MoveCommandHandler.UndoAndRemoveCommand()) SwitchCurrentPlayer();
 		if (_prevPositions.Count > 0) _prevPositions.RemoveAt(_prevPositions.Count - 1);
 		if (_prevAvailableMovesCount.Count > 0) _prevAvailableMovesCount.RemoveAt(_prevAvailableMovesCount.Count - 1);
-		if (_moveRuleCount > 0) _moveRuleCount--;
+		if (MoveRuleCount > 0) MoveRuleCount--;
 		if (CurPlayer.IsWhite) MoveCount--;
 		MovesPlayed.RemoveAt(MovesPlayed.Count - 1);
-		_pgnBuilder.Moves.RemoveAt(_pgnBuilder.Moves.Count - 1);
+		_pgn.RemoveLastMove();
 	}
 
 	//Server
@@ -763,8 +746,8 @@ public sealed class Game : MonoSingleton<Game> {
 
 		NetWelcome welcomeMsg = msg as NetWelcome;
 		welcomeMsg.IsAssignedWhitePieces = ++_playerCount == 1;
-		welcomeMsg.StartingWithFEN = !string.IsNullOrEmpty(Setup);
-		welcomeMsg.FENOrPGN = welcomeMsg.StartingWithFEN ? Setup : StartPGN;
+		welcomeMsg.StartingWithFEN = StartPGN is null || !StartPGN.IsValid();
+		welcomeMsg.FENOrPGN = welcomeMsg.StartingWithFEN ? Setup.Fen : StartPGN.GetPGN();
 
 		Debug.Log("SERVER: Sending Welcome Msg to single client...");
 		Server.Instance.SendToClient(cnn, welcomeMsg);
@@ -813,8 +796,8 @@ public sealed class Game : MonoSingleton<Game> {
 		Debug.Log($"CLIENT: I play the {_myPlayer.ColorPieces} pieces");
 
 		if (!_isLocalGame) {
-			if (welcomeMsg.StartingWithFEN) Setup = welcomeMsg.FENOrPGN;
-			else StartPGN = welcomeMsg.FENOrPGN;
+			if (welcomeMsg.StartingWithFEN) Setup = new(welcomeMsg.FENOrPGN);
+			else StartPGN = new(welcomeMsg.FENOrPGN);
 			return;
 		}
 
