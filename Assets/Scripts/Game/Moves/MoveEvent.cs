@@ -27,9 +27,7 @@ public static class MoveEventExtensions {
 	///<params name="category">The category to check for the event in</params>
 	///<params name="moveEvent">The event to look for in the category</params>
 	///<returns>Whether the given category contains the given event</returns>
-	public static bool Contains(this MoveEvent category, MoveEvent moveEvent) {
-		return (category & moveEvent) == moveEvent;
-	}
+	public static bool Contains(this MoveEvent category, MoveEvent moveEvent) => (category & moveEvent) == moveEvent;
 
 	///<summary>
 	///Returns whether the given category contains the any of the given event
@@ -37,9 +35,7 @@ public static class MoveEventExtensions {
 	///<params name="category">The category to check for any of the event in</params>
 	///<params name="moveEvent">The event to look for part of in the category</params>
 	///<returns>Whether the given category contains any of the given event</returns>
-	public static bool PartialContains(this MoveEvent category, MoveEvent moveEvent) {
-		return (category & moveEvent) > 0;
-	}
+	public static bool PartialContains(this MoveEvent category, MoveEvent moveEvent) => (category & moveEvent) > 0;
 
 	///<summary>
 	///Adds the given event to the referenced event
