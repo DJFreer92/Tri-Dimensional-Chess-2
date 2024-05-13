@@ -17,7 +17,7 @@ public class TimerManager : MonoSingleton<TimerManager> {
 
 	protected override void Awake() {
 		base.Awake();
-		
+
 		//unpause the white timer
 		if (TimersEnabled) _whiteTimer.Paused = false;
 	}
