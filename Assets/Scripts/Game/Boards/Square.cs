@@ -13,6 +13,26 @@ public sealed class Square : MonoBehaviour {
 	[field: SerializeField] public ChessPiece GamePiece {get; set;}
 	//whether the square has an attackboard on it
 	[field: SerializeField] public bool IsOccupiedByAB {get; set;}
+	//the square's file index
+	public int FileIndex { get => Coords.x; }
+	//the square's file
+	public char File { get => FileIndex.IndexToFile(); }
+	//the square's rank
+	public int Rank { get => Coords.z; }
+	//the square's board
+	public Board Brd {
+		get {
+			foreach (Board brd in ChessBoard.Instance)
+				if (brd.Y == Coords.y && brd.Squares.Contains(this)) return brd;
+			return null;
+		}
+	}
+	//the square's board notation
+	public string BrdNotation { get => Brd.Notation; }
+	//the square's board height
+	public int BrdHeight { get => Coords.y; }
+	//the square's notation
+	public string Notation { get => Coords.VectorToNotation(); }
 	//the highlight component
 	private Highlight _highlight;
 
@@ -50,22 +70,25 @@ public sealed class Square : MonoBehaviour {
 	public bool IsWhite() => (Coords.x + Coords.z) % 2 == 1;
 
 	///<summary>
-	///Returns the board the square is a part of
+	///Returns whether the files of the two squares are the same
 	///</summary>
-	///<returns>The board the square is a part of</returns>
-	public Board GetBoard() {
-		foreach (Board brd in ChessBoard.Instance) {
-			if (brd.Y != Coords.y) continue;
-			foreach (Square sqr in brd) if (sqr == this) return brd;
-		}
-		return null;
-	}
+	///<param name="other">The other square</param>
+	///<returns>Whether the files of the two squares are the same</returns>
+	public bool FileMatch(Square other) => Coords.x == other.Coords.x;
 
 	///<summary>
-	///Returns the annotation of the square in long 3D chess algebraic notation
+	///Returns whether the ranks of the two squares are the same
 	///</summary>
-	///<returns>The annotation of the square</returns>
-	public string GetAnnotation() => Coords.VectorToAnnotation();
+	///<param name="other">The other square</param>
+	///<returns>Whether the ranks of the two squares are the same</returns>
+	public bool RankMatch(Square other) => Coords.z == other.Coords.z;
+
+	///<summary>
+	///Returns whether the boards of the two squares are the same
+	///</summary>
+	///<param name="other">The other square</param>
+	///<returns>Whether the boards of the two squares are the same</returns>
+	public bool BoardMatch(Square other) => Brd == other.Brd;
 
 	///<summary>
 	///Toggle whether the square is highlighted
@@ -86,7 +109,7 @@ public sealed class Square : MonoBehaviour {
 	public override string ToString() {
 		var str = new StringBuilder(base.ToString());
 		str.Append("\nCoordinates: ").Append(Coords.ToString());
-		str.Append("\nAnnotation: ").Append(GetAnnotation());
+		str.Append("\nNotation: ").Append(Notation);
 		str.Append("\nPiece:\n").Append(HasPiece() ? GamePiece.ToString() : "null");
 		return str.ToString();
 	}
