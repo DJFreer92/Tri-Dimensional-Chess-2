@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class CommandHandler {
@@ -68,6 +69,12 @@ public class CommandHandler {
 	///</summary>
 	///<returns>Whether there are any commands waiting to be executed
 	public bool AreCommandsWaiting() => _index < _commands.Count;
+
+	///<summary>
+	///Returns the last command
+	///</summary>
+	///<returns>The last command</returns>
+	public ICommand GetLastCommand() => _commands.Last();
 }
 
 public interface ICommand {
