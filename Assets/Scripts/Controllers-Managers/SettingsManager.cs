@@ -78,12 +78,12 @@ public class SettingsManager : MonoSingleton<SettingsManager> {
 	///Sets the fen in the input field as the game setup
 	///</summary>
 	private void SetFEN() {
-		if (!FENBuilder.VerifyFEN(_fenPGNInput.text)) {
+		if (new FEN(_fenPGNInput.text).IsEmpty()) {
 			MessageManager.Instance.CreateMessage("Invalid FEN");
 			return;
 		}
 
-		Game.Instance.Setup = _fenPGNInput.text;
+		Game.Instance.Setup = new(_fenPGNInput.text);
 		Game.Instance.StartPGN = null;
 		Game.Instance.Init();
 		MessageManager.Instance.CreateMessage("FEN Set");
@@ -93,13 +93,13 @@ public class SettingsManager : MonoSingleton<SettingsManager> {
 	///Sets the pgn in the input field as the current game state
 	///</summary>
 	private void SetPGN() {
-		if (!PGNBuilder.VerifyPGN(_fenPGNInput.text)) {
+		if (!new PGN(_fenPGNInput.text).IsValid()) {
 			MessageManager.Instance.CreateMessage("Invalid PGN");
 			return;
 		}
 
-		Game.Instance.Setup = null;
-		Game.Instance.StartPGN = _fenPGNInput.text;
+		Game.Instance.Setup = new();
+		Game.Instance.StartPGN = new(_fenPGNInput.text);
 		Game.Instance.Init();
 		MessageManager.Instance.CreateMessage("PGN Set");
 	}

@@ -40,11 +40,11 @@ public sealed class GameCreationController : MonoSingleton<GameCreationControlle
 	protected override void Awake() {
 		base.Awake();
 
-		_originalButton.onClick.AddListener(() => _fenPGNInput.text = Game.ORIGINAL_FEN);
-		_nextGenButton.onClick.AddListener(() => _fenPGNInput.text = Game.NEXT_GEN_FEN);
+		_originalButton.onClick.AddListener(() => _fenPGNInput.text = Game.ORIGINAL_FEN.Fen);
+		_nextGenButton.onClick.AddListener(() => _fenPGNInput.text = Game.NEXT_GEN_FEN.Fen);
 
-		if (IsSelected(_originalButton)) _fenPGNInput.text = Game.ORIGINAL_FEN;
-		else if (IsSelected(_nextGenButton)) _fenPGNInput.text = Game.NEXT_GEN_FEN;
+		if (IsSelected(_originalButton)) _fenPGNInput.text = Game.ORIGINAL_FEN.Fen;
+		else if (IsSelected(_nextGenButton)) _fenPGNInput.text = Game.NEXT_GEN_FEN.Fen;
 
 		_fenPGNInput.onValueChanged.AddListener((text) => {
 			if (_changeAutomatic) {
@@ -96,12 +96,12 @@ public sealed class GameCreationController : MonoSingleton<GameCreationControlle
 	public void CreateGame() {
 		if (!VerifySettings()) return;
 
-		string fen = null;
+		FEN fen = new();
 
 		if (IsSelected(_originalButton)) fen = Game.ORIGINAL_FEN;
 		else if (IsSelected(_nextGenButton)) fen = Game.NEXT_GEN_FEN;
-		else if (IsSelected(_useFENButton)) fen = _fenPGNInput.text;
-		else Game.Instance.StartPGN = _fenPGNInput.text;
+		else if (IsSelected(_useFENButton)) fen = new(_fenPGNInput.text);
+		else Game.Instance.StartPGN = new(_fenPGNInput.text);
 
 		Game.Instance.Setup = fen;
 
@@ -130,10 +130,10 @@ public sealed class GameCreationController : MonoSingleton<GameCreationControlle
 	private bool VerifySettings() {
 		bool valid = true;
 
-		if (!IsSelected(_usePGNButton) && !FENBuilder.VerifyFEN(_fenPGNInput.text)) {
+		if (!IsSelected(_usePGNButton) && new FEN(_fenPGNInput.text).IsEmpty()) {
 			MessageManager.Instance.CreateMessage("Must enter a valid FEN");
 			valid = false;
-		} else if (IsSelected(_usePGNButton) && !PGNBuilder.VerifyPGN(_fenPGNInput.text)) {
+		} else if (IsSelected(_usePGNButton) && !new PGN(_fenPGNInput.text).IsValid()) {
 			MessageManager.Instance.CreateMessage("Must enter a valid PGN");
 			valid = false;
 		}

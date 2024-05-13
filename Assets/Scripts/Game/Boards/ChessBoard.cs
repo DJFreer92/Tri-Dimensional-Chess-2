@@ -52,20 +52,18 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	///Constructs a chessboard position from a FEN position
 	///</summary>
 	///<param name="fen">FEN position</param>
-	public void ConstructPosition(string fen) {
+	public void ConstructPosition(FEN fen) {
 		//clear the current position
 		Clear();
 
 		//get relevant sections of FEN
-		string[] sections = fen.Split(' ');
-		string attackboards = sections[0];
-		string pieces = sections[1];
-		string currentPlayer = sections[2];
-		string castling = sections[3];
-		string enPassant = sections[4];
+		string attackboards = fen.GetABPositions();
+		string pieces = fen.GetPiecePositions();
+		string castling = fen.GetCastlingRights();
+		string enPassant = fen.GetEnPassant();
 
 		//attackboards
-		if (attackboards != "-") {
+		if (attackboards != null) {
 			for (int i = 0; i < (attackboards.Length / 2); i++) {
 				string atckbrd = attackboards.Substring(i * 2, 2);
 				bool queenSide = char.IsLower(atckbrd[0]);
@@ -134,16 +132,16 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 					PieceCreator.Instance.CreatePiece(rankPieces[piecesIndex].CharToPieceColor(), sqr);
 				}
 			}
-			ab.SetBoardAnnotation();
+			ab.SetBoardNotation();
 		}
 
 		//castling
-		if (castling != "-") {
-			foreach (Square sqr in GetEnumerableSquares()) {
+		if (castling != null) {
+			foreach (Square sqr in EnumerableSquares()) {
 				if (sqr.GamePiece is Rook) (sqr.GamePiece as Rook).HasCastlingRights = false;
 			}
 			foreach (char castlingRight in castling) {
-				foreach(Square sqr in GetEnumerableSquares()) {
+				foreach(Square sqr in EnumerableSquares()) {
 					if (sqr.GamePiece is not Rook || sqr.GamePiece.IsWhite != char.IsUpper(castlingRight)) continue;
 					Rook rook = sqr.GamePiece as Rook;
 					if ((castlingRight == 'K' && sqr.Coords == WhiteKingSideRookCoords) ||
@@ -161,7 +159,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		}
 
 		//en passant
-		if (enPassant != "-") {
+		if (enPassant != null) {
 			(GetSquareAt(
 				new Vector3Int(enPassant[0].FileToIndex(),
 				enPassant[2..].BoardToIndex(),
@@ -170,7 +168,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		}
 
 		//update check states
-		UpdateKingCheckState(currentPlayer == "w");
+		UpdateKingCheckState(fen.GetCurPlayer());
 	}
 
 	///<summary>
@@ -189,8 +187,9 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	///<param name="coords">The coordinates of the square</param>
 	///<returns>The square at the specified coordinates</returns>
 	public Square GetSquareAt(Vector3Int coords) {
+		Square sqr;
 		foreach (Board brd in Boards) {
-			Square sqr = brd.GetSquareAt(coords);
+			sqr = brd.GetSquareAt(coords);
 			if (sqr != null) return sqr;
 		}
 		//no square found at the specified coordinates
@@ -203,8 +202,9 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	///<param name="piece">Chess piece on the desired square</param>
 	///<returns>The square with the given piece</returns>
 	public Square GetSquareWithPiece(ChessPiece piece) {
+		Square sqr;
 		foreach (Board brd in Boards) {
-			Square sqr = brd.GetSquareWithPiece(piece);
+			sqr = brd.GetSquareWithPiece(piece);
 			if (sqr != null) return sqr;
 		}
 		//no square found with the specified piece
@@ -217,9 +217,8 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	///<param name="sqr">The square the board should contain</param>
 	///<returns>The board containing the given square</returns>
 	public Board GetBoardWithSquare(Square sqr) {
-		foreach (Board brd in Boards) {
+		foreach (Board brd in Boards)
 			if (brd.Squares.Contains(sqr)) return brd;
-		}
 		//no board found with the specified square
 		return null;
 	}
@@ -228,12 +227,10 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	///Returns an enumerable for all the squares on the board
 	///</summary>
 	///<returns>An enumerable for all the squares on the board</returns>
-	public IEnumerable<Square> GetEnumerableSquares() {
-		foreach (Board brd in Boards) {
-			foreach (Square sqr in brd) {
+	public IEnumerable<Square> EnumerableSquares() {
+		foreach (Board brd in Boards)
+			foreach (Square sqr in brd)
 				yield return sqr;
-			}
-		}
 	}
 
 	///<summary>
@@ -242,9 +239,8 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	///<param name="isWhite">Whether the King should be of the white pieces</param>
 	///<returns>The King of the given pieces</returns>
 	public King GetKing(bool isWhite) {
-		foreach (Square sqr in GetEnumerableSquares()) {
+		foreach (Square sqr in EnumerableSquares())
 			if (sqr.GamePiece is King && sqr.GamePiece.IsWhite == isWhite) return sqr.GamePiece as King;
-		}
 		return null;
 	}
 
@@ -254,9 +250,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	///<returns>A list of all the pieces on the chess board</returns>
 	public List<ChessPiece> GetPieces() {
 		var pieces = new List<ChessPiece>();
-		foreach (Board brd in Boards) {
-			pieces.AddRange(brd.GetPieces());
-		}
+		foreach (Board brd in Boards) pieces.AddRange(brd.GetPieces());
 		return pieces;
 	}
 
@@ -282,7 +276,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 				if (!BoardExtensions.WithinBounds(x, z)) break;
 
 				//loop for squares at the desired coordinates
-				foreach (Square sqr in GetEnumerableSquares()) {
+				foreach (Square sqr in EnumerableSquares()) {
 					//if there is not a piece on the square or the coordinates do not match the coordinates of the square, continue checking squares
 					if (!sqr.HasPiece() || sqr.Coords.x != x || sqr.Coords.z != z) continue;
 
@@ -332,7 +326,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 			if (!BoardExtensions.WithinBounds(x, z)) continue;
 
 			//loop for squares at the desired coordinates
-			foreach (Square sqr in GetEnumerableSquares()) {
+			foreach (Square sqr in EnumerableSquares()) {
 				//if the square does not have a piece, continue checking squares
 				if (!sqr.HasPiece()) continue;
 
@@ -352,9 +346,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	///Update the status of whether the king of the given color is in check
 	///</summary>
 	///<param name="isWhite">Whether the king to be updated is white</param>
-	public void UpdateKingCheckState(bool isWhite) {
-		GetKing(isWhite).UpdateCheckState();
-	}
+	public void UpdateKingCheckState(bool isWhite) => GetKing(isWhite).UpdateCheckState();
 
 	///<summary>
 	///Returns whether the given player has a move
@@ -377,18 +369,55 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	///</summary>
 	///<param name="isWhite">Whether the king is white</param>
 	///<returns>Whether the king of the specified pieces is in check</returns>
-	public bool IsKingInCheck(bool isWhite) {
-		//return whether the king is in check
-		return GetKing(isWhite).IsInCheck;
-	}
+	public bool IsKingInCheck(bool isWhite) => GetKing(isWhite).IsInCheck;
 
 	///<summary>
 	///Returns an evaluation of whether the king is in check in the current position
 	///</summary>
 	///<param name="isWhite">Whether the king is white</param>
 	///<returns>An evaluation of whether the king is in check in the current position</returns>
-	public bool GetKingCheckEvaluation(bool isWhite) {
-		return GetKing(isWhite).DetermineCheck();
+	public bool GetKingCheckEvaluation(bool isWhite) => GetKing(isWhite).DetermineCheck();
+
+	///<summary>
+	///Returns all the squares, except the square to exclude, that are attacking the given square and have a piece of the given
+	///type and color
+	///</summary>
+	///<param name="sqrToAttack">The square to be attacked</param>
+	///<param name="sqrToExclude">The square to be excluded</param>
+	///<param name="pieceType">The type of piece to be attacking the square</param>
+	///<param name="whiteAttacking">The color of piece to be attacking the square</param>
+	///<returns>All the squares, except the square to exclude, that are attacking the given square and have a piece of the given type and color</returns>
+	public List<Square> GetAttackingSquares(Square sqrToAttack, Square sqrToExclude, PieceType pieceType, bool whiteAttacking) {
+		var attackingSqrs = new List<Square>();
+		foreach (Square sqr in EnumerableSquares()) {
+			if (!sqr.HasPiece() ||
+				sqr == sqrToAttack ||
+				sqr == sqrToExclude ||
+				sqr.GamePiece.IsWhite != whiteAttacking ||
+				sqr.GamePiece.Type != pieceType
+			) continue;
+
+			if (sqr.GamePiece.GetAvailableMoves(whiteAttacking).Contains(sqrToAttack)) attackingSqrs.Add(sqr);
+		}
+
+		return attackingSqrs;
+	}
+
+	///<summary>
+	///Returns whether there is an attack board, excluding the given attackboard, of the given color that can move to the given pin
+	///</summary>
+	///<param name="pinSqrToMoveTo">The pin square for the attackboard to move to</param>
+	///<param name="abToIgnore">The attackbaord to ignore</param>
+	///<param name="whiteAttacking">The color of attackboard to be moving</param>
+	///<returns>Whether there is an attack board, excluding the given attackboard, of the given color that can move to the given pin</returns>
+	public bool CanMultipleAttackBoardsMoveToPin(Square pinSqrToMoveTo, AttackBoard abToIgnore, bool whiteAttacking) {
+		foreach (Board brd in this) {
+			if (brd is not AttackBoard || brd == abToIgnore) continue;
+
+			if ((brd as AttackBoard).GetAvailableMoves(whiteAttacking).Contains(pinSqrToMoveTo)) return true;
+		}
+
+		return false;
 	}
 
 	///<summary>
@@ -402,9 +431,8 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		switch (pieces.Count) {  //the number of pieces on the board
 			case 2: return true;  //2 pieces on the board, there is insufficient material to continue the game
 			case 3:  //3 pieces on the board
-				foreach (ChessPiece piece in pieces) {
+				foreach (ChessPiece piece in pieces)
 					if (piece is Knight) return true;  //there is insufficient material to continue the game
-				}
 				break;
 			case 4:  //4 pieces on the board
 				Bishop whiteBishop = null, blackBishop = null;
@@ -438,14 +466,12 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		switch (pieces.Count) {
 			case 1: return false;
 			case 2:
-				foreach (ChessPiece piece in pieces) {
+				foreach (ChessPiece piece in pieces)
 					if (piece is Bishop || piece is Knight) return false;
-				}
 				return true;
 			case 3:
-				foreach (ChessPiece piece in pieces) {
+				foreach (ChessPiece piece in pieces)
 					if (piece is not King && piece is not Knight) return true;
-				}
 				return false;
 		}
 		return true;
@@ -462,7 +488,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 		int z = square.Coords.z + (isBehindWhite ? -1 : 1);
 
 		//loop all the Squares
-		foreach (Square sqr in GetEnumerableSquares()) {
+		foreach (Square sqr in EnumerableSquares()) {
 			//if the coordinates match and the square has a piece, yield and return the piece
 			if (sqr.Coords.x == square.Coords.x && sqr.Coords.z == z && sqr.HasPiece()) yield return sqr.GamePiece;
 		}
@@ -472,9 +498,7 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	///Returns the list of boards as an enumerator
 	///</summary>
 	///<returns>The list of boards as an enumerator</returns>
-	public IEnumerator GetEnumerator() {
-		return Boards.GetEnumerator();
-	}
+	public IEnumerator GetEnumerator() => Boards.GetEnumerator();
 
 	///<summary>
 	///returns a string of data about the chess board
@@ -482,9 +506,8 @@ public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
 	///<returns>A string of data about the chess board</returns>
 	public override string ToString() {
 		var str = new StringBuilder(base.ToString());
-		foreach (Board brd in Boards) {
+		foreach (Board brd in Boards)
 			str.Append("\n").Append(brd.ToString()).Append("\n");
-		}
 		return str.ToString();
 	}
 }
@@ -519,6 +542,5 @@ public static class BoardExtensions {
 	///<param name="y">The y coordinate</param>
 	///<param name="z">The z coordinate</param>
 	///<returns>Whether the given coordinates are within the bounds of the board</returns>
-	public static bool WithinBounds(this int x, int y, int z) =>
-		x >= 0 && x <= 5 && y >= 0 && y <= 5 && z >= 0 && z <= 9;
+	public static bool WithinBounds(this int x, int y, int z) => x >= 0 && x <= 5 && y >= 0 && y <= 5 && z >= 0 && z <= 9;
 }
