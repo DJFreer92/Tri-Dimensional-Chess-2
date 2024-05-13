@@ -24,9 +24,7 @@ public sealed class AttackBoard : Board, IMovable {
 	///Sets the square the attackboard is pinned to
 	///</summary>
 	///<param name="pin">The square the attackboard is pinned to</param>
-	public void SetPinnedSquare(Square pin) {
-		PinnedSquare = pin;
-	}
+	public void SetPinnedSquare(Square pin) => PinnedSquare = pin;
 
 	///<summary>
 	///Returns a list of all the attackboard's available moves
@@ -72,24 +70,20 @@ public sealed class AttackBoard : Board, IMovable {
 		}
 
 		//get the pawn on the board, if there is one
-		Pawn pawn = null;
-		foreach (Square square in Squares) {
-			pawn = square.GamePiece as Pawn;
-			if (pawn != null) break;
-		}
+		Pawn pawn = GetSinglePiece() as Pawn;
 
 		//if the user hasn't been asked what piece to promote a pawn to
 		if (pawn != null && move.Promotion == PieceType.NONE) {
 			//get the square the pawn will be on when the board moves
 			Square newSquare = pawn.GetSquare().Clone() as Square;
 			newSquare.Coords = new Vector3Int(newSquare.Coords.x + xDiff, move.EndSqr.Coords.y + 1, newSquare.Coords.z + zDiff);
-			//move all the Squares on the attackboard to their new positions
+			//move all the squares on the attack board to their new positions
 			foreach (Square sqr in Squares)
 				sqr.Coords = new Vector3Int(sqr.Coords.x + xDiff, move.EndSqr.Coords.y + 1, sqr.Coords.z + zDiff);
 
 			bool canBePromoted = pawn.CanBePromoted(newSquare);
 
-			//move all the Squares on the attackboard back to their current positions
+			//move all the squares on the attack board back to their current positions
 			foreach (Square sqr in Squares)
 				sqr.Coords = new Vector3Int(sqr.Coords.x - xDiff, move.StartPinSqr.Coords.y + 1, sqr.Coords.z - zDiff);
 
@@ -100,14 +94,14 @@ public sealed class AttackBoard : Board, IMovable {
 			}
 		}
 
-		//change the y value of the attackboard
+		//change the y value of the attack board
 		Y = move.EndSqr.Coords.y + 1;
 
-		//move all the Squares on the attackboard to their new positions
+		//move all the Squares on the attack board to their new positions
 		foreach (Square sqr in Squares)
 			sqr.Coords = new Vector3Int(sqr.Coords.x + xDiff, Y, sqr.Coords.z + zDiff);
 
-		//calculate the displacement of the attackboard from the end square in the x and z directions
+		//calculate the displacement of the attack board from the end square in the x and z directions
 		float xDisplace = 0.5f, zDisplace = 0.5f;
 		if (move.EndSqr.Coords.x == 1) xDisplace *= -1;
 		if (move.EndSqr.Coords.z % 2 == 1) zDisplace *= -1;
@@ -115,8 +109,8 @@ public sealed class AttackBoard : Board, IMovable {
 		//change the position of the attackboard
 		MoveTo(move.EndSqr.transform.position + new Vector3(xDisplace, 1.5f, zDisplace));
 
-		//move the pieces to the new location of their Squares
-		UpdatePieceRights(move);
+		//if there is a piece on the attack board, set it as moved
+		GetSinglePiece()?.SetMoved(move);
 
 		//set the current pinned square as unoccupied
 		PinnedSquare.IsOccupiedByAB = false;
@@ -125,14 +119,23 @@ public sealed class AttackBoard : Board, IMovable {
 		PinnedSquare = move.EndSqr;
 		PinnedSquare.IsOccupiedByAB = true;
 
-		//set the annotation of the attackboard
-		SetBoardAnnotation();
+		//set the notation of the attackboard
+		SetBoardNotation();
 
 		//if there is not a pawn promotion
-		if (move.Promotion == PieceType.NONE) return;
+		if (move.MoveEvents.Contains(MoveEvent.SECONDARY_PROMOTION) || move.Promotion == PieceType.NONE) return;
 
 		//execute the promotion
-		pawn.Promote(move.Promotion);
+		if (move.PromotionUndoRedoHolder == null) {
+			move.PromotionUndoRedoHolder = pawn;
+			pawn.Promote(move.Promotion);
+		} else {
+			ChessPiece promotedPiece = move.PromotionUndoRedoHolder;
+			move.PromotionUndoRedoHolder = pawn;
+			pawn.SetCaptured();
+			promotedPiece.SetUncaptured();
+			pawn.GetSquare().GamePiece = promotedPiece;
+		}
 
 		//mark the move as having made a promotion
 		move.MoveEvents.Add(MoveEvent.PROMOTION);
@@ -146,16 +149,16 @@ public sealed class AttackBoard : Board, IMovable {
 	///</summary>
 	///<param name="move">Attackboard move to undo</param>
 	public void Unmove(AttackBoardMove move) {
+		//get the piece on the board, if there is one
+		ChessPiece piece = GetSinglePiece();
+
 		//if there was a promotion
 		if (move.MoveEvents.Contains(MoveEvent.PROMOTION)) {
-			foreach (Square sqr in Squares) {
-				if (!sqr.HasPiece()) continue;
-				//unpromote the piece
-				ChessPiece piece = sqr.GamePiece;
-				sqr.GamePiece.Unpromote();
-				Destroy(piece.gameObject);
-				break;
-			}
+			//unpromote the piece
+			move.PromotionUndoRedoHolder.SetUncaptured();
+			piece.SetCaptured();
+			piece.GetSquare().GamePiece = move.PromotionUndoRedoHolder;
+			(move.PromotionUndoRedoHolder, piece) = (piece, move.PromotionUndoRedoHolder);
 		}
 
 		//calculate the change in x and z positions
@@ -184,8 +187,17 @@ public sealed class AttackBoard : Board, IMovable {
 		//change the position of the attackboard
 		MoveTo(move.StartPinSqr.transform.position + new Vector3(xDisplace, 1.5f, zDisplace));
 
-		//if there is a piece on the attackboard move it to the new location of their square
-		UpdatePieceRights(move, true);
+		//if there is a piece on the attackboard update its rights
+		if (piece != null) {
+			if (move.MoveEvents.Contains(MoveEvent.LOST_CASTLING_RIGHTS)) {
+				if (piece is King) (piece as King).HasCastlingRights = true;
+				else (piece as Rook).HasCastlingRights = true;
+				return;
+			}
+
+			if (move.MoveEvents.Contains(MoveEvent.LOST_DOUBLE_SQUARE_MOVE_RIGHTS))
+				(piece as Pawn).HasDSMoveRights = true;
+		}
 
 		//set the current pinned square as unoccupied
 		PinnedSquare.IsOccupiedByAB = false;
@@ -194,8 +206,8 @@ public sealed class AttackBoard : Board, IMovable {
 		PinnedSquare = move.StartPinSqr;
 		PinnedSquare.IsOccupiedByAB = true;
 
-		//set the annotation of the attackboard
-		SetBoardAnnotation();
+		//set the notation of the attackboard
+		SetBoardNotation();
 
 		//update whether the king is in check
 		ChessBoard.Instance.UpdateKingCheckState(move.Player.IsWhite);
@@ -241,55 +253,44 @@ public sealed class AttackBoard : Board, IMovable {
 	}
 
 	///<summary>
-	///Update the positions of all the pieces on the attackboard
+	///Rotates the attack board and a piece on it 180 degrees
 	///</summary>
-	///<param name="move">The move where the piece positions are changing</param>
-	///<param name="isUndo">Whether the move is an undo</param>
-	private void UpdatePieceRights(AttackBoardMove move, bool isUndo = false) {
-		ChessPiece piece = null;
+	///<param name="move">The attack board move</param>
+	public void Rotate(AttackBoardMove move) {
+		//rotate the attackboard gameobject
+		transform.DORotate((Quaternion.Euler(0f, 180f, 0f) * transform.rotation).eulerAngles, _TWEEN_SPEED);
+
+		//get the piece on the board
+		ChessPiece piece = GetSinglePiece();
+
+		//if there is a piece on the attack board, counter-rotate the piece
+		if (piece != null) piece.transform.DORotate(piece.transform.rotation.eulerAngles, _TWEEN_SPEED);
+
+		//set the piece as moved
+		piece.SetMoved(move);
+
+		//update the coordinates of the squares on the attack board
 		foreach (Square sqr in Squares)
-			if (sqr.HasPiece()) piece = sqr.GamePiece;
-
-		if (piece == null) return;
-
-		if (isUndo) {
-			if (move.MoveEvents.Contains(MoveEvent.LOST_CASTLING_RIGHTS)) {
-				if (piece is King) (piece as King).HasCastlingRights = true;
-				else (piece as Rook).HasCastlingRights = true;
-				return;
-			}
-
-			if (move.MoveEvents.Contains(MoveEvent.LOST_DOUBLE_SQUARE_MOVE_RIGHTS))
-				(piece as Pawn).HasDSMoveRights = true;
-
-			return;
-		}
-
-		switch (piece.Type) {
-			case PieceType.KING:
-				if (!(piece as King).HasCastlingRights) return;
-				(piece as King).HasCastlingRights = false;
-				move.MoveEvents.Add(MoveEvent.LOST_CASTLING_RIGHTS);
-			return;
-			case PieceType.ROOK:
-				if (!(piece as Rook).HasCastlingRights) return;
-				(piece as Rook).HasCastlingRights = false;
-				move.MoveEvents.Add(MoveEvent.LOST_CASTLING_RIGHTS);
-			return;
-			case PieceType.PAWN:
-				if (!(piece as Pawn).HasDSMoveRights) return;
-				(piece as Pawn).HasDSMoveRights = false;
-				move.MoveEvents.Add(MoveEvent.LOST_DOUBLE_SQUARE_MOVE_RIGHTS);
-			return;
-		}
+			sqr.Coords += (sqr.Coords.x % 2 == 0 ? Vector3Int.right : Vector3Int.left) +
+						  (sqr.Coords.z % 2 == 0 ? Vector3Int.forward : Vector3Int.back);
 	}
 
 	///<summary>
-	///Sets the annotation of the board
+	///Returns the first piece found on the attack board
 	///</summary>
-	public override void SetBoardAnnotation() {
-		Annotation = Squares[0].Coords.VectorToBoard();
+	///<returns>The first piece found on the attack board</returns>
+	public ChessPiece GetSinglePiece() {
+		//if there is a piece on the attack board, return the piece
+		foreach (Square sqr in Squares)
+			if (sqr.HasPiece()) return sqr.GamePiece;
+
+		return null;
 	}
+
+	///<summary>
+	///Sets the notation of the board
+	///</summary>
+	public override void SetBoardNotation() => Notation = Squares[0].Coords.VectorToBoard();
 
 	///<summary>
 	///Selects the attackboard
