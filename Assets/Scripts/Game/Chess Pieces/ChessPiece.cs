@@ -98,6 +98,12 @@ public abstract class ChessPiece : MonoBehaviour, IMovable {
 	public abstract string GetCharacter(bool wantFigurine);
 
 	///<summary>
+	///Update the piece rights that are lost when the piece moves
+	///</summary>
+	///<param name="move">The move of the piece</param>
+	public abstract void SetMoved(Move move);
+
+	///<summary>
 	///Set the piece as white
 	///</summary>
 	public void SetWhite(bool isWhite) => IsWhite = isWhite;

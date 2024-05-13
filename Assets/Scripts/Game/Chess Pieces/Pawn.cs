@@ -71,7 +71,7 @@ public sealed class Pawn : ChessPiece {
 			int x = offset.x + square.Coords.x;
 			int z = offset.y * direction + square.Coords.z;
 			if (!BoardExtensions.WithinBounds(x, z)) continue;
-			foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
+			foreach (Square sqr in ChessBoard.Instance.EnumerableSquares()) {
 				if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
 				bool isEnPassant = false;
 				if (offset.x == 0 && sqr.HasPiece()) {  //straight 1 or 2
@@ -140,7 +140,7 @@ public sealed class Pawn : ChessPiece {
 		ChessPiece newPiece = PieceCreator.Instance.ConvertPiece(this, promotion);
 
 		//remove the new piece from the captured pieces
-		CapturedPiecesController.Instance.RemovePieceOfType(promotion, !IsWhite);
+		CapturedPiecesController.Instance.RemovePieceOfType(promotion, IsWhite);
 
 		//set the pawn as captured
 		SetCaptured();
@@ -167,5 +167,16 @@ public sealed class Pawn : ChessPiece {
 		var str = new StringBuilder(base.ToString());
 		str.Append("\nJust Made Double Move? ").Append(JustMadeDSMove);
 		return str.ToString();
+	}
+
+	///<summary>
+	///Update the piece rights that are lost when the piece moves
+	///</summary>
+	///<param name="move">The move of the piece</param>
+	public override void SetMoved(Move move) {
+		if (!HasDSMoveRights) return;
+
+		HasDSMoveRights = false;
+		move.MoveEvents.Add(MoveEvent.LOST_DOUBLE_SQUARE_MOVE_RIGHTS);
 	}
 }

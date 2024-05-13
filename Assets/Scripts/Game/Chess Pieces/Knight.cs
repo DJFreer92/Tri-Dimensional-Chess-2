@@ -30,7 +30,7 @@ public sealed class Knight : ChessPiece {
 			int x = square.Coords.x + offset.x;
 			int z = square.Coords.z + offset.y;
 			if (!BoardExtensions.WithinBounds(x, z)) continue;
-			foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
+			foreach (Square sqr in ChessBoard.Instance.EnumerableSquares()) {
 				if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
 				if (sqr.HasPiece() && IsSameColor(sqr.GamePiece)) continue;
 				if (!King.WillBeInCheck(new PieceMove(GetOwner(), square, sqr))) moves.Add(sqr);
@@ -76,4 +76,10 @@ public sealed class Knight : ChessPiece {
 
 		return sqr == destination || !sqr.HasPiece();
 	}
+
+	///<summary>
+	///Update the piece rights that are lost when the piece moves
+	///</summary>
+	///<param name="move">The move of the piece</param>
+	public override void SetMoved(Move move) {}
 }

@@ -39,7 +39,7 @@ public sealed class Rook : ChessPiece {
 				int x = direction.x * dist + square.Coords.x;
 				int z = direction.y * dist + square.Coords.z;
 				if (!BoardExtensions.WithinBounds(x, z)) break;
-				foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
+				foreach (Square sqr in ChessBoard.Instance.EnumerableSquares()) {
 					if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
 					ChessPiece PieceOnSqr = sqr.GamePiece;
 					if (sqr.HasPiece()) {
@@ -70,5 +70,16 @@ public sealed class Rook : ChessPiece {
 	///<returns>The notation character of the rook</returns>
 	public override string GetCharacter(bool wantFigurine) {
 		return wantFigurine ? _FIGURINE_CHARACTER : _STANDARD_CHARACTER;
+	}
+
+	///<summary>
+	///Update the piece rights that are lost when the piece moves
+	///</summary>
+	///<param name="move">The move of the piece</param>
+	public override void SetMoved(Move move) {
+		if (!HasCastlingRights) return;
+
+		HasCastlingRights = false;
+		move.MoveEvents.Add(MoveEvent.LOST_CASTLING_RIGHTS);
 	}
 }

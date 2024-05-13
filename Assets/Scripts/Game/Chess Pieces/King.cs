@@ -157,7 +157,7 @@ public sealed class King : ChessPiece {
 		var moves = new List<Square>();
 		if (IsWhite != asWhite) return moves;
 		Square square = GetSquare();
-		foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
+		foreach (Square sqr in ChessBoard.Instance.EnumerableSquares()) {
 			ChessPiece PieceOnSqr = sqr.GamePiece;
 			if (PieceOnSqr is Rook && HasCastlingRights && IsSameColor(PieceOnSqr)) {
 				if (!(PieceOnSqr as Rook).HasCastlingRights || Game.Instance.IsFirstMove() || IsInCheck) continue;
@@ -185,7 +185,7 @@ public sealed class King : ChessPiece {
 	///<returns>Whether the king can castle king side</returns>
 	public bool HasKSCastleRights() {
 		if (!HasCastlingRights) return false;
-		foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
+		foreach (Square sqr in ChessBoard.Instance.EnumerableSquares()) {
 			if (sqr.GamePiece is not Rook || !IsSameColor(sqr.GamePiece)) continue;
 			Rook rook = sqr.GamePiece as Rook;
 			if (rook.IsKingSide) return rook.HasCastlingRights;
@@ -199,7 +199,7 @@ public sealed class King : ChessPiece {
 	///<returns>Whether the king can castle queen side</returns>
 	public bool HasQSCastleRights() {
 		if (!HasCastlingRights) return false;
-		foreach (Square sqr in ChessBoard.Instance.GetEnumerableSquares()) {
+		foreach (Square sqr in ChessBoard.Instance.EnumerableSquares()) {
 			if (sqr.GamePiece is not Rook || !IsSameColor(sqr.GamePiece)) continue;
 			Rook rook = sqr.GamePiece as Rook;
 			if (!rook.IsKingSide && rook.HasCastlingRights) return true;
@@ -214,6 +214,17 @@ public sealed class King : ChessPiece {
 	///<returns>The notation character of the king</returns>
 	public override string GetCharacter(bool wantFigurine) {
 		return wantFigurine ? _FIGURINE_CHARACTER : _STANDARD_CHARACTER;
+	}
+
+	///<summary>
+	///Update the piece rights that are lost when the piece moves
+	///</summary>
+	///<param name="move">The move of the piece</param>
+	public override void SetMoved(Move move) {
+		if (!HasCastlingRights) return;
+
+		HasCastlingRights = false;
+		move.MoveEvents.Add(MoveEvent.LOST_CASTLING_RIGHTS);
 	}
 
 	///<summary>
