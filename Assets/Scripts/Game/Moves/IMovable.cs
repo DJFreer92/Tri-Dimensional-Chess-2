@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IMovable {
-    List<Square> GetAvailableMoves(bool asWhite);
+using TriDimensionalChess.Game.Boards;
+
+namespace TriDimensionalChess.Game.Moves {
+    public interface IMovable {
+        List<Square> GetAvailableMoves(bool asWhite);
+    }
 }

@@ -1,20 +1,21 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Drag : MonoBehaviour {
-	[SerializeField] private Canvas canvas;
-	
-	public void DragHandler(BaseEventData data) {
-		var pointerData = data as PointerEventData;
+namespace TriDimensionalChess.UI {
+	public class Drag : MonoBehaviour {
+		[SerializeField] private Canvas canvas;
 
-		Vector2 position;
-		RectTransformUtility.ScreenPointToLocalPointInRectangle(
-			(RectTransform) canvas.transform,
-			pointerData.position,
-			canvas.worldCamera,
-			out position
-		);
+		public void DragHandler(BaseEventData data) {
+			var pointerData = data as PointerEventData;
 
-		transform.position = canvas.transform.TransformPoint(position);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                (RectTransform)canvas.transform,
+                pointerData.position,
+                canvas.worldCamera,
+                out Vector2 position
+            );
+
+            transform.position = canvas.transform.TransformPoint(position);
+		}
 	}
 }

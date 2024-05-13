@@ -4450,8 +4450,6 @@ MonoBehaviour:
   _gameStateTxt: {fileID: 1406408376}
   _gameUIPage: {fileID: 726680238}
   _ipAddressInput: {fileID: 546091099}
-  Setup: 
-  StartPGN: 
   AllowMoves: 0
   AllowButtons: 0
 --- !u!114 &151076135
