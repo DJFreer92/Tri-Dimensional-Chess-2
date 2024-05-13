@@ -13,12 +13,12 @@ public class Board : MonoBehaviour, IEnumerable {
 	public List<Square> Squares {get; private set;}
 	//holds if the owner of the attackboard is white, black, or if it is neutral
 	public Ownership Owner;
-	//annotation of the board
-	public string Annotation {get; protected set;}
+	//notation of the board
+	public string Notation {get; protected set;}
 
 	private void Awake() {
 		Squares = GetComponentsInChildren<Square>().ToList();
-		SetBoardAnnotation();
+		SetBoardNotation();
 	}
 
 	///<summary>
@@ -34,9 +34,8 @@ public class Board : MonoBehaviour, IEnumerable {
 	///<param name="coords">The coordinates of the square</param>
 	///<returns>The square at the give coordinates</returns>
 	public Square GetSquareAt(Vector3Int coords) {
-		foreach (Square sqr in Squares) {
+		foreach (Square sqr in Squares)
 			if (sqr.Coords.Equals(coords)) return sqr;
-		}
 		return null;
 	}
 
@@ -46,9 +45,8 @@ public class Board : MonoBehaviour, IEnumerable {
 	///<param name="piece">The piece on the desired square</param>
 	///<returns>The square with the given piece</returns>
 	public Square GetSquareWithPiece(ChessPiece piece) {
-		foreach (Square sqr in Squares) {
+		foreach (Square sqr in Squares)
 			if (sqr.GamePiece == piece) return sqr;
-		}
 		//no square found with the specified piece
 		return null;
 	}
@@ -59,9 +57,8 @@ public class Board : MonoBehaviour, IEnumerable {
 	///<returns>The number of pieces on the board</returns>
 	public int GetPieceCount() {
 		int count = 0;
-		foreach (Square sqr in Squares) {
+		foreach (Square sqr in Squares)
 			if (sqr.HasPiece()) count++;
-		}
 		return count;
 	}
 
@@ -71,9 +68,8 @@ public class Board : MonoBehaviour, IEnumerable {
 	///<returns>A list of all the pieces on the board</returns>
 	public List<ChessPiece> GetPieces() {
 		var pieces = new List<ChessPiece>();
-		foreach (Square sqr in Squares) {
+		foreach (Square sqr in Squares)
 			if (sqr.HasPiece()) pieces.Add(sqr.GamePiece);
-		}
 		return pieces;
 	}
 
@@ -101,19 +97,15 @@ public class Board : MonoBehaviour, IEnumerable {
 	}
 
 	///<summary>
-	///Sets the annotation of the board
+	///Sets the notation of the board
 	///</summary>
-	public virtual void SetBoardAnnotation() {
-		Annotation = char.ToString((char) Owner);
-	}
+	public virtual void SetBoardNotation() => Notation = char.ToString((char) Owner);
 
 	///<summary>
 	///Returns the list of squares as an enumerator
 	///</summary>
 	///<returns>The list of squares as an enumerator</returns>
-	public IEnumerator GetEnumerator() {
-		return Squares.GetEnumerator();
-	}
+	public IEnumerator GetEnumerator() => Squares.GetEnumerator();
 
 	///<summary>
 	///Returns a string of data about the board
@@ -121,10 +113,9 @@ public class Board : MonoBehaviour, IEnumerable {
 	///<returns>A string of data about the board</returns>
 	public override string ToString() {
 		var str = new StringBuilder(base.ToString());
-		str.Append(Annotation);
-		foreach (Square sqr in Squares) {
+		str.Append(Notation);
+		foreach (Square sqr in Squares)
 			str.Append("\n").Append(sqr.ToString());
-		}
 		return str.ToString();
 	}
 }

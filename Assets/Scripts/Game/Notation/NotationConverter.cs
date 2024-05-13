@@ -5,7 +5,7 @@ using UnityEngine;
 using static PieceType;
 using static PieceTypeColor;
 
-public static class AnnotationConverter {
+public static class NotationConverter {
 	private const int _MAX_INT_FILE = 5, _MAX_RANK = 9, _MAX_INT_BOARD = 5;
 	private static readonly char[] _FILES = {'z', 'a', 'b', 'c', 'd', 'e'};
 	private static readonly string[] _MAIN_BOARDS = {"W", "N", "B"};
@@ -34,32 +34,32 @@ public static class AnnotationConverter {
 	};
 
 	///<summary>
-	///Converts the vector of a square into an annotation
+	///Converts the vector of a square into a notation
 	///</summary>
 	///<params name="coords">The vector of a square</params>
-	///<returns>Annotation of the square</returns>
-	public static string VectorToAnnotation(this Vector3Int coords) {
+	///<returns>Notation of the square</returns>
+	public static string VectorToNotation(this Vector3Int coords) {
 		if (coords.x < 0) throw new ArgumentOutOfRangeException("File cannot be negative");
 		if (coords.y < 0) throw new ArgumentOutOfRangeException("Board cannot be negative");
 		if (coords.z < 0) throw new ArgumentOutOfRangeException("Rank cannot be negative");
 		if (coords.x > _MAX_INT_FILE) throw new ArgumentOutOfRangeException("File out of range");
 		if (coords.y > _MAX_INT_BOARD) throw new ArgumentOutOfRangeException("Board out of range");
 		if (coords.z > _MAX_RANK) throw new ArgumentOutOfRangeException("Rank out of range");
-		return $"{coords.x.IndexToFile()}{coords.z}" + coords.VectorToBoard();
+		return $"{coords.x.IndexToFile()}{coords.z}{coords.VectorToBoard()}";
 	}
 
 	///<summary>
-	///Converts an annotation into a vector of a square
+	///Converts a notation into a vector of a square
 	///</summary>
-	///<param name="annotation">The square annotation</param>
+	///<param name="notation">The square notation</param>
 	///<returns>Vector of a square</returns>
-	public static Vector3Int AnnotationToVector(this string annotation) {
-		if (annotation == null) throw new ArgumentNullException(nameof(annotation), "Annotation cannot be null");
+	public static Vector3Int NotationToVector(this string notation) {
+		if (notation == null) throw new ArgumentNullException(nameof(notation), "Notation cannot be null");
 
 		return new Vector3Int(
-			Array.IndexOf(_FILES, annotation[0]),
-			BoardToIndex(annotation[annotation.Length == 3 ? 2.. : 2..5]),
-			(int) char.GetNumericValue(annotation[1])
+			Array.IndexOf(_FILES, notation[0]),
+			BoardToIndex(notation[notation.Length == 3 ? 2.. : 2..5]),
+			(int) char.GetNumericValue(notation[1])
 		);
 	}
 
@@ -86,10 +86,10 @@ public static class AnnotationConverter {
 	}
 
 	///<summary>
-	///Converts a vector of a square into a board annotation
+	///Converts a vector of a square into a board notation
 	///</summary>
 	///<params name="coords">The vector of a square</params>
-	///<returns>The annotation of the board</returns>
+	///<returns>The notation of the board</returns>
 	public static string VectorToBoard(this Vector3Int coords) {
 		if (coords.y < 0) throw new ArgumentOutOfRangeException("Board cannot be negative");
 		if (coords.y > _MAX_INT_BOARD) throw new ArgumentOutOfRangeException("Board out of range");
@@ -120,12 +120,12 @@ public static class AnnotationConverter {
 	}
 
 	///<summary>
-	///Converts a board annotation into an index
+	///Converts a board notation into an index
 	///</summary>
-	///<params name="board">The annotation of the board</params>
+	///<params name="board">The notation of the board</params>
 	///<returns>The index of the board</returns>
 	public static int BoardToIndex(this string board) {
-		if (board == null) throw new ArgumentNullException(nameof(board), "Board annotation cannot be null");
+		if (board == null) throw new ArgumentNullException(nameof(board), "Board notation cannot be null");
 
 		int x = Array.IndexOf(_MAIN_BOARDS, board);
 		if (x != -1) return x * 2;
@@ -135,12 +135,12 @@ public static class AnnotationConverter {
 	}
 
 	///<summary>
-	///Converts a board annotation to a pinned square vector
+	///Converts a board notation to a pinned square vector
 	///</summary>
-	///<param name="board">The annotation of the board</param>
+	///<param name="board">The notation of the board</param>
 	///<returns>The vector of the square the board is pinned to</returns>
 	public static Vector3Int BoardToVector(this string board) {
-		if (board == null) throw new ArgumentNullException(nameof(board), "Board annotation cannot be null");
+		if (board == null) throw new ArgumentNullException(nameof(board), "Board notation cannot be null");
 
 		int depth = (int) char.GetNumericValue(board[^1]);
 		if (depth % 2 == 0) depth += 2;
@@ -156,15 +156,11 @@ public static class AnnotationConverter {
 	///Converts a piece to character to a piece type
 	///</summary>
 	///<returns>Piece type of the given character</returns>
-	public static PieceType CharToPiece(this char charPiece) {
-		return _PIECES_TYPE[charPiece];
-	}
+	public static PieceType CharToPiece(this char charPiece) => _PIECES_TYPE[charPiece];
 
 	///<summary>
 	///Converts a piece character to a piece type and color
 	///</summary>
 	///<returns>Piece type and color of the given piece character</returns>
-	public static PieceTypeColor CharToPieceColor(this char charPiece) {
-		return _PIECES_TYPE_COLOR[charPiece];
-	}
+	public static PieceTypeColor CharToPieceColor(this char charPiece) => _PIECES_TYPE_COLOR[charPiece];
 }

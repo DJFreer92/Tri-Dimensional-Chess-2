@@ -7,17 +7,11 @@ using TMPro;
 public class MoveLogManager : MonoSingleton<MoveLogManager> {
 	[SerializeField] private GameObject _rowPrefab, _firstRow;
 	[SerializeField] private Transform _moveLogBodyTransform;
-	private List<GameObject> _rows = new List<GameObject>();
+	private readonly List<GameObject> _rows = new();
 
-	private void OnEnable() {
-		//register to events
-		RegisterToEvents();
-	}
+	private void OnEnable() => RegisterToEvents();
 
-	private void OnDisable() {
-		//unregister from events
-		UnregisterToEvents();
-	}
+	private void OnDisable() => UnregisterToEvents();
 
 	///<summary>
 	///Adds local methods to listeners
@@ -49,17 +43,21 @@ public class MoveLogManager : MonoSingleton<MoveLogManager> {
 	///<param name="move">Move to add to the log</param>
 	public void AddMove(Move move) {
 		GameObject row = move.Player.IsWhite ? AddNewRow() : _rows[^1];
-		row.transform.Find(move.Player.ColorPieces + " Move").GetComponent<TMP_Text>().text = move.GetAnnotation();
+		row.transform.Find(move.Player.ColorPieces + " Move").GetComponent<TMP_Text>().text = move.GetLongNotation();
 	}
 
 	///<summary>
-	///Updates the annotation of all the moves in the move log
+	///Updates the notation of all the moves in the move log
 	///</summary>
 	///<param name="moveLog">The move log</param>
 	private void UpdateEntireLog(List<Move> moveLog) {
-		foreach (Move move in moveLog) {
-			_rows[(int) Math.Ceiling(moveLog.Count / 2f) - 1].transform.Find(move.Player.ColorPieces + " Move").GetComponent<TMP_Text>().text = move.GetAnnotation();
-		}
+		foreach (Move move in moveLog)
+			_rows[(int) Math.Ceiling(moveLog.Count / 2f) - 1].
+			transform.
+			Find(move.Player.ColorPieces + " Move").
+			GetComponent<TMP_Text>().
+			text
+			= move.GetLongNotation();
 	}
 
 	///<summary>
