@@ -3,16 +3,18 @@ using System.Text;
 
 public sealed class AttackBoardMove : Move {
 	//the attackboard being moved
-	public AttackBoard BoardMoved {get; private set;}
+	public readonly AttackBoard BoardMoved;
 	//the square the board moved was pinned to at the start of the move
-	public Square StartPinSqr {get; private set;}
-	//the annotation of the attackboard being moved before it has moved
-	private readonly string _boardMovedAnnotationAtStart;
+	public readonly Square StartPinSqr;
+	//whether the the move execution should automatically re-executive a second time (should only be set to true when reading PGN)
+	public bool AutoReExecute = false;
+	//the notation of the attackboard being moved before it has moved
+	private readonly string _boardMovedNotationAtStart;
 
 	public AttackBoardMove(Player player, Square start, Square end) : base(player, start, end) {
 		BoardMoved = ChessBoard.Instance.GetBoardWithSquare(start) as AttackBoard;
 		StartPinSqr = BoardMoved.PinnedSquare;
-		_boardMovedAnnotationAtStart = start.Coords.VectorToBoard();
+		_boardMovedNotationAtStart = start.Coords.VectorToBoard();
 	}
 
 	///<summary>
@@ -20,16 +22,33 @@ public sealed class AttackBoardMove : Move {
 	///</summary>
 	public override void Execute() {
 		//if there was a secondary promotion
-		if (MoveEvents.Contains(MoveEvent.SECONDARY_PROMOTION)) {
+		if (SecondaryPromotion != PieceType.NONE && !AutoReExecute) {
 			//promote the pawn
-			(StartPinSqr.GamePiece as Pawn).Promote(SecondaryPromotion);
-			return;
+			if (PromotionUndoRedoHolder == null) {
+				PromotionUndoRedoHolder = StartPinSqr.GamePiece;
+				(StartPinSqr.GamePiece as Pawn).Promote(SecondaryPromotion);
+				Game.Instance.UpdateLastMoveNotation();
+				return;
+			}
+
+			(PromotionUndoRedoHolder, StartPinSqr.GamePiece) = (StartPinSqr.GamePiece, PromotionUndoRedoHolder);
+			StartPinSqr.GamePiece.SetUncaptured();
+			PromotionUndoRedoHolder.SetCaptured();
 		}
+
+		//determine the departure notation
+		DetermineDepartureNotation();
 
 		//make board move
 		BoardMoved.Move(this);
 
-		if (!CausesSecondaryPromotion()) return;
+		if (AutoReExecute) {
+			AutoReExecute = false;
+			Execute();
+			return;
+		}
+
+		if (SecondaryPromotion != PieceType.NONE || !CausesSecondaryPromotion()) return;
 
 		//promote the pawn
 		MoveEvents.Add(MoveEvent.SECONDARY_PROMOTION);
@@ -43,9 +62,9 @@ public sealed class AttackBoardMove : Move {
 		//if there was a secondary promotion
 		if (MoveEvents.Contains(MoveEvent.SECONDARY_PROMOTION)) {
 			//unpromote the piece
-			ChessPiece piece = StartPinSqr.GamePiece;
-			StartPinSqr.GamePiece.Unpromote();
-			Game.Destroy(piece.gameObject);
+			(PromotionUndoRedoHolder, StartPinSqr.GamePiece) = (StartPinSqr.GamePiece, PromotionUndoRedoHolder);
+			StartPinSqr.GamePiece.SetUncaptured();
+			PromotionUndoRedoHolder.SetCaptured();
 		}
 		BoardMoved.Unmove(this);
 	}
@@ -53,28 +72,68 @@ public sealed class AttackBoardMove : Move {
     ///<summary>
     ///Redoes the move
     ///</summary>
-    public override void Redo() {
-		//if there was an opponent pawn promotion, promote the opponent's pawn
-		if (MoveEvents.Contains(MoveEvent.SECONDARY_PROMOTION))
-			(StartPinSqr.GamePiece as Pawn).Promote(SecondaryPromotion);
+    public override void Redo() => Execute();
 
-		//make board move
-		BoardMoved.Move(this);
-    }
+	///<summary>
+	///Determine the departure notation of the move
+	///</summary>
+	protected override void DetermineDepartureNotation() {
+		if (ChessBoard.Instance.CanMultipleAttackBoardsMoveToPin(EndSqr, BoardMoved, Player.IsWhite))
+			_departureNotation = _boardMovedNotationAtStart;
+	}
 
     ///<summary>
-    ///Returns the annotation in long 3D chess algebraic notation
+    ///Returns the notation in long 3D chess algebraic notation
     ///</summary>
-    ///<returns>The annotation</returns>
-    public override string GetAnnotation() {
+    ///<returns>The notation</returns>
+    public override string GetLongNotation() {
 		var move = new StringBuilder();
-		//the starting board level - the ending board level
-		move.Append(_boardMovedAnnotationAtStart).Append("-").Append(BoardMoved.Squares[0].Coords.VectorToBoard());
+
+		//had a secondary promotion
+		if (MoveEvents.Contains(MoveEvent.SECONDARY_PROMOTION))
+			move.Append(StartPinSqr.GamePiece.GetCharacter(UseFigurineNotation)).Append('/');
+
+		//the attack board position at the start of the move
+		move.Append(_boardMovedNotationAtStart);
+
+		//if the board was a rotation
+		if (MoveEvents.Contains(MoveEvent.ATTACK_BOARD_ROTATE)) move.Append('⟳');
+		else  //- the ending board level
+			move.Append('-').Append(BoardMoved.Squares[0].Coords.VectorToBoard());
 
 		//had a pawn promotion
-		if (MoveEvents.Contains(MoveEvent.PROMOTION)) move.Append(BoardMoved.GetPieces()[0].GetCharacter(UseFigurineNotation));
+		if (MoveEvents.Contains(MoveEvent.PROMOTION))
+			move.Append('(').Append(BoardMoved.GetSinglePiece().GetCharacter(UseFigurineNotation)).Append(')');
 
-		return move.Append(base.GetAnnotation()).ToString();
+		//add addtional move info and return
+		return move.Append(GetEndingNotation()).ToString();
+	}
+
+    ///<summary>
+    ///Returns the notation in short 3D chess algebraic notation
+    ///</summary>
+    ///<returns>The notation in short 3D chess algebraic notation</returns>
+    public override string GetShortNotation() {
+		var move = new StringBuilder();
+
+		//had a secondary promotion
+		if (MoveEvents.Contains(MoveEvent.SECONDARY_PROMOTION))
+			move.Append(StartPinSqr.GamePiece.GetCharacter(UseFigurineNotation)).Append('/');
+
+		//if the board was a rotation
+		if (MoveEvents.Contains(MoveEvent.ATTACK_BOARD_ROTATE)) move.Append('⟳');
+		else {  //not a rotation
+			//if multiple attack boards can move to the pin, specify the departure level
+			if (!string.IsNullOrEmpty(_departureNotation)) move.Append(_departureNotation).Append('-');
+			//the new level of the board
+			move.Append(BoardMoved.Squares[0].Coords.VectorToBoard());
+		}
+
+		//had a pawn promotion
+		if (MoveEvents.Contains(MoveEvent.PROMOTION)) move.Append(BoardMoved.GetSinglePiece().GetCharacter(UseFigurineNotation));
+
+		//add addtional move info and return
+		return move.Append(GetEndingNotation()).ToString();
 	}
 
 	///<summary>

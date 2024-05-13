@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using System.Text;
+using System.Collections.Generic;
 
 public sealed class PieceMove : Move {
 	//the piece being moved
@@ -23,6 +24,9 @@ public sealed class PieceMove : Move {
 			throw new Exception("Must wait for promotion choice");
 		}
 
+		//find the short algebraic move notion of the departure square
+		DetermineDepartureNotation();
+
 		//move the piece
 		if (((PieceMoved is King && EndSqr.GamePiece is Rook) || (PieceMoved is Rook && EndSqr.GamePiece is King)) && PieceMoved.IsSameColor(EndSqr.GamePiece)) {  //castling move
 			//perform castling
@@ -38,11 +42,14 @@ public sealed class PieceMove : Move {
 		}
 
 		//if the piece is moving to a neutral attackboard, claim it
-		Board endBoard = EndSqr.GetBoard();
+		Board endBoard = EndSqr.Brd;
 		if (endBoard is AttackBoard && endBoard.Owner == Ownership.NEUTRAL) {
 			endBoard.Owner = Player.IsWhite ? Ownership.WHITE : Ownership.BLACK;
-			MoveEvents.Add(MoveEvent.ATTACKBOARD_CLAIM);
+			MoveEvents.Add(MoveEvent.ATTACK_BOARD_CLAIM);
 		}
+
+		//set the piece as moved
+		PieceMoved.SetMoved(this);
 
 		if (PieceMoved is Pawn) {  //if the piece being moved is a pawn
 			//if the move is a double square move
@@ -59,22 +66,8 @@ public sealed class PieceMove : Move {
 
 				MoveEvents.Add(MoveEvent.EN_PASSANT);
 			}
-			//if the pawn has double square move rights remove them
-			if ((PieceMoved as Pawn).HasDSMoveRights)  {
-				(PieceMoved as Pawn).HasDSMoveRights = false;
-				MoveEvents.Add(MoveEvent.LOST_DOUBLE_SQUARE_MOVE_RIGHTS);
-			}
 			(PieceMoved as Pawn).MovePiece(StartSqr, EndSqr);
-		} else {  //non-pawn move
-			PieceMoved.MoveTo(EndSqr);
-			if (PieceMoved is King && (PieceMoved as King).HasCastlingRights) {
-				(PieceMoved as King).HasCastlingRights = false;
-				MoveEvents.Add(MoveEvent.LOST_CASTLING_RIGHTS);
-			} else if (PieceMoved is Rook && (PieceMoved as Rook).HasCastlingRights) {
-				(PieceMoved as Rook).HasCastlingRights = false;
-				MoveEvents.Add(MoveEvent.LOST_CASTLING_RIGHTS);
-			}
-		}
+		} else PieceMoved.MoveTo(EndSqr);  //non-pawn move
 
 		//set the piece being captured as captured
 		PieceCaptured?.SetCaptured();
@@ -84,16 +77,25 @@ public sealed class PieceMove : Move {
 		StartSqr.GamePiece = null;
 
 		//if the piece moved between boards, make it a child of the board it landed on
-		if (StartSqr.Coords.y != EndSqr.Coords.y) PieceMoved.transform.SetParent(EndSqr.GetBoard().transform);
+		if (StartSqr.Brd != EndSqr.Brd) PieceMoved.transform.SetParent(EndSqr.Brd.transform);
 
 		//if the piece is not a pawn or it cannot be promoted, finish the move execution
 		if (Promotion == PieceType.NONE) return;
 
 		//execute the promotion
-		PieceMoved = (PieceMoved as Pawn).Promote(Promotion);
+		if (PromotionUndoRedoHolder == null) {
+			PromotionUndoRedoHolder = PieceMoved;
+			PieceMoved = (PieceMoved as Pawn).Promote(Promotion);
+		} else {
+            (PromotionUndoRedoHolder, PieceMoved) = (PieceMoved, PromotionUndoRedoHolder);
+			PieceMoved.SetUncaptured();
+			PromotionUndoRedoHolder.SetCaptured();
+			EndSqr.GamePiece = PieceMoved;
+			PieceMoved.MoveTo(EndSqr);
+        }
 
-		//mark the move as having made a promotion
-		MoveEvents.Add(MoveEvent.PROMOTION);
+        //mark the move as having made a promotion
+        MoveEvents.Add(MoveEvent.PROMOTION);
 
 		//finish the turn
 		Game.Instance.FinishTurn(this);
@@ -146,8 +148,8 @@ public sealed class PieceMove : Move {
 
 			//if it was queen side castling, assign the pieces as children of the boards they landed on
 			if (MoveEvents.Contains(MoveEvent.CASTLING_QUEEN_SIDE)) {
-				king.transform.SetParent(rookLandSqr.GetBoard().transform);
-				rook.transform.SetParent(rookStartSqr.GetBoard().transform);
+				king.transform.SetParent(rookLandSqr.Brd.transform);
+				rook.transform.SetParent(rookStartSqr.Brd.transform);
 			}
 
 			//give the king and rook their castling rights back
@@ -162,7 +164,7 @@ public sealed class PieceMove : Move {
 		EndSqr.GamePiece = null;
 
 		//if the piece moved between boards, make it a child of the board it landed on
-		if (StartSqr.Coords.y != EndSqr.Coords.y) PieceMoved.transform.SetParent(StartSqr.GetBoard().transform);
+		if (StartSqr.Brd != EndSqr.Brd) PieceMoved.transform.SetParent(StartSqr.Brd.transform);
 
 		//if move was en passant
 		if (MoveEvents.Contains(MoveEvent.EN_PASSANT)) {
@@ -175,17 +177,21 @@ public sealed class PieceMove : Move {
 			return;
 		}
 
-		if (PieceMoved is Pawn) {  //if it was a pawn move
-			//if the move was a double square pawn move
-			if (MoveEvents.Contains(MoveEvent.PAWN_DOUBLE_SQUARE)) (PieceMoved as Pawn).JustMadeDSMove = false;
-			//if the pawn lost double square move rights, give them back
-			if (MoveEvents.Contains(MoveEvent.LOST_DOUBLE_SQUARE_MOVE_RIGHTS)) (PieceMoved as Pawn).HasDSMoveRights = true;
-		} else if (PieceMoved is King) {  //if it was a king move
-			//if the king lost castling rights, give them back
-			if (MoveEvents.Contains(MoveEvent.LOST_CASTLING_RIGHTS)) (PieceMoved as King).HasCastlingRights = true;
-		} else if (PieceMoved is Rook) {  //if it was a rook move
-			//if the rook lost castling rights, give them back
-			if (MoveEvents.Contains(MoveEvent.LOST_CASTLING_RIGHTS)) (PieceMoved as Rook).HasCastlingRights = true;
+		switch (PieceMoved.Type) {
+			case PieceType.PAWN:
+				//if the move was a double square pawn move
+				if (MoveEvents.Contains(MoveEvent.PAWN_DOUBLE_SQUARE)) (PieceMoved as Pawn).JustMadeDSMove = false;
+				//if the pawn lost double square move rights, give them back
+				if (MoveEvents.Contains(MoveEvent.LOST_DOUBLE_SQUARE_MOVE_RIGHTS)) (PieceMoved as Pawn).HasDSMoveRights = true;
+				break;
+			case PieceType.KING:
+				//if the king lost castling rights, give them back
+				if (MoveEvents.Contains(MoveEvent.LOST_CASTLING_RIGHTS)) (PieceMoved as King).HasCastlingRights = true;
+				break;
+			case PieceType.ROOK:
+				//if the rook lost castling rights, give them back
+				if (MoveEvents.Contains(MoveEvent.LOST_CASTLING_RIGHTS)) (PieceMoved as Rook).HasCastlingRights = true;
+				break;
 		}
 
 		//if move was a capture
@@ -195,13 +201,15 @@ public sealed class PieceMove : Move {
 		}
 
 		//if the move claimed an attackboard, unclaim it
-		if (MoveEvents.Contains(MoveEvent.ATTACKBOARD_CLAIM)) EndSqr.GetBoard().Owner = Ownership.NEUTRAL;
+		if (MoveEvents.Contains(MoveEvent.ATTACK_BOARD_CLAIM)) EndSqr.Brd.Owner = Ownership.NEUTRAL;
 
 		//if move was a promotion
 		if (MoveEvents.Contains(MoveEvent.PROMOTION)) {
-			Pawn pawn = PieceMoved.Unpromote();
-			UnityEngine.Object.Destroy(PieceMoved.gameObject);
-			PieceMoved = pawn;
+			(PieceMoved, PromotionUndoRedoHolder) = (PromotionUndoRedoHolder, PieceMoved);
+			PieceMoved.SetUncaptured();
+			PromotionUndoRedoHolder.SetCaptured();
+			PromotionUndoRedoHolder.GetSquare().GamePiece = PieceMoved;
+			PieceMoved.MoveTo(PieceMoved.GetSquare());
 		}
 
 		//update whether the king is in check
@@ -212,6 +220,35 @@ public sealed class PieceMove : Move {
     ///Undoes the move
     ///</summary>
     public override void Redo() => Execute();
+
+	///<summary>
+	///Determine the departure notation of the move
+	///</summary>
+	protected override void DetermineDepartureNotation() {
+		List<Square> attackingSqrs = ChessBoard.Instance.GetAttackingSquares(EndSqr, StartSqr, PieceMoved.Type, Player.IsWhite);
+		bool includeFile, includeRank, includeBoard;
+		includeFile = includeRank = includeBoard = false;
+
+		foreach (Square attackingSqr in attackingSqrs) {
+			if (!attackingSqr.FileMatch(StartSqr)) {
+				includeFile = true;
+				continue;
+			}
+
+			if (attackingSqr.RankMatch(StartSqr)) {
+				if (PieceMoved is Pawn) includeFile = true;
+				includeBoard = true;
+				continue;
+			}
+
+			includeRank = true;
+		}
+
+		_departureNotation = "";
+		if (includeFile) _departureNotation += StartSqr.File;
+		if (includeRank) _departureNotation += StartSqr.Rank;
+		if (includeBoard) _departureNotation += StartSqr.BrdNotation;
+	}
 
     ///<summary>
     ///Executes a castling move
@@ -261,31 +298,62 @@ public sealed class PieceMove : Move {
 		rookSqr.GamePiece = null;
 
 		//assign the pieces as children of the boards they landed on
-		king.transform.SetParent(kingLandingSqr.GetBoard().transform);
-		rook.transform.SetParent(kingSqr.GetBoard().transform);
+		king.transform.SetParent(kingLandingSqr.Brd.transform);
+		rook.transform.SetParent(kingSqr.Brd.transform);
 
 		MoveEvents.Add(MoveEvent.CASTLING_QUEEN_SIDE);
 	}
 
 	///<summary>
-	///Returns the annotation of the move in long 3D chess algebraic notation
+	///Returns the notation of the move in long 3D chess algebraic notation
 	///</summary>
-	///<returns>The annotation of the move</returns>
-	public override string GetAnnotation() {
+	///<returns>The long 3D chess algebraic notation of the move</returns>
+	public override string GetLongNotation() {
 		//if the move was castling, O-O king side, O-O-O queen side
-		if (MoveEvents.Contains(MoveEvent.CASTLING_KING_SIDE)) return "O-O" + base.GetAnnotation();
-		if (MoveEvents.Contains(MoveEvent.CASTLING_QUEEN_SIDE)) return "O-O-O" + base.GetAnnotation();
+		if (MoveEvents.Contains(MoveEvent.CASTLING_KING_SIDE)) return "O-O" + GetEndingNotation();
+		if (MoveEvents.Contains(MoveEvent.CASTLING_QUEEN_SIDE)) return "O-O-O" + GetEndingNotation();
 
-		//the move was not castling
-		var move = new StringBuilder(PieceMoved.GetCharacter(UseFigurineNotation));  //piece character
-		move.Append(StartSqr.GetAnnotation());  //starting position
-		if (MoveEvents.Contains(MoveEvent.CAPTURE)) move.Append('x'); //A piece was captured
-		move.Append(EndSqr.GetAnnotation());  //ending position
+		//piece character and starting position
+		var move = new StringBuilder();
+		if (!MoveEvents.Contains(MoveEvent.PROMOTION)) move.Append(PieceMoved.GetCharacter(UseFigurineNotation));
+		move.Append(StartSqr.Notation);
+		//a piece was captured
+		if (MoveEvents.Contains(MoveEvent.CAPTURE)) move.Append('x');
+		//ending position
+		move.Append(EndSqr.Notation);
+
 		if (MoveEvents.Contains(MoveEvent.PROMOTION)) move.Append('=').Append(PieceMoved.GetCharacter(UseFigurineNotation));  //had a pawn promotion
-		else if (MoveEvents.Contains(MoveEvent.EN_PASSANT)) move.Append(" e.p.");  //En Passant
+		else if (MoveEvents.Contains(MoveEvent.EN_PASSANT)) move.Append("e.p.");  //en passant
+		else if (MoveEvents.Contains(MoveEvent.ATTACK_BOARD_CLAIM)) move.Append('(').Append(EndSqr.Brd.Notation).Append(')');  //attack board claim
 
-		//set the move annotation
-		return move.Append(base.GetAnnotation()).ToString();
+		//set the move notation
+		return move.Append(GetEndingNotation()).ToString();
+	}
+
+	///<summary>
+	///Returns the notation of the move in short 3D chess algebraic notation
+	///</summary>
+	///<returns>The short 3D chess algebraic notation of the move</returns>
+	public override string GetShortNotation() {
+		//if the move was castling, O-O king side, O-O-O queen side
+		if (MoveEvents.Contains(MoveEvent.CASTLING_KING_SIDE)) return "O-O" + GetEndingNotation();
+		if (MoveEvents.Contains(MoveEvent.CASTLING_QUEEN_SIDE)) return "O-O-O" + GetEndingNotation();
+
+		//piece character
+		var move = new StringBuilder();
+		if (!MoveEvents.Contains(MoveEvent.PROMOTION)) move.Append(PieceMoved.GetCharacter(UseFigurineNotation));
+		move.Append(_departureNotation);
+		//a piece was captured
+		if (MoveEvents.Contains(MoveEvent.CAPTURE)) move.Append('x');
+		//ending position
+		move.Append(EndSqr.Notation);
+
+		if (MoveEvents.Contains(MoveEvent.PROMOTION)) move.Append('=').Append(PieceMoved.GetCharacter(UseFigurineNotation));  //had a pawn promotion
+		else if (MoveEvents.Contains(MoveEvent.EN_PASSANT)) move.Append("e.p.");  //en passant
+		else if (MoveEvents.Contains(MoveEvent.ATTACK_BOARD_CLAIM)) move.Append('(').Append(EndSqr.Brd.Notation).Append(')');  //attack board claim
+
+		//set the move notation
+		return move.Append(GetEndingNotation()).ToString();
 	}
 
 	///<summary>
