@@ -37,7 +37,7 @@ public sealed class PieceCreator : MonoSingleton<PieceCreator> {
 			prefab,
 			sqr.gameObject.transform.position,
 			Quaternion.identity,
-			sqr.GetBoard().gameObject.transform
+			sqr.Brd.gameObject.transform
 		);
 
 		//orient the piece, enable the collider, and place it on its square
