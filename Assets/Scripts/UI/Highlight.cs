@@ -2,54 +2,63 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace TriDimensionalChess.UI {
-	public sealed class Highlight : MonoBehaviour {
-		[SerializeField] private Color _selectColor = Color.white, _hoverColor = Color.clear;
-		private readonly Color _CLEAR = Color.clear;
+	public class Highlight : MonoBehaviour {
+		private static readonly Color _CLEAR = Color.clear;
+		[SerializeField] private Color _selectColor = Color.white;
+		[SerializeField] private Color _hoverColor = Color.clear;
 		//helper list to cache all the materials of this object
 		private readonly List<Material> _materials = new();
-		private bool _selected = false, _hoverEnabled = true;
+		protected bool _selected = false, _hoverEnabled = true;
 
 		private void Awake() {
-			//Gets all the materials from each renderer
-			foreach (Renderer renderer in GetComponentsInChildren<Renderer>()) {
-				_materials.AddRange(renderer.materials);
-			}
-			foreach (Material material in _materials) {
-				//enable the EMISSION
-				material.EnableKeyword("_EMISSION");
-			}
+			//gets all the materials from each renderer
+			foreach (Renderer renderer in GetComponentsInChildren<Renderer>()) _materials.AddRange(renderer.materials);
+
+			//enable the EMISSION for each material
+			foreach (Material material in _materials) material.EnableKeyword("_EMISSION");
 		}
 
-		private void OnMouseEnter() {
+		protected virtual void OnMouseEnter() {
 			if (!_hoverEnabled || _selected) return;
 			SetHighlight(_hoverColor);
 		}
 
-		private void OnMouseExit() {
+		protected virtual void OnMouseExit() {
 			if (_selected) return;
 			ClearHighlight();
 		}
 
-		public void ToggleHighlight(bool highlight) {
-			if (_selected == highlight) return;
+		///<summary>
+		///Toggle whether the selected highlight is enabled
+		///</summary>
+		///<param name="toggle">Whether to enable the selected highlight</param>
+		public void ToggleSelectedHighlight(bool toggle) {
+			if (_selected == toggle) return;
 
-			if (highlight) SetHighlight(_selectColor);
+			if (toggle) SetHighlight(_selectColor);
 			else ClearHighlight();
 
-			_selected = highlight;
+			_selected = toggle;
 		}
 
-		public void ToggleHover(bool toggle) {
-			_hoverEnabled = toggle;
+		///<summary>
+		///Toggle whether the hover is enabled
+		///</summary>
+		///<param name="toggle">Whether to enable the hover</param>
+		public void ToggleHover(bool toggle) => _hoverEnabled = toggle;
+
+		///<summary>
+		///Set the highlight of the gameobject
+		///</summary>
+		///<param name="color">The color to highlight the gameobject</param>
+		protected void SetHighlight(Color color) {
+			//set the color for each material
+			foreach (Material material in _materials) material.SetColor("_EmissionColor", color);
 		}
 
-		private void SetHighlight(Color color) {
-			foreach (Material material in _materials) {
-				//set the color
-				material.SetColor("_EmissionColor", color);
-			}
-		}
-
-		private void ClearHighlight() => SetHighlight(_CLEAR);
+		///<summary>
+		///Clear the highlight of the gameobject
+		///</summary>
+		protected void ClearHighlight() => SetHighlight(_CLEAR);
 	}
 }

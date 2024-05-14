@@ -135,15 +135,9 @@ namespace TriDimensionalChess.Game {
 			if (_pgn is not null && _pgn.IsValid()) SaveSystem.Instance.SaveGame(_pgn);
 		}
 
-		private void OnEnable() {
-			//register to events
-			RegisterToEvents();
-		}
+		private void OnEnable() => RegisterToEvents();
 
-		private void OnDisable() {
-			//unregister to events
-			UnregisterToEvents();
-		}
+		private void OnDisable() => UnregisterToEvents();
 
 		///<summary>
 		///Adds local methods to listeners
@@ -202,9 +196,9 @@ namespace TriDimensionalChess.Game {
 			//set the player of the white pieces to the current turn
 			CurPlayer = GetPlayer(true);
 
-			//initialize the PGN builder
+			//load the PGN
 			if (StartPGN is not null && StartPGN.IsValid()) LoadPGN(StartPGN);
-			else {
+			else {  //load the FEN
 				//load the position from the fen
 				LoadFEN(Setup);
 				_pgn = new PGN(this);
@@ -337,9 +331,7 @@ namespace TriDimensionalChess.Game {
 
 					//if there are no available moves, exit
 					if (_availableABMoves.Count == 0) return;
-				} else {  //the square is empty and not an attackboard
-					return;
-				}
+				} else return;  //the square is empty and not an attackboard
 
 				//select the square
 				_selectedSquare = square;
@@ -367,10 +359,19 @@ namespace TriDimensionalChess.Game {
 
 			//unhighlight the gamepiece on the start square
 			_selectedSquare.GamePiece?.ToggleHighlight(false);
+
 			//unhightlight the available moves
-			foreach (Square sqr in _availableMoves) sqr.ToggleHighlight(false);
+			foreach (Square sqr in _availableMoves) sqr.ToggleAvailableHighlight(false);
 			//unhightlight the available attackboard moves
-			foreach (Square sqr in _availableABMoves) sqr.ToggleHighlight(false);
+			foreach (Square sqr in _availableABMoves) sqr.ToggleAvailableHighlight(false);
+			if (_selectedSquare != null) {
+				//unhighlight the selected square
+				_selectedSquare.ToggleSelectedHighlight(false);
+
+				//unhighlight all the squares on the board if it is an attack board
+				if (_selectedSquare.Brd is AttackBoard)
+					foreach (Square sqr in _selectedSquare.Brd.Squares) sqr.ToggleSelectedHighlight(false);
+			}
 
 			//if a move is valid, send the move to the server and then execute the move
 			if (validMove) {
@@ -392,14 +393,15 @@ namespace TriDimensionalChess.Game {
 				return;
 			}
 
-			if (square.GamePiece != null && square.GamePiece.BelongsTo(CurPlayer)) {
-				//Find all the available piece moves and highlight them
+			if (square.HasPiece() && square.GamePiece.BelongsTo(CurPlayer)) {
+				//find all the available piece moves and highlight them
 				FindAndHighlightAvailablePieceMoves(square.GamePiece);
 
 				//select the square
 				_selectedSquare = square;
 				return;
-			} else if (square.Coords.y % 2 == 1) {
+			} else if (square.Brd is AttackBoard) {
+				//find all the avilable attack board moves and highlight them
 				FindAndHighlightAvailableABMoves(square);
 
 				//select the square
@@ -416,10 +418,24 @@ namespace TriDimensionalChess.Game {
 				//get the moves from the selected square available to the player
 				_availableMoves = piece.GetAvailableMoves(CurPlayer.IsWhite);
 				_availableABMoves.Clear();
+
 				//highlight the game piece
 				piece.ToggleHighlight(true);
+				//select the square
+				square.ToggleSelectedHighlight(true);
+
 				//highlight all the available moves
-				foreach (Square sqr in _availableMoves) sqr.ToggleHighlight(true);
+				foreach (Square sqr in _availableMoves) {
+					if (sqr.HasPiece() && !sqr.GamePiece.IsSameColor(square.GamePiece)) {
+						sqr.ToggleCaptureHighlight(true);
+						continue;
+					}
+					if (piece is Pawn && piece.GetSquare().File != sqr.File) {
+						sqr.ToggleCaptureHighlight(true);
+						continue;
+					}
+					sqr.ToggleAvailableHighlight(true);
+				}
 			}
 
 			//finds all the available moves for the given attackboard and highlights their squares
@@ -428,8 +444,11 @@ namespace TriDimensionalChess.Game {
 				_availableABMoves = (ChessBoard.Instance.GetBoardWithSquare(square) as AttackBoard).GetAvailableMoves(CurPlayer.IsWhite);
 				_availableMoves.Clear();
 
+				//highlight all the squares on the attackboard as selected
+				foreach (Square sqr in square.Brd.Squares) sqr.ToggleSelectedHighlight(true);
+
 				//highlight all the available attackboard moves
-				foreach (Square sqr in _availableABMoves) sqr.ToggleHighlight(true);
+				foreach (Square sqr in _availableABMoves) sqr.ToggleAvailableHighlight(true);
 			}
 		}
 
@@ -653,9 +672,9 @@ namespace TriDimensionalChess.Game {
 		public bool IsFirstMove() => MoveCount == 1;
 
 		///<summary>
-		///Extends a draw offer to the given player
+		///Extends a draw offer to the player of the given color
 		///</summary>
-		///<param name="isWhite">Whether the player is white</param>
+		///<param name="toWhite">Whether the draw is being offered to white</param>
 		public void OfferDraw(bool toWhite) => (toWhite ? _whiteCtrls : _blackCtrls).HasDrawOffer = true;
 
 		///<summary>

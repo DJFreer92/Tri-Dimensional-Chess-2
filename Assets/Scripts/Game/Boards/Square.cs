@@ -39,9 +39,9 @@ namespace TriDimensionalChess.Game.Boards {
 		//the square's notation
 		public string Notation { get => Coords.VectorToNotation(); }
 		//the highlight component
-		private Highlight _highlight;
+		private SquareHighlight _highlight;
 
-		private void Awake() => _highlight = GetComponent<Highlight>();
+		private void Awake() => _highlight = GetComponent<SquareHighlight>();
 
 		private void OnMouseUpAsButton() {
 			//if the mouse is over a UI element, exit
@@ -96,10 +96,22 @@ namespace TriDimensionalChess.Game.Boards {
 		public bool BoardMatch(Square other) => Brd == other.Brd;
 
 		///<summary>
-		///Toggle whether the square is highlighted
+		///Toggle whether the square is highlighted as selected
 		///</summary>
 		///<param name="toggle">Whether to toggle the highlight on or off</param>
-		public void ToggleHighlight(bool toggle) => _highlight.ToggleHighlight(toggle);
+		public void ToggleSelectedHighlight(bool toggle) => _highlight.ToggleSelectedHighlight(toggle);
+
+		///<summary>
+		///Toggle whether the square is highlighted as available
+		///</summary>
+		///<param name="toggle">Whether to toggle the highlight on or off</param>
+		public void ToggleAvailableHighlight(bool toggle) => _highlight.ToggleAvailableHighlight(toggle);
+
+		///<summary>
+		///Toggle whether the square is highlighted as an available capture
+		///</summary>
+		///<param name="toggle">Whether to toggle the highlight on or off</param>
+		public void ToggleCaptureHighlight(bool toggle) => _highlight.ToggleCaptureHighlight(toggle);
 
 		///<summary>
 		///Returns a copy of the square

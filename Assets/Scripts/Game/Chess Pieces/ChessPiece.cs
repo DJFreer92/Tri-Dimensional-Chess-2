@@ -133,7 +133,7 @@ namespace TriDimensionalChess.Game.ChessPieces {
 		///</summary>
 		public void SetCaptured() {
 			HasBeenCaptured = true;
-			_highlight.ToggleHighlight(false);
+			_highlight.ToggleSelectedHighlight(false);
 			_highlight.ToggleHover(false);
 			CapturedPiecesController.Instance.AddPieceOfType(Type, IsWhite);
 			gameObject.SetActive(false);
@@ -247,7 +247,7 @@ namespace TriDimensionalChess.Game.ChessPieces {
 		///Toggle whether the square is highlighted
 		///</summary>
 		///<param name="toggle">Whether to toggle the highlight on or off</param>
-		public void ToggleHighlight(bool toggle) => _highlight.ToggleHighlight(toggle);
+		public void ToggleHighlight(bool toggle) => _highlight.ToggleSelectedHighlight(toggle);
 
 		///<summary>
 		///Returns a string of data about the object

@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 1184762427826837538}
   - component: {fileID: 4842297434817068631}
   - component: {fileID: 1954220562732276342}
-  - component: {fileID: 3413467713699524022}
   - component: {fileID: 3668551685031691283}
+  - component: {fileID: 7625357657536314901}
   m_Layer: 0
   m_Name: Square 4
   m_TagString: Untagged
@@ -107,20 +107,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3413467713699524022
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 271011780746905618}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ba99b760ec254a218af7c9a7072a0ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _selectColor: {r: 1, g: 0, b: 0, a: 1}
-  _hoverColor: {r: 0.49019608, g: 0.49019608, b: 0.49019608, a: 1}
 --- !u!114 &3668551685031691283
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134,10 +120,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 1, y: 0, z: 0}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
+--- !u!114 &7625357657536314901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 271011780746905618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02ff7e131a2d64a8f8e99e81c8b48944, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _selectColor: {r: 0, g: 0, b: 1, a: 1}
+  _hoverColor: {r: 0.49019608, g: 0.49019608, b: 0.49019608, a: 0}
+  _captureColor: {r: 1, g: 0, b: 0, a: 1}
+  _availableColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!1 &2040176102519092598
 GameObject:
   m_ObjectHideFlags: 0
@@ -150,8 +151,8 @@ GameObject:
   - component: {fileID: 2055130570957427518}
   - component: {fileID: 1933583391304577485}
   - component: {fileID: 4047775071112502947}
-  - component: {fileID: 2129445401628968618}
   - component: {fileID: 2337587600786909090}
+  - component: {fileID: 7743883747846416717}
   m_Layer: 0
   m_Name: Square 2
   m_TagString: Untagged
@@ -245,20 +246,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2129445401628968618
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2040176102519092598}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ba99b760ec254a218af7c9a7072a0ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _selectColor: {r: 1, g: 0, b: 0, a: 1}
-  _hoverColor: {r: 0.49019608, g: 0.49019608, b: 0.49019608, a: 1}
 --- !u!114 &2337587600786909090
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -272,10 +259,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 1, y: 0, z: 1}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
+--- !u!114 &7743883747846416717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2040176102519092598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02ff7e131a2d64a8f8e99e81c8b48944, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _selectColor: {r: 0, g: 0, b: 1, a: 1}
+  _hoverColor: {r: 0.49019608, g: 0.49019608, b: 0.49019608, a: 0}
+  _captureColor: {r: 1, g: 0, b: 0, a: 1}
+  _availableColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!1 &3402235956975031983
 GameObject:
   m_ObjectHideFlags: 0
@@ -288,8 +290,8 @@ GameObject:
   - component: {fileID: 2309700772192400797}
   - component: {fileID: 247580167327302949}
   - component: {fileID: 8907317676568649992}
-  - component: {fileID: 2474779811251230371}
   - component: {fileID: 5246217719480635848}
+  - component: {fileID: 1074364017593129720}
   m_Layer: 0
   m_Name: Square 3
   m_TagString: Untagged
@@ -383,20 +385,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2474779811251230371
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3402235956975031983}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ba99b760ec254a218af7c9a7072a0ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _selectColor: {r: 1, g: 0, b: 0, a: 1}
-  _hoverColor: {r: 0.49019608, g: 0.49019608, b: 0.49019608, a: 1}
 --- !u!114 &5246217719480635848
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -410,10 +398,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 0
   <Coords>k__BackingField: {x: 0, y: 0, z: 0}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
+--- !u!114 &1074364017593129720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3402235956975031983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02ff7e131a2d64a8f8e99e81c8b48944, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _selectColor: {r: 0, g: 0, b: 1, a: 1}
+  _hoverColor: {r: 0.49019608, g: 0.49019608, b: 0.49019608, a: 0}
+  _captureColor: {r: 1, g: 0, b: 0, a: 1}
+  _availableColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!1 &5134721304307234246
 GameObject:
   m_ObjectHideFlags: 0
@@ -611,8 +614,8 @@ GameObject:
   - component: {fileID: 5906417604958639985}
   - component: {fileID: 3807291747035527803}
   - component: {fileID: 7327461436591151938}
-  - component: {fileID: 2633958812022854301}
   - component: {fileID: 7497374887762737524}
+  - component: {fileID: 6145128036565287140}
   m_Layer: 0
   m_Name: Square 1
   m_TagString: Untagged
@@ -706,20 +709,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2633958812022854301
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5577493607216023141}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ba99b760ec254a218af7c9a7072a0ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _selectColor: {r: 1, g: 0, b: 0, a: 1}
-  _hoverColor: {r: 0.49019608, g: 0.49019608, b: 0.49019608, a: 1}
 --- !u!114 &7497374887762737524
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -733,7 +722,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <HasAttackBoardPin>k__BackingField: 0
-  <IsWhite>k__BackingField: 1
   <Coords>k__BackingField: {x: 0, y: 0, z: 1}
   <GamePiece>k__BackingField: {fileID: 0}
   <IsOccupiedByAB>k__BackingField: 0
+--- !u!114 &6145128036565287140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5577493607216023141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02ff7e131a2d64a8f8e99e81c8b48944, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _selectColor: {r: 0, g: 0, b: 1, a: 1}
+  _hoverColor: {r: 0.49019608, g: 0.49019608, b: 0.49019608, a: 0}
+  _captureColor: {r: 1, g: 0, b: 0, a: 1}
+  _availableColor: {r: 0, g: 1, b: 0, a: 1}
