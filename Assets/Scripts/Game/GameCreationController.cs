@@ -30,16 +30,27 @@ namespace TriDimensionalChess.Game {
 		[SerializeField] private Button _noneButton;
 		[SerializeField] private Button _customButton;
 		#endregion
+
 		#region Input Fields
 		[Header("Input Fields")]
 		[SerializeField] private TMP_InputField _fenPGNInput;
 		[SerializeField] private TMP_InputField _timeInput;
 		[SerializeField] private TMP_InputField _incrementInput;
 		#endregion
+
+		#region Toggles
+		[Header("Toggles")]
+		[SerializeField] private Toggle _abRotatingToggle;
+		[SerializeField] private Toggle _abInvertingToggle;
+		[SerializeField] private Toggle _promotionToABToggle;
+		#endregion
+
 		#region Pages
+		[Header("Pages")]
 		[SerializeField] private Page _connectingPage;
 		[SerializeField] private Page _gameUIPage;
 		#endregion
+
 		private bool _changeAutomatic;
 
 		protected override void Awake() {
@@ -109,6 +120,8 @@ namespace TriDimensionalChess.Game {
 			else Game.Instance.StartPGN = new(_fenPGNInput.text);
 
 			Game.Instance.Setup = fen;
+
+			Game.Instance.SetOptions(_abRotatingToggle.isOn, _abInvertingToggle.isOn, _promotionToABToggle.isOn);
 
 			SettingsManager.Instance.ShowExportSettings(true);
 

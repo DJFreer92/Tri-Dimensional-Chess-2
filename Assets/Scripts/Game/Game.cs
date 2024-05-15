@@ -78,6 +78,7 @@ namespace TriDimensionalChess.Game {
 		private GameState _state;
 		private Player _curPlayer;
 		private Player[] _players;
+		private bool _abRotatingEnabled, _abInvertingEnabled, _promoteToABEnabled;
 		private PGN _pgn;
 		private Square _selectedSquare;
 		private List<Square> _availableMoves, _availableABMoves;
@@ -204,6 +205,10 @@ namespace TriDimensionalChess.Game {
 				_pgn = new PGN(this);
 			}
 
+			if (_abRotatingEnabled) _pgn.AddOption("ABR");
+			if (_abInvertingEnabled) _pgn.AddOption("ABI");
+			if (_promoteToABEnabled) _pgn.AddOption("PAB");
+
 			//clear the captured pieces
 			CapturedPiecesController.Instance.ClearCapturedPieces();
 
@@ -238,18 +243,37 @@ namespace TriDimensionalChess.Game {
 		}
 
 		///<summary>
+		///Set whether each game option is enabled or disabled
+		///</summary>
+		///<param name="abRotatingEnabled">Whether to enable the attack board rotating option</param>
+		///<param name="abInvertingEnabled">Whether to enable the attack board inverting option</param>
+		///<param name="promoteToABEnabled">Whether to enable the promotion to an attack board option</param>
+		public void SetOptions(bool abRotatingEnabled, bool abInvertingEnabled, bool promoteToABEnabled) {
+			_abRotatingEnabled = abRotatingEnabled;
+			_abInvertingEnabled = abInvertingEnabled;
+			_promoteToABEnabled = promoteToABEnabled;
+		}
+
+		///<summary>
 		///Loads the given PGN
 		///</summary>
 		///<param name="pgn">The PGN to load</param>
 		public void LoadPGN(PGN pgn) {
 			Setup = pgn.SetUp;
 			LoadFEN(Setup);
+
+			_abRotatingEnabled = pgn.ContainsOption("ABR");
+			_abInvertingEnabled = pgn.ContainsOption("ABI");
+			_promoteToABEnabled = pgn.ContainsOption("PAB");
+
 			foreach (string annotatedMove in pgn.GetMoves()) {
 				Move move = Move.BuildMoveDynamic(annotatedMove, CurPlayer.IsWhite);
 				MoveCommandHandler.AddCommand(move);
 				if (!move.MoveEvents.Contains(MoveEvent.PROMOTION)) FinishTurn(move);
 			}
+
 			_pgn = new PGN(pgn);
+			
 			if (State.Is(GameState.INACTIVE)) _pgn.ClosePGN(State);
 		}
 

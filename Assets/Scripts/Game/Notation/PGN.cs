@@ -12,17 +12,19 @@ using TriDimensionalChess.UI;
 namespace TriDimensionalChess.Game.Notation {
 	public sealed class PGN {
 		private const int _NUM_REQUIRED_TAGS = 7;
-		private static readonly string[] _TAG_ORDER = {"Event", "Site", "Date", "Round", "White", "Black", "Result", "Annotator", "PlyCount", "TimeControl", "Time", "Termination", "Mode", "FEN"};
+		private static readonly string[] _TAG_ORDER = {"Event", "Site", "Date", "Round", "White", "Black", "Result", "Annotator", "PlyCount", "TimeControl", "Time", "Termination", "Mode", "FEN", "Variant", "Options"};
 
 		public FEN SetUp {get; private set;}
 		private readonly Dictionary<string, string> _tags;
 		private readonly List<string> _moves;
+		private List<string> _options;
 		private string _pgn;
 		private bool _hasChanged, _readOnly;
 
 		public PGN(Game game) {
 			_tags = new();
 			_moves = new();
+			_options = new();
 			_pgn = null;
 			_hasChanged = true;
 			_readOnly = false;
@@ -43,6 +45,7 @@ namespace TriDimensionalChess.Game.Notation {
 			SetUp = new();
 			_tags = new();
 			_moves = new();
+			_options = new();
 			_pgn = null;
 			_hasChanged = true;
 			_readOnly = readOnly;
@@ -54,6 +57,7 @@ namespace TriDimensionalChess.Game.Notation {
 			SetUp = pgn.SetUp;
 			_tags = new(pgn._tags);
 			_moves = new(pgn._moves);
+			_options = new(pgn._options);
 			_pgn = pgn._hasChanged ? null : pgn._pgn;
 			_hasChanged = pgn._hasChanged;
 			_readOnly = readOnly;
@@ -77,6 +81,11 @@ namespace TriDimensionalChess.Game.Notation {
 			foreach (string tag in _TAG_ORDER) {
 				if (tag == "FEN") {
 					pgn.Append(FormatTag(tag, SetUp.Fen)).Append('\n');
+					continue;
+				}
+
+				if (tag == "Options" && _options.Count > 0) {
+					pgn.Append(FormatTag("Options", string.Join('/', _options)));
 					continue;
 				}
 
@@ -120,6 +129,11 @@ namespace TriDimensionalChess.Game.Notation {
 				return;
 			}
 
+			if (name == "FEN" || name == "Options") {
+				Debug.LogWarning($"{name} tag cannot be added in this manner");
+				return;
+			}
+
 			if (ContainsTag(name)) {
 				if (_tags[name] == data) return;
 
@@ -153,6 +167,29 @@ namespace TriDimensionalChess.Game.Notation {
 			_tags.Remove(name);
 			_hasChanged = true;
 		}
+
+		///<summary>
+		///Add the given option to the PGN
+		///</summary>
+		///<param name="option">The option to be added</param>
+		public void AddOption(string option) {
+			if (!_options.Contains(option)) _options.Add(option);
+		}
+
+		///<summary>
+		///Removes the given option from the PGN
+		///</summary>
+		///<param name="option">The option to be removed</param>
+		public void RemoveOption(string option) {
+			if (_options.Contains(option)) _options.Remove(option);
+		}
+
+		///<summary>
+		///Returns whether the PGN contains the given option
+		///</summary>
+		///<param name="option">The option to search for</param>
+		///<returns>Whether the PGN contains the given option</returns>
+		public bool ContainsOption(string option) => _options.Contains(option);
 
 		///<summary>
 		///Adds the given move
@@ -226,6 +263,11 @@ namespace TriDimensionalChess.Game.Notation {
 
 				if (name == "FEN") {
 					SetUp = new(data);
+					continue;
+				}
+
+				if (name == "Options") {
+					_options = data.Split('/').ToList();
 					continue;
 				}
 
