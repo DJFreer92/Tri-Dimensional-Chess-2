@@ -100,10 +100,13 @@ namespace TriDimensionalChess.Game {
 			bool isFEN = contents[0] != '[';
 
 			_fenPGNInput.text = contents;
+
 			SelectButton(_originalButton, false);
 			SelectButton(_nextGenButton, false);
 			SelectButton(_useFENButton, isFEN);
 			SelectButton(_usePGNButton, !isFEN);
+
+			if (!isFEN) _abRotatingToggle.interactable = _abInvertingToggle.interactable = _promotionToABToggle.interactable = false;
 		}
 
 		///<summary>
