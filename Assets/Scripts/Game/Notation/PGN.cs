@@ -12,14 +12,17 @@ using TriDimensionalChess.UI;
 namespace TriDimensionalChess.Game.Notation {
 	public sealed class PGN {
 		private const int _NUM_REQUIRED_TAGS = 7;
+
 		private static readonly string[] _TAG_ORDER = {"Event", "Site", "Date", "Round", "White", "Black", "Result", "Annotator", "PlyCount", "TimeControl", "Time", "Termination", "Mode", "FEN", "Variant", "Options"};
 
-		public FEN SetUp {get; private set;}
 		private readonly Dictionary<string, string> _tags;
 		private readonly List<string> _moves;
+
 		private List<string> _options;
 		private string _pgn;
 		private bool _hasChanged, _readOnly;
+
+		public FEN SetUp {get; private set;}
 
 		public PGN(Game game) {
 			_tags = new();
@@ -201,8 +204,7 @@ namespace TriDimensionalChess.Game.Notation {
 				return;
 			}
 
-			//_moves.Add(move.GetLongNotation());
-			_moves.Add(move.GetShortNotation());
+			_moves.Add(move.GetNotation());
 			_hasChanged = true;
 		}
 

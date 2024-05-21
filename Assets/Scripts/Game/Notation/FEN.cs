@@ -9,25 +9,35 @@ using TriDimensionalChess.UI;
 
 namespace TriDimensionalChess.Game.Notation {
 	/* Uses standard FEN notation with noteable exceptions to account for the special board setup of Tri-Dimensional Chess.
-	* - Attack board position are donoted a 'W' or 'w' for white-owned, 'B' or 'b' for black-owned, and 'N' or 'n' for neutral boards
-	*   with captial letters being on the king's side and lowercase letters being on the queen's side followed by a number indicating
-	*   which number pin it is on, the attack boards will be ordered from top to bottom then left to right, if there are no attack
-	*   boards the field uses the character '-'.
-	* - Pawns that can make a double square move will instead be denoted by a 'D' for white and 'd' for black, 'P' and 'p' will refer
-	*   only to pawns which have already moved.
+	* - Attack board position are donoted a 'W' or 'w' for white-owned, 'B' or 'b' for black-owned, and 'N' or 'n' for neutral
+	*	boards with captial letters being on the king's side and lowercase letters being on the queen's side followed by a number
+	*	indicating which number pin it is on, the attack boards will be ordered from top to bottom then left to right and seperated
+	*	by '/' characters, if there are no attack boards the field uses the character '-'.
+	* - Inverted attack boards will be follower by a capital 'I'
+	* - Pawns that can make a double square move will instead be denoted by a 'D' for white and 'd' for black, 'P' and 'p' will
+	*	refer only to pawns which have already moved.
 	* - The '|' character will separate the pieces of different boards, main boards will be listed before attack boards from top to
 	*   bottom and attack boards will be in the same order as previously denoted.
 	* - En passant will be denoted by the long Tri-Dimensional algebraic notation of the square of the pawn which made the double
 	*   square move if en passant is legal.
 	*/
 	public struct FEN {
-		private static readonly string[] _BOARD_SORT_ORDER = {"B", "N", "W", "QL6", "KL6", "QL5", "KL5", "QL4", "KL4", "QL3", "KL3", "QL2", "KL2", "QL1", "KL1"};
+		private static readonly string[] _BOARD_SORT_ORDER = {
+			"B", "N", "W",
+			"QL6", "KL6", "QL5", "KL5",
+			"QL6I", "KL6I", "QL5I", "KL5I",
+			"QL4", "KL4", "QL3", "KL3",
+			"QL4I", "KL4I", "QL3I", "KL3I",
+			"QL2", "KL2", "QL1", "KL1",
+			"QL2I", "KL2I", "QL1I", "KL1I"
+		};
+
+		private string[] _fen;
 
 		public string Fen {
 			readonly get => IsEmpty() ? null : string.Join(' ', _fen);
 			set => _fen = value.Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
 		}
-		private string[] _fen;
 
 		public FEN(string fen = "") {
 			_fen = fen.Split(' ', System.StringSplitOptions.RemoveEmptyEntries);
@@ -69,10 +79,11 @@ namespace TriDimensionalChess.Game.Notation {
 				if (brd is not AttackBoard) continue;
 				abfen = char.ToString((char) brd.Owner);
 				if (brd.Notation[0] == 'Q') abfen = abfen.ToLower();
-				abfen += brd.Notation[^1];
-				_fen[0] += abfen;
+				if ((brd as AttackBoard).IsInverted) abfen += brd.Notation[^2..];
+				else abfen += brd.Notation[^1];
+				_fen[0] += abfen + '/';
 			}
-			if (string.IsNullOrEmpty(_fen[0])) _fen[0] = "-";
+			_fen[0] = string.IsNullOrEmpty(_fen[0]) ? "-" : _fen[0][..^1];
 
 			//piece positions
 			int lastRank, emptySqrs;
@@ -80,16 +91,16 @@ namespace TriDimensionalChess.Game.Notation {
 			for (int i = 0; i < boards.Length; i++) {
 				if (i > 0) _fen[1] += '|';
 				Square[] sqrs = boards[i].GetSortedSquares();
-				lastRank = sqrs[0].Coords.z;
+				lastRank = sqrs[0].Rank;
 				emptySqrs = 0;
 				foreach (Square sqr in sqrs) {
-					if (sqr.Coords.z != lastRank) {
+					if (sqr.Rank != lastRank) {
 						if (emptySqrs > 0) {
 							_fen[1] += emptySqrs;
 							emptySqrs = 0;
 						}
 						_fen[1] += '/';
-						lastRank = sqr.Coords.z;
+						lastRank = sqr.Rank;
 					}
 					if (!sqr.HasPiece()) {
 						emptySqrs++;
