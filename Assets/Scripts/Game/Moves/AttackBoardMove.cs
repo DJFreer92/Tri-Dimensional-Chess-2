@@ -3,7 +3,6 @@ using System.Text;
 
 using TriDimensionalChess.Game.Boards;
 using TriDimensionalChess.Game.ChessPieces;
-using TriDimensionalChess.Game.Notation;
 
 namespace TriDimensionalChess.Game.Moves {
 	public sealed class AttackBoardMove : Move {
@@ -11,15 +10,17 @@ namespace TriDimensionalChess.Game.Moves {
 		public readonly AttackBoard BoardMoved;
 		//the square the board moved was pinned to at the start of the move
 		public readonly Square StartPinSqr;
-		//whether the the move execution should automatically re-executive a second time (should only be set to true when reading PGN)
+
+		//whether the the move execution should automatically re-execute a second time (should only be set to true when reading PGN)
 		public bool AutoReExecute = false;
+
 		//the notation of the attackboard being moved before it has moved
 		private readonly string _boardMovedNotationAtStart;
 
-		public AttackBoardMove(Player player, Square start, Square end) : base(player, start, end) {
+		public AttackBoardMove(Player player, Square start, Square end, MoveEvent moveEvents = MoveEvent.NONE) : base(player, start, end, moveEvents) {
 			BoardMoved = ChessBoard.Instance.GetBoardWithSquare(start) as AttackBoard;
 			StartPinSqr = BoardMoved.PinnedSquare;
-			_boardMovedNotationAtStart = start.Coords.VectorToBoard();
+			_boardMovedNotationAtStart = BoardMoved.Notation;
 		}
 
 		///<summary>
@@ -56,7 +57,7 @@ namespace TriDimensionalChess.Game.Moves {
 			if (SecondaryPromotion != PieceType.NONE || !CausesSecondaryPromotion()) return;
 
 			//promote the pawn
-			MoveEvents.Add(MoveEvent.SECONDARY_PROMOTION);
+			AddMoveEvent(MoveEvent.SECONDARY_PROMOTION);
 			Game.Instance.StartCoroutine(GetPromotionChoice(true));
 		}
 
@@ -65,7 +66,7 @@ namespace TriDimensionalChess.Game.Moves {
 		///</summary>
 		public override void Undo() {
 			//if there was a secondary promotion
-			if (MoveEvents.Contains(MoveEvent.SECONDARY_PROMOTION)) {
+			if (HasMoveEvent(MoveEvent.SECONDARY_PROMOTION)) {
 				//unpromote the piece
 				(PromotionUndoRedoHolder, StartPinSqr.GamePiece) = (StartPinSqr.GamePiece, PromotionUndoRedoHolder);
 				StartPinSqr.GamePiece.SetUncaptured();
@@ -83,59 +84,50 @@ namespace TriDimensionalChess.Game.Moves {
 		///Determine the departure notation of the move
 		///</summary>
 		protected override void DetermineDepartureNotation() {
-			if (ChessBoard.Instance.CanMultipleAttackBoardsMoveToPin(EndSqr, BoardMoved, Player.IsWhite))
+			if (HasMoveEvent(MoveEvent.ATTACK_BOARD_ROTATE)) return;
+
+			if (ChessBoard.Instance.CanMultipleAttackBoardsMoveToPin(EndSqr, BoardMoved, BoardMoved.IsInverted, Player.IsWhite)) {
 				_departureNotation = _boardMovedNotationAtStart;
-		}
+				return;
+			}
 
-		///<summary>
-		///Returns the notation in long 3D chess algebraic notation
-		///</summary>
-		///<returns>The notation</returns>
-		public override string GetLongNotation() {
-			var move = new StringBuilder();
+			if (HasMoveEvent(MoveEvent.ATTACK_BOARD_INVERSION)) {
+				if (ChessBoard.Instance.CanMultipleAttackBoardsMoveToPin(
+					BoardMoved.PinnedSquare,
+					BoardMoved,
+					!BoardMoved.IsInverted,
+					Player.IsWhite
+				)) _departureNotation = _boardMovedNotationAtStart;
+				return;
+			}
 
-			//had a secondary promotion
-			if (MoveEvents.Contains(MoveEvent.SECONDARY_PROMOTION))
-				move.Append(StartPinSqr.GamePiece.GetCharacter(UseFigurineNotation)).Append('/');
-
-			//the attack board position at the start of the move
-			move.Append(_boardMovedNotationAtStart);
-
-			//if the board was a rotation
-			if (MoveEvents.Contains(MoveEvent.ATTACK_BOARD_ROTATE)) move.Append('⟳');
-			else  //- the ending board level
-				move.Append('-').Append(BoardMoved.Squares[0].Coords.VectorToBoard());
-
-			//had a pawn promotion
-			if (MoveEvents.Contains(MoveEvent.PROMOTION))
-				move.Append('(').Append(BoardMoved.GetSinglePiece().GetCharacter(UseFigurineNotation)).Append(')');
-
-			//add addtional move info and return
-			return move.Append(GetEndingNotation()).ToString();
+			if (BoardMoved.IsInverted ?
+				(EndSqr as PinSquare).IsTopPinOccupied() :
+				(EndSqr as PinSquare).IsBottomPinOccupied()
+			) _departureNotation = _boardMovedNotationAtStart;
 		}
 
 		///<summary>
 		///Returns the notation in short 3D chess algebraic notation
 		///</summary>
 		///<returns>The notation in short 3D chess algebraic notation</returns>
-		public override string GetShortNotation() {
+		public override string GetNotation() {
 			var move = new StringBuilder();
 
 			//had a secondary promotion
-			if (MoveEvents.Contains(MoveEvent.SECONDARY_PROMOTION))
-				move.Append(StartPinSqr.GamePiece.GetCharacter(UseFigurineNotation)).Append('/');
+			if (HasMoveEvent(MoveEvent.SECONDARY_PROMOTION))
+				move.Append(StartPinSqr.GamePiece.GetCharacter(SettingsManager.Instance.FigurineNotation)).Append('/');
 
-			//if the board was a rotation
-			if (MoveEvents.Contains(MoveEvent.ATTACK_BOARD_ROTATE)) move.Append('⟳');
-			else {  //not a rotation
-				//if multiple attack boards can move to the pin, specify the departure level
-				if (!string.IsNullOrEmpty(_departureNotation)) move.Append(_departureNotation).Append('-');
-				//the new level of the board
-				move.Append(BoardMoved.Squares[0].Coords.VectorToBoard());
-			}
+			//if move was an attack board rotation
+			if (HasMoveEvent(MoveEvent.ATTACK_BOARD_ROTATE)) move.Append('⟳');
+			//if multiple attack boards can move to the pin, specify the departure level
+			else if (!string.IsNullOrEmpty(_departureNotation)) move.Append(_departureNotation).Append('-');
+
+			//the new level of the board
+			move.Append(BoardMoved.Notation);
 
 			//had a pawn promotion
-			if (MoveEvents.Contains(MoveEvent.PROMOTION)) move.Append(BoardMoved.GetSinglePiece().GetCharacter(UseFigurineNotation));
+			if (HasMoveEvent(MoveEvent.PROMOTION)) move.Append(BoardMoved.GetSinglePiece().GetCharacter(SettingsManager.Instance.FigurineNotation));
 
 			//add addtional move info and return
 			return move.Append(GetEndingNotation()).ToString();
@@ -148,7 +140,7 @@ namespace TriDimensionalChess.Game.Moves {
 		public bool CausesSecondaryPromotion() {
 			return StartPinSqr.HasPiece() &&  //the square the attackboard is pinned to has a piece
 				StartPinSqr.GamePiece.Type == PieceType.PAWN &&  //the piece is a pawn
-				StartPinSqr.Coords.z == (StartPinSqr.GamePiece.IsWhite ? 8 : 1);  //the piece is at the opposite end of the board form its starting position
+				StartPinSqr.Rank == (StartPinSqr.GamePiece.IsWhite ? 8 : 1);  //the piece is at the opposite end of the board form its starting position
 		}
 	}
 }
