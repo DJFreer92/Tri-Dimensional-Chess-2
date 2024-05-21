@@ -9,15 +9,14 @@ using TriDimensionalChess.UI;
 namespace TriDimensionalChess.Game.Boards {
 	[RequireComponent(typeof(Highlight))]
 	[DisallowMultipleComponent]
-	public sealed class Square : MonoBehaviour {
-		//whether an attackboard can rest on this square
-		[field: SerializeField] public bool HasAttackBoardPin {get; private set;}
+	public class Square : MonoBehaviour {
+		//the highlight component
+		private SquareHighlight _highlight;
+
 		//x, y, and z coordinates on the board
 		[field: SerializeField] public Vector3Int Coords {get; set;}
 		//the piece on the square
 		[field: SerializeField] public ChessPiece GamePiece {get; set;}
-		//whether the square has an attackboard on it
-		[field: SerializeField] public bool IsOccupiedByAB {get; set;}
 		//the square's file index
 		public int FileIndex { get => Coords.x; }
 		//the square's file
@@ -28,20 +27,18 @@ namespace TriDimensionalChess.Game.Boards {
 		public Board Brd {
 			get {
 				foreach (Board brd in ChessBoard.Instance)
-					if (brd.Y == Coords.y && brd.Squares.Contains(this)) return brd;
+					if (brd.Y == BrdHeight && brd.Squares.Contains(this)) return brd;
 				return null;
 			}
 		}
-		//the square's board notation
-		public string BrdNotation { get => Brd.Notation; }
 		//the square's board height
 		public int BrdHeight { get => Coords.y; }
+		//the square's board notation
+		public string BrdNotation { get => Brd.Notation; }
 		//the square's notation
-		public string Notation { get => Coords.VectorToNotation(); }
-		//the highlight component
-		private SquareHighlight _highlight;
+		public string Notation { get => $"{File}{Rank}{Brd.Notation}"; }
 
-		private void Awake() => _highlight = GetComponent<SquareHighlight>();
+		protected virtual void Awake() => _highlight = GetComponent<SquareHighlight>();
 
 		private void OnMouseUpAsButton() {
 			//if the mouse is over a UI element, exit
@@ -57,9 +54,8 @@ namespace TriDimensionalChess.Game.Boards {
 		///<summary>
 		///Clear the square
 		///</summary>
-		public void Clear() {
+		public virtual void Clear() {
 			if (HasPiece()) Destroy(GamePiece.gameObject);
-			IsOccupiedByAB = false;
 		}
 
 		///<summary>
@@ -72,21 +68,21 @@ namespace TriDimensionalChess.Game.Boards {
 		///Returns whether the square is white
 		///</summary>
 		///<returns>Wether the square is white</returns>
-		public bool IsWhite() => (Coords.x + Coords.z) % 2 == 1;
+		public bool IsLightSquare() => (Coords.x + Coords.z) % 2 == 1;
 
 		///<summary>
 		///Returns whether the files of the two squares are the same
 		///</summary>
 		///<param name="other">The other square</param>
 		///<returns>Whether the files of the two squares are the same</returns>
-		public bool FileMatch(Square other) => Coords.x == other.Coords.x;
+		public bool FileMatch(Square other) => FileIndex == other.FileIndex;
 
 		///<summary>
 		///Returns whether the ranks of the two squares are the same
 		///</summary>
 		///<param name="other">The other square</param>
 		///<returns>Whether the ranks of the two squares are the same</returns>
-		public bool RankMatch(Square other) => Coords.z == other.Coords.z;
+		public bool RankMatch(Square other) => Rank == other.Rank;
 
 		///<summary>
 		///Returns whether the boards of the two squares are the same
@@ -94,6 +90,13 @@ namespace TriDimensionalChess.Game.Boards {
 		///<param name="other">The other square</param>
 		///<returns>Whether the boards of the two squares are the same</returns>
 		public bool BoardMatch(Square other) => Brd == other.Brd;
+
+		///<summary>
+		///Returns whether the the heights of the two squares are the same
+		///</summary>
+		///<param name="other">The other square</param>
+		///<returns>Whether the heights of the two squares are the same</returns>
+		public bool HeightMatch(Square other) => BrdHeight == other.BrdHeight;
 
 		///<summary>
 		///Toggle whether the square is highlighted as selected
