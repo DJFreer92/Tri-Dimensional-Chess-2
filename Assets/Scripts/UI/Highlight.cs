@@ -2,13 +2,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace TriDimensionalChess.UI {
+	[DisallowMultipleComponent]
 	public class Highlight : MonoBehaviour {
+		protected bool _selected = false, _hoverEnabled = true;
+		
 		private static readonly Color _CLEAR = Color.clear;
-		[SerializeField] private Color _selectColor = Color.white;
-		[SerializeField] private Color _hoverColor = Color.clear;
+
 		//helper list to cache all the materials of this object
 		private readonly List<Material> _materials = new();
-		protected bool _selected = false, _hoverEnabled = true;
+
+		[SerializeField] private Color _selectColor = Color.white;
+		[SerializeField] private Color _hoverColor = Color.clear;
 
 		private void Awake() {
 			//gets all the materials from each renderer

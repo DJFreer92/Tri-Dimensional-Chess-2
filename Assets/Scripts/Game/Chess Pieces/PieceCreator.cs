@@ -7,10 +7,10 @@ using TriDimensionalChess.Tools;
 namespace TriDimensionalChess.Game.ChessPieces {
 	[DisallowMultipleComponent]
 	public sealed class PieceCreator : MonoSingleton<PieceCreator> {
+		private readonly Dictionary<PieceTypeColor, GameObject> _typeToPieceDict = new();
+
 		[SerializeField] private GameObject[] _piecesPrefabs;
 		[SerializeField] private Transform _piecesParent;
-
-		private readonly Dictionary<PieceTypeColor, GameObject> _typeToPieceDict = new();
 
 		protected override void Awake() {
 			base.Awake();

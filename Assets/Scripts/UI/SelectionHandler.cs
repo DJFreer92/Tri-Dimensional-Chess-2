@@ -6,13 +6,18 @@ using UnityEngine.UI;
 namespace TriDimensionalChess.UI {
 	[DisallowMultipleComponent]
 	public sealed class SelectionHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler {
+		#region References
 		[Header("References")]
 		[SerializeField] private VerticalSelectionManager _verticalSelectionManager;
 		[SerializeField] private HorizontalSelectionManager _horizontalSelectionManager;
+		#endregion
+
+		#region Constants
 		[Header("Constants")]
 		[SerializeField] private float _animationTime = 0.1f;
 		[Range(0f, 2f), SerializeField] private float _scale = 1.1f;
 		[SerializeField] private bool _deselectOnPointerExit = true;
+		#endregion
 
 		private Selectable _selectableComponent;
 		private Vector3 _startScale;

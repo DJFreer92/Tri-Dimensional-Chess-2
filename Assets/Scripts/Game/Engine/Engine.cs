@@ -190,7 +190,7 @@ namespace TriDimensionalChess.Game.Engine {
 					bool isWhite = ptc < PieceTypeColor.BLACK_KING;
 					foreach (Square sqr in board.Boards[i]) {
 						if (sqr.GamePiece.IsWhite != isWhite || sqr.GamePiece.Type != type) continue;
-						_positions[i][ptc] |= 1UL << (sqr.Coords.z * 6 + sqr.Coords.x);
+						_positions[i][ptc] |= 1UL << (sqr.Rank * 6 + sqr.FileIndex);
 					}
 				}
 			}
@@ -216,7 +216,7 @@ namespace TriDimensionalChess.Game.Engine {
 			foreach (Board brd in board) {
 				if (brd is not AttackBoard) continue;
 				foreach (Square sqr in brd)
-					_boards[boardIndex] |= 1UL << (sqr.Coords.z * 6 + sqr.Coords.x);
+					_boards[boardIndex] |= 1UL << (sqr.Rank * 6 + sqr.FileIndex);
 			}
 			SetLegalSqrs();
 		}

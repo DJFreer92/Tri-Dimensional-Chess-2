@@ -34,7 +34,6 @@ namespace TriDimensionalChess.Game.Moves {
 		///<param name="figurineNotation">Whether the notation should be figurine notation</param>
 		private void UpdateNotation(bool figurineNotation) {
 			List<Move> moveLog = Game.Instance.MovesPlayed;
-			foreach (Move move in moveLog) move.UseFigurineNotation = figurineNotation;
 			UpdateEntireLog(moveLog);
 		}
 
@@ -44,7 +43,7 @@ namespace TriDimensionalChess.Game.Moves {
 		///<param name="move">Move to add to the log</param>
 		public void AddMove(Move move) {
 			GameObject row = move.Player.IsWhite ? AddNewRow() : _rows[^1];
-			row.transform.Find(move.Player.ColorPieces + " Move").GetComponent<TMP_Text>().text = move.GetLongNotation();
+			row.transform.Find(move.Player.ColorPieces + " Move").GetComponent<TMP_Text>().text = move.GetNotation();
 		}
 
 		///<summary>
@@ -58,7 +57,7 @@ namespace TriDimensionalChess.Game.Moves {
 				Find(move.Player.ColorPieces + " Move").
 				GetComponent<TMP_Text>().
 				text
-				= move.GetLongNotation();
+				= move.GetNotation();
 		}
 
 		///<summary>

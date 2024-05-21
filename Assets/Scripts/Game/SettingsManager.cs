@@ -14,16 +14,21 @@ namespace TriDimensionalChess.Game {
 		//listeners
 		public Action<bool> OnAutoQueenChange, OnFigurineNotationChange, OnTestModeChange;
 
-		[field: Header("Settings")]
-		[field: SerializeField] public bool AutoQueen {get; private set;}
-		[field: SerializeField] public bool FigurineNotation {get; private set;}
-		[field: SerializeField] public bool TestMode {get; private set;}
+		#region References
 		[Header("References")]
 		[SerializeField] private GameObject _exportSettings;
 		[SerializeField] private GameObject _analysisSettings;
 		[SerializeField] private TMP_InputField _fenPGNInput;
 		[SerializeField] private Button _setFENButton;
 		[SerializeField] private Button _setPGNButton;
+		#endregion
+
+		#region Settings
+		[field: Header("Settings")]
+		[field: SerializeField] public bool AutoQueen {get; private set;}
+		[field: SerializeField] public bool FigurineNotation {get; private set;}
+		[field: SerializeField] public bool TestMode {get; private set;}
+		#endregion
 
 		protected override void Awake() {
 			base.Awake();

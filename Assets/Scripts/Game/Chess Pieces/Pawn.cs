@@ -10,6 +10,12 @@ namespace TriDimensionalChess.Game.ChessPieces {
 	public sealed class Pawn : ChessPiece {
 		//the notation and figurine characters of the pawn
 		private const string _STANDARD_CHARACTER = "", _FIGURINE_CHARACTER = "";
+
+		//whether the pawn can make a double square move
+		public bool HasDSMoveRights = true;  //Can make Double Square move
+		//holds whether the pawn made a double square move on its last turn
+		public bool JustMadeDSMove;  //Just Made Double Square Move
+
 		//offsets from the pawn where it can move to
 		private static readonly Vector2Int[] _OFFSETS = {
 			Vector2Int.up,
@@ -17,10 +23,6 @@ namespace TriDimensionalChess.Game.ChessPieces {
 			Vector2Int.up + Vector2Int.right,
 			Vector2Int.up + Vector2Int.left
 		};
-		//whether the pawn can make a double square move
-		public bool HasDSMoveRights = true;  //Can make Double Square move
-		//holds whether the pawn made a double square move on its last turn
-		public bool JustMadeDSMove;  //Just Made Double Square Move
 
 		///<summary>
 		///Adds local methods to listeners
@@ -72,11 +74,11 @@ namespace TriDimensionalChess.Game.ChessPieces {
 			bool blockDouble = false;
 			foreach (var offset in _OFFSETS) {
 				if (offset.y == 2 && (!HasDSMoveRights || blockDouble)) continue;
-				int x = offset.x + square.Coords.x;
-				int z = offset.y * direction + square.Coords.z;
+				int x = offset.x + square.FileIndex;
+				int z = offset.y * direction + square.Rank;
 				if (!BoardExtensions.WithinBounds(x, z)) continue;
 				foreach (Square sqr in ChessBoard.Instance.EnumerableSquares()) {
-					if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
+					if (sqr.FileIndex != x || sqr.Rank != z) continue;
 					bool isEnPassant = false;
 					if (offset.x == 0 && sqr.HasPiece()) {  //straight 1 or 2
 						blockDouble = true;
@@ -89,7 +91,7 @@ namespace TriDimensionalChess.Game.ChessPieces {
 						} else if (IsSameColor(sqr.GamePiece)) continue;
 					}
 					var move = new PieceMove(GetOwner(), square, sqr);
-					if (isEnPassant) move.MoveEvents.Add(MoveEvent.EN_PASSANT);
+					if (isEnPassant) move.AddMoveEvent(MoveEvent.EN_PASSANT);
 					if (!King.WillBeInCheck(move)) moves.Add(sqr);
 				}
 			}
@@ -120,19 +122,19 @@ namespace TriDimensionalChess.Game.ChessPieces {
 		///<returns>Whether the pawn can be legally promoted</returns>
 		public bool CanBePromoted(Square sqr) {
 			//if the pawn hasn't reached the 8th rank for white or 1st rank for black, return cannot be promoted
-			if (IsWhite ? (sqr.Coords.z < 8) : (sqr.Coords.z > 1)) return false;
+			if (IsWhite ? (sqr.Rank < 8) : (sqr.Rank > 1)) return false;
 
 			//if the pawn is at the 9th rank for white or 0th rank for black, return can be promoted
-			if (sqr.Coords.z == (IsWhite ? 9 : 0)) return true;
+			if (sqr.Rank == (IsWhite ? 9 : 0)) return true;
 
 			//if the pawn is on the z or e file, return cannot be promoted
-			if (sqr.Coords.x % 5 == 0) return false;
+			if (sqr.FileIndex % 5 == 0) return false;
 
 			//if the pawn is on the b or c file, return can be promoted
-			if (sqr.Coords.x == 2 || sqr.Coords.x == 3) return true;
+			if (sqr.FileIndex == 2 || sqr.FileIndex == 3) return true;
 
 			//return whether there isn't an attack board square directly infront of the pawn
-			return ChessBoard.Instance.GetSquareAt(new Vector3Int(sqr.Coords.x, IsWhite ? 5 : 1, IsWhite ? 9 : 0)) == null;
+			return ChessBoard.Instance.GetSquareAt(new Vector3Int(sqr.FileIndex, IsWhite ? 5 : 1, IsWhite ? 9 : 0)) == null;
 		}
 
 		///<summary>
@@ -159,7 +161,7 @@ namespace TriDimensionalChess.Game.ChessPieces {
 		///<param name="startSqr">The square the pawn is currently on</param>
 		///<param name="endSqr">The square to move the pawn to</param>
 		public void MovePiece(Square startSqr, Square endSqr) {
-			if (Math.Abs(startSqr.Coords.z - endSqr.Coords.z) == 2) JustMadeDSMove = true;
+			if (Math.Abs(startSqr.Rank - endSqr.Rank) == 2) JustMadeDSMove = true;
 			MoveTo(endSqr);
 		}
 
@@ -181,7 +183,7 @@ namespace TriDimensionalChess.Game.ChessPieces {
 			if (!HasDSMoveRights) return;
 
 			HasDSMoveRights = false;
-			move.MoveEvents.Add(MoveEvent.LOST_DOUBLE_SQUARE_MOVE_RIGHTS);
+			move.AddMoveEvent(MoveEvent.LOST_DOUBLE_SQUARE_MOVE_RIGHTS);
 		}
 	}
 }

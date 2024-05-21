@@ -7,13 +7,17 @@ using TriDimensionalChess.Tools;
 
 namespace TriDimensionalChess.Game.ChessPieces {
 	public sealed class PromotionController : MonoSingleton<PromotionController> {
+		#region References
 		[Header("References")]
 		[SerializeField] private GameObject _promotionUI;
 		[SerializeField] private GameObject _whiteBtns, _blackBtns;
 		[SerializeField] private Button _whiteQueenBtn, _whiteRookBtn, _whiteBishopBtn, _whiteKnightBtn, _blackQueenBtn, _blackRookBtn, _blackBishopBtn, _blackKnightBtn;
-		public bool SelectionInProgress {get => _moveInProgress != null;}
+		#endregion
+
 		private Move _moveInProgress;
 		private bool _isSecondaryPromotion;
+
+		public bool SelectionInProgress {get => _moveInProgress != null;}
 
 		protected override void Awake() {
 			base.Awake();

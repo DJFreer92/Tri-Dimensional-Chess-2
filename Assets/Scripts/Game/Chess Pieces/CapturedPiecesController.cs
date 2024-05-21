@@ -10,6 +10,7 @@ namespace TriDimensionalChess.Game.ChessPieces {
 	public sealed class CapturedPiecesController : MonoSingleton<CapturedPiecesController> {
 		public Action<PieceType, bool> OnPieceCaptured, OnCapturedPieceRemoved;
 		public Action OnCapturedPiecesCleared;
+		
 		[SerializeField] [Range(0.1f, 1f)] private float _pieceScale;
 		[SerializeField] [Range(0.25f, 2f)] private float _xSpacing, _zSpacing;
 		private List<ChessPiece> _capturedWhitePieces = new(), _capturedBlackPieces = new(), _placeholderPieces = new();

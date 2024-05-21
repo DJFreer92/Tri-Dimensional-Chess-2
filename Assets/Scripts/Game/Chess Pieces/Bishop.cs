@@ -8,6 +8,7 @@ namespace TriDimensionalChess.Game.ChessPieces {
 	public sealed class Bishop : ChessPiece {
 		//the notation and figurine characters of the bishop
 		private const string _STANDARD_CHARACTER = "B", _FIGURINE_CHARACTER = "♗";
+
 		//the directions the bishop can move in
 		private static readonly Vector2Int[] _DIRECTIONS = {
 			Vector2Int.up + Vector2Int.right,
@@ -28,11 +29,11 @@ namespace TriDimensionalChess.Game.ChessPieces {
 			foreach (var direction in _DIRECTIONS) {
 				bool blocked = false;
 				for (var dist = 1; dist <= 5; dist++) {
-					int x = direction.x * dist + square.Coords.x;
-					int z = direction.y * dist + square.Coords.z;
+					int x = direction.x * dist + square.FileIndex;
+					int z = direction.y * dist + square.Rank;
 					if (!BoardExtensions.WithinBounds(x, z)) break;
 					foreach (Square sqr in ChessBoard.Instance.EnumerableSquares()) {
-						if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
+						if (sqr.FileIndex != x || sqr.Rank != z) continue;
 						if (sqr.HasPiece()) {
 							blocked = true;
 							if (sqr.GamePiece.IsWhite == IsWhite) continue;

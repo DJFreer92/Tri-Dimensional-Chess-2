@@ -11,6 +11,9 @@ namespace TriDimensionalChess.Game {
 		private const string _PGN_SEPERATOR = "\n\n-----\n\n";
 		private const string _EXTENSION = "/game_history.save";
 
+		private string _gameSavePath;
+		private List<PGN> _gameHist;
+
 		public List<PGN> GameHistory {
 			get {
 				var hist = new List<PGN>();
@@ -19,9 +22,6 @@ namespace TriDimensionalChess.Game {
 			}
 			private set => _gameHist = value;
 		}
-
-		private string _gameSavePath;
-		private List<PGN> _gameHist;
 
 		protected override void Awake() {
 			base.Awake();

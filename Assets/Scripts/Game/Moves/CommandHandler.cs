@@ -5,6 +5,7 @@ using UnityEngine;
 namespace TriDimensionalChess.Game.Moves {
 	public class CommandHandler {
 		private readonly List<ICommand> _commands = new();
+
 		private int _index;
 
 		///<summary>

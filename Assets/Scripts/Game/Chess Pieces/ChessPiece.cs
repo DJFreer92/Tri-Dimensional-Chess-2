@@ -14,11 +14,14 @@ namespace TriDimensionalChess.Game.ChessPieces {
 		private const float _TWEEN_SPEED = 0.4f;
 		private const float _UP_ARC_HEIGHT = 1.5f;
 		private const float _DOWN_ARC_HEIGHT = 4f;
-		[field: SerializeField] public bool IsWhite {get; private set;}
+
 		public PieceType Type;
-		public bool HasBeenCaptured {get; private set;}
+
 		//the highlight component
 		private Highlight _highlight;
+
+		[field: SerializeField] public bool IsWhite {get; private set;}
+		public bool HasBeenCaptured {get; private set;}
 
 		private void Awake() {
 			//set the piece type
@@ -184,7 +187,7 @@ namespace TriDimensionalChess.Game.ChessPieces {
 				return;
 			}
 
-			if (sqr.Coords.y != GetSquare().Coords.y) {
+			if (!sqr.HeightMatch(GetSquare())) {
 				MoveInArc(sqr);
 				return;
 			}
@@ -216,7 +219,7 @@ namespace TriDimensionalChess.Game.ChessPieces {
 		///</summary>
 		///<param name="sqr">The square to move the piece to</param>
 		private void MoveInArc(Square sqr) {
-			float height = sqr.Coords.y >= GetSquare().Coords.y ? _UP_ARC_HEIGHT : _DOWN_ARC_HEIGHT;
+			float height = sqr.BrdHeight >= GetSquare().BrdHeight ? _UP_ARC_HEIGHT : _DOWN_ARC_HEIGHT;
 			transform.DOJump(sqr.transform.position, height, 1, _TWEEN_SPEED);
 		}
 

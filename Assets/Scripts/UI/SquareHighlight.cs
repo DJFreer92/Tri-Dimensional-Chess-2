@@ -1,6 +1,7 @@
 using UnityEngine;
 
 namespace TriDimensionalChess.UI {
+	[DisallowMultipleComponent]
 	public sealed class SquareHighlight : Highlight {
 		[SerializeField] private Color _captureColor = Color.red;
 		[SerializeField] private Color _availableColor = Color.green;

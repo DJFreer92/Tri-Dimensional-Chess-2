@@ -10,6 +10,7 @@ namespace TriDimensionalChess.Game.ChessPieces {
 	public sealed class King : ChessPiece {
 		//the notation and figurine characters of the king
 		private const string _STANDARD_CHARACTER = "K", _FIGURINE_CHARACTER = "♔";
+
 		//whether the king is in check
 		public bool IsInCheck;
 		//has castling rights
@@ -24,9 +25,9 @@ namespace TriDimensionalChess.Game.ChessPieces {
 			bool willBeInCheck;
 
 			//if the move is castling
-			if (move.MoveEvents.PartialContains(MoveEvent.CASTLING)) {
+			if (move.HasMoveEventOf(MoveEvent.CASTLING)) {
 				//if king side castling
-				if (Math.Abs(move.EndSqr.Coords.x - move.StartSqr.Coords.x) == 1) {
+				if (Math.Abs(move.EndSqr.FileIndex - move.StartSqr.FileIndex) == 1) {
 					//assign the pieces to their new Squares
 					move.StartSqr.GamePiece = move.EndSqr.GamePiece;
 					move.EndSqr.GamePiece = move.PieceMoved;
@@ -51,7 +52,9 @@ namespace TriDimensionalChess.Game.ChessPieces {
 				Rook rook = rookSqr.GamePiece as Rook;
 
 				//get the king's landing square
-				Square kingLandingSqr = ChessBoard.Instance.GetSquareAt(new Vector3Int(rookSqr.Coords.x + 1, rookSqr.Coords.y, rookSqr.Coords.z));
+				Square kingLandingSqr = ChessBoard.Instance.GetSquareAt(
+					new Vector3Int(rookSqr.FileIndex + 1, rookSqr.BrdHeight, rookSqr.Rank)
+				);
 
 				//assign the pieces to their new Squares
 				kingSqr.GamePiece = rook;
@@ -95,19 +98,18 @@ namespace TriDimensionalChess.Game.ChessPieces {
 			int xDiff = 0, zDiff = 0;
 
 			//calculate the change in x and z positions
-			if (Math.Abs(move.EndSqr.Coords.x - move.StartSqr.Coords.x) > 1) {  //if the board is moving in the x direction
+			if (Math.Abs(move.EndSqr.FileIndex - move.StartSqr.FileIndex) > 1) {  //if the board is moving in the x direction
 				//calculate the change in x position
-				xDiff = Math.Sign(move.EndSqr.Coords.x - move.StartSqr.Coords.x) * 4;
+				xDiff = Math.Sign(move.EndSqr.FileIndex - move.StartSqr.FileIndex) * 4;
 			} else {  //the board is moving in the z direction
 				//calculate the change in z position
-				zDiff = (move.EndSqr.Coords.y == move.BoardMoved.PinnedSquare.Coords.y) ? 4 : 2;
-				zDiff *= Math.Sign(move.EndSqr.Coords.z - move.StartSqr.Coords.z);
+				zDiff = move.EndSqr.HeightMatch(move.BoardMoved.PinnedSquare) ? 4 : 2;
+				zDiff *= Math.Sign(move.EndSqr.Rank - move.StartSqr.Rank);
 			}
 
 			//move all the Squares on the attackboard to their new positions
-			foreach (Square sqr in move.BoardMoved.Squares) {
-				sqr.Coords = new Vector3Int(sqr.Coords.x + xDiff, move.EndSqr.Coords.y + 1, sqr.Coords.z + zDiff);
-			}
+			foreach (Square sqr in move.BoardMoved.Squares)
+				sqr.Coords = new Vector3Int(sqr.FileIndex + xDiff, move.EndSqr.BrdHeight + 1, sqr.Rank + zDiff);
 
 			//determine whether the move puts the king in check
 			bool willBeInCheck = ChessBoard.Instance.GetKingCheckEvaluation(move.Player.IsWhite);
@@ -144,9 +146,8 @@ namespace TriDimensionalChess.Game.ChessPieces {
 			}
 
 			//move all the Squares on the attackboard back to their old positions
-			foreach (Square sqr in move.BoardMoved.Squares) {
-				sqr.Coords = new Vector3Int(sqr.Coords.x - xDiff, move.BoardMoved.Y, sqr.Coords.z - zDiff);
-			}
+			foreach (Square sqr in move.BoardMoved.Squares)
+				sqr.Coords = new Vector3Int(sqr.FileIndex - xDiff, move.BoardMoved.Y, sqr.Rank - zDiff);
 
 			//return whether the move put the king in check
 			return willBeInCheck;
@@ -169,13 +170,13 @@ namespace TriDimensionalChess.Game.ChessPieces {
 					Square blockingSqr = ChessBoard.Instance.GetSquareAt(sqr.Coords + Vector3Int.right);
 					if (rook.IsKingSide || (blockingSqr != null && !blockingSqr.HasPiece())) {
 						var move = new PieceMove(GetOwner(), square, sqr);
-						move.MoveEvents.Add(rook.IsKingSide ? MoveEvent.CASTLING_KING_SIDE : MoveEvent.CASTLING_QUEEN_SIDE);
+						move.AddMoveEvent(rook.IsKingSide ? MoveEvent.CASTLING_KING_SIDE : MoveEvent.CASTLING_QUEEN_SIDE);
 						if (!WillBeInCheck(move)) moves.Add(sqr);
 					}
 					continue;
 				}
-				int xDiff = Math.Abs(square.Coords.x - sqr.Coords.x);
-				int zDiff = Math.Abs(square.Coords.z - sqr.Coords.z);
+				int xDiff = Math.Abs(square.FileIndex - sqr.FileIndex);
+				int zDiff = Math.Abs(square.Rank - sqr.Rank);
 				if (xDiff > 1 || zDiff > 1 || xDiff + zDiff == 0) continue;
 				if (sqr.HasPiece() && IsSameColor(PieceOnSqr)) continue;
 				if (!WillBeInCheck(new PieceMove(GetOwner(), square, sqr))) moves.Add(sqr);
@@ -228,7 +229,7 @@ namespace TriDimensionalChess.Game.ChessPieces {
 			if (!HasCastlingRights) return;
 
 			HasCastlingRights = false;
-			move.MoveEvents.Add(MoveEvent.LOST_CASTLING_RIGHTS);
+			move.AddMoveEvent(MoveEvent.LOST_CASTLING_RIGHTS);
 		}
 
 		///<summary>

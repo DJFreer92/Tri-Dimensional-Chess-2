@@ -9,6 +9,7 @@ namespace TriDimensionalChess.Game.ChessPieces {
 	public sealed class Knight : ChessPiece {
 		//the notation and figurine characters of the knight
 		private const string _STANDARD_CHARACTER = "N", _FIGURINE_CHARACTER = "♘";
+
 		//offsets from the knight where it can move to
 		public static readonly Vector2Int[] OFFSETS = {
 			Vector2Int.up * 2 + Vector2Int.right,
@@ -31,11 +32,11 @@ namespace TriDimensionalChess.Game.ChessPieces {
 			if (IsWhite != asWhite) return moves;
 			Square square = GetSquare();
 			foreach (var offset in OFFSETS) {
-				int x = square.Coords.x + offset.x;
-				int z = square.Coords.z + offset.y;
+				int x = square.FileIndex + offset.x;
+				int z = square.Rank + offset.y;
 				if (!BoardExtensions.WithinBounds(x, z)) continue;
 				foreach (Square sqr in ChessBoard.Instance.EnumerableSquares()) {
-					if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
+					if (sqr.FileIndex != x || sqr.Rank != z) continue;
 					if (sqr.HasPiece() && IsSameColor(sqr.GamePiece)) continue;
 					if (!King.WillBeInCheck(new PieceMove(GetOwner(), square, sqr))) moves.Add(sqr);
 				}
@@ -61,8 +62,8 @@ namespace TriDimensionalChess.Game.ChessPieces {
 		public bool IsPathClear(Square destination, bool straightFirst) {
 			Square curSqr = GetSquare();
 			Vector3Int direction;
-			int xDist = destination.Coords.x - curSqr.Coords.x;
-			int zDist = destination.Coords.z - curSqr.Coords.z;
+			int xDist = destination.FileIndex - curSqr.FileIndex;
+			int zDist = destination.Rank - curSqr.Rank;
 
 			direction = straightFirst ? Vector3Int.forward : Vector3Int.right;
 			int dist = straightFirst ? zDist : xDist;

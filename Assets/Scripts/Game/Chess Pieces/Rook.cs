@@ -8,6 +8,10 @@ namespace TriDimensionalChess.Game.ChessPieces {
 	public sealed class Rook : ChessPiece {
 		//the notation and figurine characters of the rook
 		private const string _STANDARD_CHARACTER = "R", _FIGURINE_CHARACTER = "♖";
+
+		//has castling rights
+		public bool HasCastlingRights = true;
+
 		//the directions the rook can move in
 		private static readonly Vector2Int[] _DIRECTIONS = {
 			Vector2Int.up,
@@ -15,8 +19,7 @@ namespace TriDimensionalChess.Game.ChessPieces {
 			Vector2Int.left,
 			Vector2Int.right
 		};
-		//has castling rights
-		public bool HasCastlingRights = true;
+
 		//whether the rook starts on the king side
 		[field: SerializeField] public bool IsKingSide {get; private set;}
 
@@ -40,11 +43,11 @@ namespace TriDimensionalChess.Game.ChessPieces {
 			foreach (var direction in _DIRECTIONS) {
 				bool blocked = false;
 				for (var dist = 1; dist <= 9; dist++) {
-					int x = direction.x * dist + square.Coords.x;
-					int z = direction.y * dist + square.Coords.z;
+					int x = direction.x * dist + square.FileIndex;
+					int z = direction.y * dist + square.Rank;
 					if (!BoardExtensions.WithinBounds(x, z)) break;
 					foreach (Square sqr in ChessBoard.Instance.EnumerableSquares()) {
-						if (sqr.Coords.x != x || sqr.Coords.z != z) continue;
+						if (sqr.FileIndex != x || sqr.Rank != z) continue;
 						ChessPiece PieceOnSqr = sqr.GamePiece;
 						if (sqr.HasPiece()) {
 							blocked = true;
@@ -54,7 +57,7 @@ namespace TriDimensionalChess.Game.ChessPieces {
 								if (PieceOnSqr is not King || !king.HasCastlingRights || king.IsInCheck) continue;
 								if (!IsKingSide && ChessBoard.Instance.GetSquareAt(square.Coords + Vector3Int.right).HasPiece()) continue;
 								var move = new PieceMove(GetOwner(), square, sqr);
-								move.MoveEvents.Add(IsKingSide ? MoveEvent.CASTLING_KING_SIDE : MoveEvent.CASTLING_QUEEN_SIDE);
+								move.AddMoveEvent(IsKingSide ? MoveEvent.CASTLING_KING_SIDE : MoveEvent.CASTLING_QUEEN_SIDE);
 								if (!King.WillBeInCheck(move)) moves.Add(sqr);
 								continue;
 							}
@@ -84,7 +87,7 @@ namespace TriDimensionalChess.Game.ChessPieces {
 			if (!HasCastlingRights) return;
 
 			HasCastlingRights = false;
-			move.MoveEvents.Add(MoveEvent.LOST_CASTLING_RIGHTS);
+			move.AddMoveEvent(MoveEvent.LOST_CASTLING_RIGHTS);
 		}
 	}
 }
