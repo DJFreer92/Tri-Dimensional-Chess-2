@@ -58,8 +58,8 @@ namespace TriDimensionalChess.Game.Boards {
 			List<ChessPiece> pieces = GetPieces();
 			if (pieces.Count != 1) return moves;
 			if (pieces[0].IsWhite != asWhite) return moves;
-			foreach (Board brd in ChessBoard.Instance) {
-				if (brd is AttackBoard || Math.Abs(brd.Y - PinnedSquare.BrdHeight) > 2) continue;
+			foreach (Board brd in ChessBoard.Instance.MainBoards) {
+				if (Math.Abs(brd.Y - PinnedSquare.BrdHeight) > 2) continue;
 				foreach (PinSquare sqr in brd.PinSquares) {
 					if (IsInverted ? sqr.IsBottomPinOccupied() : sqr.IsTopPinOccupied()) continue;
 					int xDiff = sqr.FileIndex - PinnedSquare.FileIndex;

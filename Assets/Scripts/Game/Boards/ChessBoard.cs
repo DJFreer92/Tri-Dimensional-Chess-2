@@ -60,8 +60,12 @@ namespace TriDimensionalChess.Game.Boards {
 		//attackboard prefab gameobject
 		[SerializeField] private GameObject _attackboardPrefab;
 
-		//holds the boards of the chessboard
+		//holds the boards of the chess board
 		[field: SerializeField] public List<Board> Boards {get; private set;}
+		//holds the main boards of the chess board
+		public Board[] MainBoards {get; private set;}
+		//holds the attack board of the chess board
+		public List<AttackBoard> AttackBoards {get; private set;}
 
 		///<summary>
 		///Constructs a chessboard position from a FEN position
@@ -92,6 +96,7 @@ namespace TriDimensionalChess.Game.Boards {
 					);
 					AttackBoard ab = abGameObject.GetComponent<AttackBoard>();
 					Boards.Insert(i, ab);
+					AttackBoards.Add(ab);
 					ab.Owner = (Ownership) char.ToUpper(atckbrd[0]);
 					ab.IsInverted = inverted;
 					ab.Y = pinSqr.BrdHeight + (inverted ? -1 : 1);
@@ -427,11 +432,11 @@ namespace TriDimensionalChess.Game.Boards {
 		///<param name="whiteAttacking">The color of attackboard to be moving</param>
 		///<returns>Whether there is an attack board, excluding the given attackboard, of the given color that can move to the given pin</returns>
 		public bool CanMultipleAttackBoardsMoveToPin(Square pinSqrToMoveTo, AttackBoard abToIgnore, bool inverted, bool whiteAttacking) {
-			foreach (Board brd in this) {
-				if (brd is not AttackBoard || brd == abToIgnore) continue;
-				if ((brd as AttackBoard).IsInverted != inverted) continue;
+			foreach (AttackBoard ab in AttackBoards) {
+				if (ab == abToIgnore) continue;
+				if (ab.IsInverted != inverted) continue;
 
-				if ((brd as AttackBoard).GetAvailableMoves(whiteAttacking).Contains(pinSqrToMoveTo)) return true;
+				if (ab.GetAvailableMoves(whiteAttacking).Contains(pinSqrToMoveTo)) return true;
 			}
 
 			return false;

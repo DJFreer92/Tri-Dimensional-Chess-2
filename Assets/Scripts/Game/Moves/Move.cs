@@ -141,10 +141,9 @@ namespace TriDimensionalChess.Game.Moves {
 
 				endSqr = ChessBoard.Instance.GetSquareAt(notatedMove[startIndex..endIndex].BoardToVector());
 
-				foreach (Board brd in ChessBoard.Instance) {
-					if (brd is not AttackBoard) continue;
-					if (!(brd as AttackBoard).GetAvailableMoves(isWhite).Contains(endSqr)) continue;
-					startSqr = brd.Squares[0];
+				foreach (AttackBoard ab in ChessBoard.Instance.AttackBoards) {
+					if (!ab.GetAvailableMoves(isWhite).Contains(endSqr)) continue;
+					startSqr = ab.Squares[0];
 					break;
 				}
 			} else {  //piece move
