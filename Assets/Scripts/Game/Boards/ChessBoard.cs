@@ -5,13 +5,20 @@ using UnityEngine;
 using System.Text;
 
 using TriDimensionalChess.Game.ChessPieces;
-using TriDimensionalChess.Game.Moves;
 using TriDimensionalChess.Game.Notation;
 using TriDimensionalChess.Tools;
+
+using static TriDimensionalChess.Game.Boards.ChessBoard;
 
 namespace TriDimensionalChess.Game.Boards {
 	[DisallowMultipleComponent]
 	public sealed class ChessBoard : MonoSingleton<ChessBoard>, IEnumerable {
+		public const int MIN_INT_FILE = 0, MAX_INT_FILE = 5;
+		public const int MIN_RANK = 0, MAX_RANK = 9;
+		public const int MIN_INT_BOARD = -1, MAX_INT_BOARD = 5;
+
+		public static readonly char[] FILES = {'z', 'a', 'b', 'c', 'd', 'e'};
+		public static readonly string[] MAIN_BOARDS = {"W", "N", "B"};
 		//coordinates of castling pieces
 		#region Castling Coordinates
 		public static readonly Vector3Int WhiteKingCoords = new(4, 1, 0);
@@ -49,8 +56,10 @@ namespace TriDimensionalChess.Game.Boards {
 			{"KL5", new Vector3Int(4, 4, 5)},
 			{"KL6", new Vector3Int(4, 4, 8)}
 		};
+
 		//attackboard prefab gameobject
 		[SerializeField] private GameObject _attackboardPrefab;
+
 		//holds the boards of the chessboard
 		[field: SerializeField] public List<Board> Boards {get; private set;}
 
@@ -62,25 +71,20 @@ namespace TriDimensionalChess.Game.Boards {
 			//clear the current position
 			Clear();
 
-			//get relevant sections of FEN
-			string attackboards = fen.GetABPositions();
-			string pieces = fen.GetPiecePositions();
-			string castling = fen.GetCastlingRights();
-			string enPassant = fen.GetEnPassant();
-
 			//attackboards
+			string[] attackboards = fen.GetABPositions().Split('/');
 			if (attackboards != null) {
-				for (int i = 0; i < (attackboards.Length / 2); i++) {
-					string atckbrd = attackboards.Substring(i * 2, 2);
+				for (int i = 0; i < attackboards.Length; i++) {
+					string atckbrd = attackboards[i];
 					bool queenSide = char.IsLower(atckbrd[0]);
-					int rank = (int) char.GetNumericValue(atckbrd[^1]);
-					Square pinSqr = GetSquareAt(_ABPins[(queenSide ? "QL" : "KL") + atckbrd[^1]]);
-					pinSqr.IsOccupiedByAB = true;
+					bool inverted = atckbrd[^1] == 'I';
+					int rank = (int) char.GetNumericValue(atckbrd[inverted ? ^2 : ^1]);
+					PinSquare pinSqr = GetSquareAt(_ABPins[(queenSide ? "QL" : "KL") + atckbrd[^1]]) as PinSquare;
 					GameObject abGameObject = Instantiate(
 						_attackboardPrefab,
 						new Vector3(
 							pinSqr.gameObject.transform.position.x + (queenSide ? -0.5f : 0.5f),
-							pinSqr.gameObject.transform.position.y + 1.5f,
+							pinSqr.gameObject.transform.position.y + (inverted ? -1.5f : 1.5f),
 							pinSqr.gameObject.transform.position.z + ((rank % 2 == 1) ? -0.5f : 0.5f)
 						),
 						Quaternion.identity,
@@ -89,8 +93,10 @@ namespace TriDimensionalChess.Game.Boards {
 					AttackBoard ab = abGameObject.GetComponent<AttackBoard>();
 					Boards.Insert(i, ab);
 					ab.Owner = (Ownership) char.ToUpper(atckbrd[0]);
-					ab.Y = pinSqr.Coords.y + 1;
+					ab.IsInverted = inverted;
+					ab.Y = pinSqr.BrdHeight + (inverted ? -1 : 1);
 					ab.SetPinnedSquare(pinSqr);
+					pinSqr.TopPin = ab;
 					foreach (Square sqr in ab) {
 						sqr.Coords += new Vector3Int(
 							queenSide ? 0 : 4,
@@ -102,6 +108,7 @@ namespace TriDimensionalChess.Game.Boards {
 			}
 
 			//pieces
+			string pieces = fen.GetPiecePositions();
 			//pieces on main boards
 			string[] boardPieces = pieces.Split('|');
 			for (int i = 0; i < 3; i++) {
@@ -117,7 +124,8 @@ namespace TriDimensionalChess.Game.Boards {
 							continue;
 						}
 						Square sqr = brd.GetSquareAt(new Vector3Int(x, 4 - i * 2, 8 - i * 2 - z));
-						PieceCreator.Instance.CreatePiece(rankPieces[piecesIndex].CharToPieceColor(), sqr);
+						ChessPiece piece = PieceCreator.Instance.CreatePiece(rankPieces[piecesIndex].CharToPieceColor(), sqr);
+						if (char.ToUpper(rankPieces[piecesIndex]) == 'P') (piece as Pawn).HasDSMoveRights = false;
 					}
 				}
 			}
@@ -142,6 +150,7 @@ namespace TriDimensionalChess.Game.Boards {
 			}
 
 			//castling
+			string castling = fen.GetCastlingRights();
 			if (castling != null) {
 				foreach (Square sqr in EnumerableSquares()) {
 					if (sqr.GamePiece is Rook) (sqr.GamePiece as Rook).HasCastlingRights = false;
@@ -165,6 +174,7 @@ namespace TriDimensionalChess.Game.Boards {
 			}
 
 			//en passant
+			string enPassant = fen.GetEnPassant();
 			if (enPassant != null) {
 				(GetSquareAt(
 					new Vector3Int(enPassant[0].FileToIndex(),
@@ -270,7 +280,7 @@ namespace TriDimensionalChess.Game.Boards {
 			//check for attacking pieces
 			foreach (var direction in _XZDirections) {
 				//get the x and z coordinates of the square
-				int x = square.Coords.x, z = square.Coords.z;
+				int x = square.FileIndex, z = square.Rank;
 
 				bool end = false;
 				while (!end) {
@@ -284,7 +294,7 @@ namespace TriDimensionalChess.Game.Boards {
 					//loop for squares at the desired coordinates
 					foreach (Square sqr in EnumerableSquares()) {
 						//if there is not a piece on the square or the coordinates do not match the coordinates of the square, continue checking squares
-						if (!sqr.HasPiece() || sqr.Coords.x != x || sqr.Coords.z != z) continue;
+						if (!sqr.HasPiece() || sqr.FileIndex != x || sqr.Rank != z) continue;
 
 						//mark for the while loop to end after this iteration
 						end = true;
@@ -294,8 +304,8 @@ namespace TriDimensionalChess.Game.Boards {
 
 						switch (sqr.GamePiece.Type) {
 							case PieceType.KING:
-								int xDiff = Math.Abs(square.Coords.x - x);
-								int zDiff = Math.Abs(square.Coords.z - z);
+								int xDiff = Math.Abs(square.FileIndex - x);
+								int zDiff = Math.Abs(square.Rank - z);
 								//if the piece is one square away, return attacker found
 								if (xDiff <= 1 && zDiff <= 1 && xDiff + zDiff != 0) return true;
 							continue;
@@ -313,7 +323,7 @@ namespace TriDimensionalChess.Game.Boards {
 								//if the pawn is in range to attack the piece and the pawn is facing the correct direction, return attacker found
 								if (direction[0] != 0 &&
 									direction[1] != 0 &&
-									(Math.Abs(square.Coords.x - x) == 1) &&
+									(Math.Abs(square.FileIndex - x) == 1) &&
 									direction[1] == (sqr.GamePiece.IsWhite ? -1 : 1)
 								) return true;
 							continue;
@@ -325,8 +335,8 @@ namespace TriDimensionalChess.Game.Boards {
 			//loop through all the possible knight offsets
 			foreach (var offset in Knight.OFFSETS) {
 				//get the x and z coordinates of the square and modify by the knight offset
-				int x = square.Coords.x + offset.x;
-				int z = square.Coords.z + offset.y;
+				int x = square.FileIndex + offset.x;
+				int z = square.Rank + offset.y;
 
 				//if the x and z coordinates are out of bounds of the board, check the next offset
 				if (!BoardExtensions.WithinBounds(x, z)) continue;
@@ -340,7 +350,7 @@ namespace TriDimensionalChess.Game.Boards {
 					if (attackingPiecesAreWhite != sqr.GamePiece.IsWhite) continue;
 
 					//if there is a knight at the desired coordinates, return attacker found
-					if (sqr.Coords.x == x && sqr.Coords.z == z && sqr.GamePiece is Knight) return true;
+					if (sqr.FileIndex == x && sqr.Rank == z && sqr.GamePiece is Knight) return true;
 				}
 			}
 
@@ -416,9 +426,10 @@ namespace TriDimensionalChess.Game.Boards {
 		///<param name="abToIgnore">The attackbaord to ignore</param>
 		///<param name="whiteAttacking">The color of attackboard to be moving</param>
 		///<returns>Whether there is an attack board, excluding the given attackboard, of the given color that can move to the given pin</returns>
-		public bool CanMultipleAttackBoardsMoveToPin(Square pinSqrToMoveTo, AttackBoard abToIgnore, bool whiteAttacking) {
+		public bool CanMultipleAttackBoardsMoveToPin(Square pinSqrToMoveTo, AttackBoard abToIgnore, bool inverted, bool whiteAttacking) {
 			foreach (Board brd in this) {
 				if (brd is not AttackBoard || brd == abToIgnore) continue;
+				if ((brd as AttackBoard).IsInverted != inverted) continue;
 
 				if ((brd as AttackBoard).GetAvailableMoves(whiteAttacking).Contains(pinSqrToMoveTo)) return true;
 			}
@@ -449,7 +460,7 @@ namespace TriDimensionalChess.Game.Boards {
 						else blackBishop = piece as Bishop;
 					}
 					//return whether there is sufficent material to continue the game based on whether the bishops are on opposite colors or not
-					return whiteBishop.GetSquare().IsWhite() == blackBishop.GetSquare().IsWhite();
+					return whiteBishop.GetSquare().IsLightSquare() == blackBishop.GetSquare().IsLightSquare();
 			}
 
 			//there is sufficent material to continue the game
@@ -491,12 +502,12 @@ namespace TriDimensionalChess.Game.Boards {
 		///<returns>An enumerable piece behind the given square</returns>
 		public IEnumerable<ChessPiece> GetPiecesBehind(Square square, bool isBehindWhite) {
 			//get the z coordinate for the square behind the given square
-			int z = square.Coords.z + (isBehindWhite ? -1 : 1);
+			int z = square.Rank + (isBehindWhite ? -1 : 1);
 
 			//loop all the Squares
 			foreach (Square sqr in EnumerableSquares()) {
 				//if the coordinates match and the square has a piece, yield and return the piece
-				if (sqr.Coords.x == square.Coords.x && sqr.Coords.z == z && sqr.HasPiece()) yield return sqr.GamePiece;
+				if (sqr.FileMatch(square) && sqr.Rank == z && sqr.HasPiece()) yield return sqr.GamePiece;
 			}
 		}
 
@@ -532,7 +543,8 @@ namespace TriDimensionalChess.Game.Boards {
 		///<param name="x">The x coordinate</param>
 		///<param name="z">The z coordinate</param>
 		///<returns>Whether the given x and z coordinates are within the bounds of the board</returns>
-		public static bool WithinBounds(this int x, int z) => x >= 0 && x <= 5 && z >= 0 && z <= 9;
+		public static bool WithinBounds(this int x, int z) =>
+			x >= MIN_INT_FILE && x <= MAX_INT_FILE && z >= MIN_RANK && z <= MAX_RANK;
 
 		///<summary>
 		///Returns whether the given coordinates are within the bounds of the board
@@ -548,6 +560,7 @@ namespace TriDimensionalChess.Game.Boards {
 		///<param name="y">The y coordinate</param>
 		///<param name="z">The z coordinate</param>
 		///<returns>Whether the given coordinates are within the bounds of the board</returns>
-		public static bool WithinBounds(this int x, int y, int z) => x >= 0 && x <= 5 && y >= 0 && y <= 5 && z >= 0 && z <= 9;
+		public static bool WithinBounds(this int x, int y, int z) =>
+			x >= MIN_INT_FILE && x <= MAX_INT_FILE && y >= MIN_INT_BOARD && y <= MAX_INT_BOARD && z >= MIN_RANK && z <= MAX_RANK;
 	}
 }

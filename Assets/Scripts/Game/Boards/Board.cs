@@ -6,24 +6,36 @@ using UnityEngine;
 using System.Text;
 
 using TriDimensionalChess.Game.ChessPieces;
-using TriDimensionalChess.Game.Moves;
 
 namespace TriDimensionalChess.Game.Boards {
 	[DisallowMultipleComponent]
 	public class Board : MonoBehaviour, IEnumerable {
-		private static readonly char[] _FILE_ORDER = {'z', 'a', 'b', 'c', 'd', 'e'};
+		//the height of the board
 		public int Y;
-		//squares on the board
-		public List<Square> Squares {get; private set;}
 		//holds if the owner of the attackboard is white, black, or if it is neutral
 		public Ownership Owner;
+
+		//squares on the board
+		public List<Square> Squares {get; private set;}
+		//pin squares on the board
+		public List<PinSquare> PinSquares {get; private set;}
 		//notation of the board
 		public string Notation {get; protected set;}
 
 		private void Awake() {
 			Squares = GetComponentsInChildren<Square>().ToList();
-			SetBoardNotation();
+
+			if (this is AttackBoard) return;
+
+			PinSquares = new();
+			foreach (Square sqr in this)
+				if (sqr is PinSquare) PinSquares.Add(sqr as PinSquare);
 		}
+
+		///<summary>
+		///Initialize the board
+		///</summary>
+		public void Init() => SetBoardNotation();
 
 		///<summary>
 		///Clears the board
@@ -84,20 +96,18 @@ namespace TriDimensionalChess.Game.Boards {
 		public Square[] GetSortedSquares() {
 			Square[] sqrs = Squares.ToArray();
 			for (int i = 0; i < sqrs.Length; i++) {
-				int maxIndex = Int16.MinValue;
-				int maxValue = Int16.MinValue;
+				int maxIndex = int.MinValue;
+				int maxValue = int.MinValue;
 				for (int j = i; j < sqrs.Length; j++) {
-					int value = sqrs[j].Coords.z * 5 + Array.IndexOf(_FILE_ORDER, sqrs[j].Coords.x);
+					int value = sqrs[j].Rank * 5 + Array.IndexOf(ChessBoard.FILES, sqrs[j].FileIndex);
 					if (value <= maxValue) continue;
 					maxIndex = j;
 					maxValue = value;
 				}
 				if (i == maxIndex) continue;
-				var temp = sqrs[i];
-				sqrs[i] = sqrs[maxIndex];
-				sqrs[maxIndex] = temp;
-			}
-			return sqrs;
+                (sqrs[maxIndex], sqrs[i]) = (sqrs[i], sqrs[maxIndex]);
+            }
+            return sqrs;
 		}
 
 		///<summary>

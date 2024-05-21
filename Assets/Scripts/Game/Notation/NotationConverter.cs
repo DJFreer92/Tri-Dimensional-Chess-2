@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+using TriDimensionalChess.Game.Boards;
 using TriDimensionalChess.Game.ChessPieces;
 
 using static TriDimensionalChess.Game.ChessPieces.PieceType;
@@ -9,9 +10,6 @@ using static TriDimensionalChess.Game.ChessPieces.PieceTypeColor;
 
 namespace TriDimensionalChess.Game.Notation {
 	public static class NotationConverter {
-		private const int _MAX_INT_FILE = 5, _MAX_RANK = 9, _MAX_INT_BOARD = 5;
-		private static readonly char[] _FILES = {'z', 'a', 'b', 'c', 'd', 'e'};
-		private static readonly string[] _MAIN_BOARDS = {"W", "N", "B"};
 		private static readonly Dictionary<char, PieceType> _PIECES_TYPE = new() {
 			{'K', KING},
 			{'Q', QUEEN},
@@ -37,21 +35,6 @@ namespace TriDimensionalChess.Game.Notation {
 		};
 
 		///<summary>
-		///Converts the vector of a square into a notation
-		///</summary>
-		///<params name="coords">The vector of a square</params>
-		///<returns>Notation of the square</returns>
-		public static string VectorToNotation(this Vector3Int coords) {
-			if (coords.x < 0) throw new ArgumentOutOfRangeException("File cannot be negative");
-			if (coords.y < 0) throw new ArgumentOutOfRangeException("Board cannot be negative");
-			if (coords.z < 0) throw new ArgumentOutOfRangeException("Rank cannot be negative");
-			if (coords.x > _MAX_INT_FILE) throw new ArgumentOutOfRangeException("File out of range");
-			if (coords.y > _MAX_INT_BOARD) throw new ArgumentOutOfRangeException("Board out of range");
-			if (coords.z > _MAX_RANK) throw new ArgumentOutOfRangeException("Rank out of range");
-			return $"{coords.x.IndexToFile()}{coords.z}{coords.VectorToBoard()}";
-		}
-
-		///<summary>
 		///Converts a notation into a vector of a square
 		///</summary>
 		///<param name="notation">The square notation</param>
@@ -60,8 +43,8 @@ namespace TriDimensionalChess.Game.Notation {
 			if (notation == null) throw new ArgumentNullException(nameof(notation), "Notation cannot be null");
 
 			return new Vector3Int(
-				Array.IndexOf(_FILES, notation[0]),
-				BoardToIndex(notation[notation.Length == 3 ? 2.. : 2..5]),
+				Array.IndexOf(ChessBoard.FILES, notation[0]),
+				BoardToIndex(notation[2..]),
 				(int) char.GetNumericValue(notation[1])
 			);
 		}
@@ -72,9 +55,9 @@ namespace TriDimensionalChess.Game.Notation {
 		///<params name="index">The index of the file</params>
 		///<returns>The file of the given index</returns>
 		public static char IndexToFile(this int index) {
-			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), "Index cannot be negative");
-			if (index > _MAX_INT_FILE) throw new ArgumentOutOfRangeException(nameof(index), "Index out of range");
-			return _FILES[index];
+			if (index < ChessBoard.MIN_INT_FILE || index > ChessBoard.MAX_INT_FILE)
+				throw new ArgumentOutOfRangeException(nameof(index), "Index out of range");
+			return ChessBoard.FILES[index];
 		}
 
 		///<summary>
@@ -83,43 +66,9 @@ namespace TriDimensionalChess.Game.Notation {
 		///<params name="file">The file</params>
 		///<returns>The index of the given file</returns>
 		public static int FileToIndex(this char file) {
-			int index = Array.IndexOf(_FILES, file);
-			if (index == -1) throw new ArgumentException("Invalid file");
+			int index = Array.IndexOf(ChessBoard.FILES, file);
+			if (index == -1) throw new ArgumentException(nameof(file), "Invalid file");
 			return index;
-		}
-
-		///<summary>
-		///Converts a vector of a square into a board notation
-		///</summary>
-		///<params name="coords">The vector of a square</params>
-		///<returns>The notation of the board</returns>
-		public static string VectorToBoard(this Vector3Int coords) {
-			if (coords.y < 0) throw new ArgumentOutOfRangeException("Board cannot be negative");
-			if (coords.y > _MAX_INT_BOARD) throw new ArgumentOutOfRangeException("Board out of range");
-
-			if (coords.y % 2 == 0) return _MAIN_BOARDS[coords.y / 2];
-
-			if (coords.x < 0) throw new ArgumentOutOfRangeException("File cannot be negative");
-			if (coords.z < 0) throw new ArgumentOutOfRangeException("Rank cannot be negative");
-			if (coords.x > _MAX_INT_FILE) throw new ArgumentOutOfRangeException("File out of range");
-			if (coords.z > _MAX_RANK) throw new ArgumentOutOfRangeException("Rank out of range");
-
-			if (coords.x == 2 || coords.x == 3) throw new ArgumentException("Invalid position");
-
-			string str = (coords.x <= 1) ? "QL" : "KL";
-			switch (coords.z) {
-				case 0: case 1: str += "1";
-				break;
-				case 2: case 3: str += "3";
-				break;
-				case 4: case 5: str += (coords.y == 2) ? "2" : "5";
-				break;
-				case 6: case 7: str += "4";
-				break;
-				case 8: case 9: str += "6";
-				break;
-			}
-			return str;
 		}
 
 		///<summary>
@@ -130,11 +79,14 @@ namespace TriDimensionalChess.Game.Notation {
 		public static int BoardToIndex(this string board) {
 			if (board == null) throw new ArgumentNullException(nameof(board), "Board notation cannot be null");
 
-			int x = Array.IndexOf(_MAIN_BOARDS, board);
+			int x = Array.IndexOf(ChessBoard.MAIN_BOARDS, board);
 			if (x != -1) return x * 2;
 
-			x = (int) char.GetNumericValue(board[^1]);
-			return (x % 2 == 0) ? (x - 1) : x;
+			bool inverted = board[^1] == 'I';
+
+			x = (int) char.GetNumericValue(board[inverted ? ^2 : ^1]);
+			x = (x % 2 == 0) ? (x - 1) : x;
+			return inverted ? x - 2 : x;
 		}
 
 		///<summary>
